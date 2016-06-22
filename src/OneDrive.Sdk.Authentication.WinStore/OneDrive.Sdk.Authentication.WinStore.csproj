@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A8C54259-542C-40AC-AEB6-EEFC3AA79859}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.OneDrive.Sdk.Authentication</RootNamespace>
+    <AssemblyName>Microsoft.OneDrive.Sdk.Authentication.WinStore</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile32</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>true</DelaySign>
+    <AssemblyOriginatorKeyFile>..\..\build\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <TargetPlatform Include="Windows, Version=8.1" />
+    <TargetPlatform Include="WindowsPhoneApp, Version=8.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\AccountSession.cs">
+      <Link>AccountSession.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\CredentialCache.cs">
+      <Link>CredentialCache.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\CredentialCacheKey.cs">
+      <Link>CredentialCacheKey.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\CredentialCacheNotificationArgs.cs">
+      <Link>CredentialCacheNotificationArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\IOAuthRequestStringBuilder.cs">
+      <Link>IOAuthRequestStringBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthConstants.cs">
+      <Link>OAuthConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthErrorHandler.cs">
+      <Link>OAuthErrorHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthRequestStringBuilder.cs">
+      <Link>OAuthRequestStringBuilder.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="WebAuthenticationBrokerAuthenticationProvider.cs" />
+    <Compile Include="WebAuthenticationBrokerWebAuthenticationUi.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Graph.Core">
+      <HintPath>..\OneDrive.Sdk.Authentication.Common\Microsoft.Graph.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.OneDrive.Sdk">
+      <HintPath>..\OneDrive.Sdk.Authentication.Common\Microsoft.OneDrive.Sdk.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

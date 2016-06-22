@@ -9,15 +9,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DCCB3FE7-503
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E3420757-567A-457F-9803-56270E2C80D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneDriveSdk.WindowsForms", "src\OneDriveSdk.WindowsForms\OneDriveSdk.WindowsForms.csproj", "{C48558A9-320F-464D-BEF4-48266F3CF2D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneDrive.Sdk.Authentication.Desktop", "src\OneDrive.Sdk.Authentication.Desktop\OneDrive.Sdk.Authentication.Desktop.csproj", "{C48558A9-320F-464D-BEF4-48266F3CF2D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneDriveSdk.WinRT", "src\OneDriveSdk.WinRT\OneDriveSdk.WinRT.csproj", "{9F6BB55B-3985-42E8-88DE-CE10A39C6389}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneDrive.Sdk.Authentication.WinRT", "src\OneDrive.Sdk.Authentication.WinRT\OneDrive.Sdk.Authentication.WinRT.csproj", "{9F6BB55B-3985-42E8-88DE-CE10A39C6389}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneDriveSdk.WinStore", "src\OneDriveSdk.WinStore\OneDriveSdk.WinStore.csproj", "{A8C54259-542C-40AC-AEB6-EEFC3AA79859}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneDrive.Sdk.Authentication.WinStore", "src\OneDrive.Sdk.Authentication.WinStore\OneDrive.Sdk.Authentication.WinStore.csproj", "{A8C54259-542C-40AC-AEB6-EEFC3AA79859}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.OneDriveSdk.WindowsForms", "tests\Test.OneDriveSdk.WindowsForms\Test.OneDriveSdk.WindowsForms.csproj", "{6C0D57DC-89C6-4313-BB2C-2CCB662AFDFB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.OneDrive.Sdk.Authentication.Desktop", "tests\Test.OneDrive.Sdk.Authentication.Desktop\Test.OneDrive.Sdk.Authentication.Desktop.csproj", "{6C0D57DC-89C6-4313-BB2C-2CCB662AFDFB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.OneDriveSdk.WinRT", "tests\Test.OneDriveSdk.WinRT\Test.OneDriveSdk.WinRT.csproj", "{61BCEAD9-36D4-49B6-9B0F-1999CDCD149F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.OneDrive.Sdk.Authentication.WinRT", "tests\Test.OneDrive.Sdk.Authentication.WinRT\Test.OneDrive.Sdk.Authentication.WinRT.csproj", "{61BCEAD9-36D4-49B6-9B0F-1999CDCD149F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
