@@ -56,7 +56,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
                 OAuthHelperTests.AppId,
                 OAuthHelperTests.ReturnUrl,
                 this.scopes,
-                null);
+                null).ConfigureAwait(false);
 
             Assert.IsNull(code, "Unexpected code returned.");
         }
@@ -134,7 +134,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
                     OAuthHelperTests.AppId,
                     OAuthHelperTests.ClientSecret,
                     OAuthHelperTests.ReturnUrl,
-                    this.scopes);
+                    this.scopes).ConfigureAwait(false);
             }
             catch (ServiceException serviceException)
             {
@@ -158,7 +158,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
                     /* refreshToken */ null,
                     OAuthHelperTests.AppId,
                     OAuthHelperTests.ReturnUrl,
-                    this.scopes);
+                    this.scopes).ConfigureAwait(false);
             }
             catch (ServiceException serviceException)
             {

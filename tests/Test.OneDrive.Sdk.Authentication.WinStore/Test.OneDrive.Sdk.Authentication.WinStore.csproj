@@ -115,7 +115,7 @@
     <SDKReference Include="TestPlatform, Version=14.0" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AuthenticationProviderTests.cs" />
+    <Compile Include="MsaAuthenticationProviderTests.cs" />
     <Compile Include="Mocks\MockCredentialCache.cs" />
     <Compile Include="Mocks\MockSerializer.cs" />
     <Compile Include="Mocks\MockHttpProvider.cs" />
@@ -157,6 +157,13 @@
     <Reference Include="Microsoft.OneDrive.Sdk">
       <HintPath>..\..\src\OneDrive.Sdk.Authentication.Common\Microsoft.OneDrive.Sdk.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.6.0.2\lib\netcore45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

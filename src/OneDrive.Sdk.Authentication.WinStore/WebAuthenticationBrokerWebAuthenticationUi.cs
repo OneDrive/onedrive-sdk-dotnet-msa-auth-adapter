@@ -27,7 +27,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             // Attempt to authentication without prompting the user first.
             try
             {
-                result = await this.AuthenticateAsync(requestUri, callbackUri, WebAuthenticationOptions.SilentMode);
+                result = await this.AuthenticateAsync(requestUri, callbackUri, WebAuthenticationOptions.SilentMode).ConfigureAwait(false);
             }
             catch (Exception)
             {
@@ -62,11 +62,11 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             throw new ServiceException(new Error { Code = OAuthConstants.ErrorCodes.AuthenticationCanceled });
         }
 
-        private async Task<WebAuthenticationResult> AuthenticateAsync(Uri requestUri, Uri callbackUri, WebAuthenticationOptions authenticationOptions)
+        private Task<WebAuthenticationResult> AuthenticateAsync(Uri requestUri, Uri callbackUri, WebAuthenticationOptions authenticationOptions)
         {
             return callbackUri == null
-                ? await WebAuthenticationBroker.AuthenticateAsync(authenticationOptions, requestUri)
-                : await WebAuthenticationBroker.AuthenticateAsync(authenticationOptions, requestUri, callbackUri);
+                ? WebAuthenticationBroker.AuthenticateAsync(authenticationOptions, requestUri).AsTask()
+                : WebAuthenticationBroker.AuthenticateAsync(authenticationOptions, requestUri, callbackUri).AsTask();
         }
     }
 }

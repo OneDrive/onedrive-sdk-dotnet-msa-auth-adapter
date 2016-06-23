@@ -36,7 +36,7 @@ namespace Test.OneDrive.Sdk.Authentication.WinStore
     using Windows.Security.Authentication.Web;
 
     [TestClass]
-    public class AuthenticationProviderTests
+    public class MsaAuthenticationProviderTests
     {
         private readonly string appId = "app ID";
         private readonly string returnUrl = "https://localhost/return";
@@ -90,7 +90,7 @@ namespace Test.OneDrive.Sdk.Authentication.WinStore
                     }
                 };
 
-                var authenticationProvider = new AuthenticationProvider(
+                var authenticationProvider = new MsaAuthenticationProvider(
                     this.appId,
                     this.returnUrl,
                     this.scopes,
@@ -99,7 +99,7 @@ namespace Test.OneDrive.Sdk.Authentication.WinStore
 
                 authenticationProvider.webAuthenticationUi = this.webAuthenticationUi;
 
-                await authenticationProvider.AuthenticateUserAsync();
+                await authenticationProvider.AuthenticateUserAsync().ConfigureAwait(false);
 
                 Assert.IsNotNull(authenticationProvider.CurrentAccountSession, "No account session returned.");
                 Assert.AreEqual(token, authenticationProvider.CurrentAccountSession.AccessToken, "Unexpected token returned.");
@@ -146,7 +146,7 @@ namespace Test.OneDrive.Sdk.Authentication.WinStore
                     }
                 };
 
-                var authenticationProvider = new AuthenticationProvider(
+                var authenticationProvider = new MsaAuthenticationProvider(
                     this.appId,
                     /* returnUrl */ null,
                     this.scopes,
@@ -155,7 +155,7 @@ namespace Test.OneDrive.Sdk.Authentication.WinStore
 
                 authenticationProvider.webAuthenticationUi = this.webAuthenticationUi;
 
-                await authenticationProvider.AuthenticateUserAsync();
+                await authenticationProvider.AuthenticateUserAsync().ConfigureAwait(false);
 
                 Assert.IsNotNull(authenticationProvider.CurrentAccountSession, "No account session returned.");
                 Assert.AreEqual(token, authenticationProvider.CurrentAccountSession.AccessToken, "Unexpected token returned.");
@@ -184,7 +184,7 @@ namespace Test.OneDrive.Sdk.Authentication.WinStore
                 ClientId = "12345",
             };
 
-            var authenticationProvider = new AuthenticationProvider(
+            var authenticationProvider = new MsaAuthenticationProvider(
                 this.appId,
                 this.returnUrl,
                 this.scopes,
@@ -195,7 +195,7 @@ namespace Test.OneDrive.Sdk.Authentication.WinStore
 
             authenticationProvider.CurrentAccountSession = accountSession;
 
-            await authenticationProvider.SignOutAsync();
+            await authenticationProvider.SignOutAsync().ConfigureAwait(false);
 
             Assert.IsNull(authenticationProvider.CurrentAccountSession, "Current account session not cleared.");
             Assert.IsTrue(this.credentialCache.DeleteFromCacheCalled, "DeleteFromCache not called.");
@@ -225,7 +225,7 @@ namespace Test.OneDrive.Sdk.Authentication.WinStore
                 ClientId = "12345",
             };
 
-            var authenticationProvider = new AuthenticationProvider(
+            var authenticationProvider = new MsaAuthenticationProvider(
                 this.appId,
                 /* returnUrl */ null,
                 this.scopes,
@@ -236,7 +236,7 @@ namespace Test.OneDrive.Sdk.Authentication.WinStore
 
             authenticationProvider.CurrentAccountSession = accountSession;
 
-            await authenticationProvider.SignOutAsync();
+            await authenticationProvider.SignOutAsync().ConfigureAwait(false);
 
             Assert.IsNull(authenticationProvider.CurrentAccountSession, "Current account session not cleared.");
             Assert.IsTrue(this.credentialCache.DeleteFromCacheCalled, "DeleteFromCache not called.");

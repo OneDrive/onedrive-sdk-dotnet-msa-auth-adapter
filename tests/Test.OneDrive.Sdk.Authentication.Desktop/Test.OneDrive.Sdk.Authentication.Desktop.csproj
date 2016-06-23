@@ -73,7 +73,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AccountSessionTests.cs" />
-    <Compile Include="AuthenticationProviderTests.cs" />
+    <Compile Include="MsaAuthenticationProviderTests.cs" />
     <Compile Include="CredentialCacheKeyTests.cs" />
     <Compile Include="CredentialCacheTests.cs" />
     <Compile Include="Mocks\ExceptionHttpMessageHandler.cs" />

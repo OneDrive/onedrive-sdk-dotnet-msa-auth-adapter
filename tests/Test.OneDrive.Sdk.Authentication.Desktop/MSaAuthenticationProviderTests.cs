@@ -17,7 +17,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
     using Moq;
 
     [TestClass]
-    public class AuthenticationProviderTests
+    public class MsaAuthenticationProviderTests
     {
         private const string AppId = "12345";
         private const string ClientSecret = "client secret";
@@ -26,7 +26,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
 
         private readonly string[] scopes = new string[] { "scope1", "scope2" };
 
-        private AuthenticationProvider authenticationProvider;
+        private MsaAuthenticationProvider authenticationProvider;
         private MockCredentialCache credentialCache;
         private MockHttpProvider httpProvider;
         private HttpResponseMessage httpResponseMessage;
@@ -42,10 +42,10 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             this.httpProvider = new MockHttpProvider(this.httpResponseMessage, this.serializer.Object);
             this.webAuthenticationUi = new MockWebAuthenticationUi();
 
-            this.authenticationProvider = new AuthenticationProvider(
-                AuthenticationProviderTests.AppId,
-                AuthenticationProviderTests.ClientSecret,
-                AuthenticationProviderTests.ReturnUrl,
+            this.authenticationProvider = new MsaAuthenticationProvider(
+                MsaAuthenticationProviderTests.AppId,
+                MsaAuthenticationProviderTests.ClientSecret,
+                MsaAuthenticationProviderTests.ReturnUrl,
                 this.scopes,
                 this.httpProvider.Object,
                 this.credentialCache.Object);
@@ -73,24 +73,11 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
 
             using (var httpRequestMessage = new HttpRequestMessage())
             {
-                await this.authenticationProvider.AuthenticateRequestAsync(httpRequestMessage);
+                await this.authenticationProvider.AuthenticateRequestAsync(httpRequestMessage).ConfigureAwait(false);
                 Assert.AreEqual(
                     string.Format("bearer {0}", cachedAccountSession.AccessToken),
                     httpRequestMessage.Headers.Authorization.ToString(),
                     "Unexpected authorization header set.");
-            }
-        }
-
-        [TestMethod]
-        public async Task AuthenticateRequestAsync_Anonymous()
-        {
-            this.authenticationProvider.CurrentAccountSession = new AccountSession();
-
-            using (var httpRequestMessage = new HttpRequestMessage())
-            {
-                await this.authenticationProvider.AuthenticateRequestAsync(httpRequestMessage);
-
-                Assert.IsNull(httpRequestMessage.Headers.Authorization, "Unexpected authorization header set.");
             }
         }
 
@@ -102,13 +89,13 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             {
                 try
                 {
-                    await this.authenticationProvider.AuthenticateRequestAsync(httpRequestMessage);
+                    await this.authenticationProvider.AuthenticateRequestAsync(httpRequestMessage).ConfigureAwait(false);
                 }
                 catch (ServiceException serviceException)
                 {
                     Assert.AreEqual(OAuthConstants.ErrorCodes.AuthenticationFailure, serviceException.Error.Code, "Unexpected error code.");
                     Assert.AreEqual(
-                        "AuthenticateAsync must be called before AuthenticateRequestAsync.",
+                        "Unable to retrieve a valid account session for the user. Please call AuthenticateUserAsync to prompt the user to re-authenticate.",
                         serviceException.Error.Message,
                         "Unexpected error message.");
 
@@ -123,13 +110,13 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             var cachedAccountSession = new AccountSession
             {
                 AccessToken = "token",
-                ClientId = AuthenticationProviderTests.AppId,
+                ClientId = MsaAuthenticationProviderTests.AppId,
                 ExpiresOnUtc = DateTimeOffset.UtcNow.AddMinutes(10),
             };
 
             this.credentialCache.Object.AddToCache(cachedAccountSession);
 
-            await this.authenticationProvider.AuthenticateUserAsync();
+            await this.authenticationProvider.AuthenticateUserAsync().ConfigureAwait(false);
 
             Assert.IsNotNull(this.authenticationProvider.CurrentAccountSession, "No account session returned.");
             Assert.AreEqual(
@@ -154,7 +141,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
 
             this.authenticationProvider.CurrentAccountSession = cachedAccountSession;
 
-            await this.authenticationProvider.AuthenticateUserAsync();
+            await this.authenticationProvider.AuthenticateUserAsync().ConfigureAwait(false);
 
             Assert.IsNotNull(this.authenticationProvider.CurrentAccountSession, "No account session returned.");
             Assert.AreEqual(
@@ -174,9 +161,9 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             var cachedAccountSession = new AccountSession
             {
                 AccessToken = "token",
-                ClientId = AuthenticationProviderTests.AppId,
+                ClientId = MsaAuthenticationProviderTests.AppId,
                 ExpiresOnUtc = DateTimeOffset.UtcNow.AddMinutes(4),
-                UserId = AuthenticationProviderTests.UserId,
+                UserId = MsaAuthenticationProviderTests.UserId,
             };
 
             var refreshedAccountSession = new AccountSession
@@ -189,7 +176,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
 
             this.authenticationProvider.CurrentAccountSession = cachedAccountSession;
 
-            await this.AuthenticateWithCodeFlow(refreshedAccountSession);
+            await this.AuthenticateWithCodeFlow(refreshedAccountSession).ConfigureAwait(false);
 
             this.credentialCache.Verify(cache => cache.OnGetResultFromCache(), Times.Once);
             this.credentialCache.Verify(cache => cache.OnDeleteFromCache(), Times.Once);
@@ -215,7 +202,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
 
             this.authenticationProvider.CurrentAccountSession = cachedAccountSession;
 
-            await this.AuthenticateWithRefreshToken(refreshedAccountSession);
+            await this.AuthenticateWithRefreshToken(refreshedAccountSession).ConfigureAwait(false);
         }
 
         [TestMethod]
@@ -224,8 +211,8 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             var expectedSignOutUrl = string.Format(
                 "{0}?client_id={1}&redirect_uri={2}",
                 OAuthConstants.MicrosoftAccountSignOutUrl,
-                AuthenticationProviderTests.AppId,
-                AuthenticationProviderTests.ReturnUrl);
+                MsaAuthenticationProviderTests.AppId,
+                MsaAuthenticationProviderTests.ReturnUrl);
 
             var accountSession = new AccountSession
             {
@@ -235,12 +222,12 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
 
             this.authenticationProvider.CurrentAccountSession = accountSession;
 
-            await this.authenticationProvider.SignOutAsync();
+            await this.authenticationProvider.SignOutAsync().ConfigureAwait(false);
 
             this.webAuthenticationUi.Verify(
                 webAuthenticationUi => webAuthenticationUi.AuthenticateAsync(
                     It.Is<Uri>(uri => uri.ToString().Equals(expectedSignOutUrl)),
-                    It.Is<Uri>(uri => uri.ToString().Equals(AuthenticationProviderTests.ReturnUrl))),
+                    It.Is<Uri>(uri => uri.ToString().Equals(MsaAuthenticationProviderTests.ReturnUrl))),
                 Times.Once);
 
             Assert.IsNull(this.authenticationProvider.CurrentAccountSession, "Current account session not cleared.");
@@ -254,7 +241,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
 
             this.webAuthenticationUi.Setup(webUi => webUi.AuthenticateAsync(
                 It.Is<Uri>(uri => uri.ToString().Contains("response_type=code")),
-                It.Is<Uri>(uri => uri.ToString().Equals(AuthenticationProviderTests.ReturnUrl))))
+                It.Is<Uri>(uri => uri.ToString().Equals(MsaAuthenticationProviderTests.ReturnUrl))))
                 .Returns(
                     Task.FromResult<IDictionary<string, string>>(tokenResponseDictionary));
 
@@ -283,7 +270,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
                             { OAuthConstants.RefreshTokenKeyName, refreshedAccountSession.RefreshToken },
                         });
 
-                await this.authenticationProvider.AuthenticateUserAsync();
+                await this.authenticationProvider.AuthenticateUserAsync().ConfigureAwait(false);
 
                 Assert.IsNotNull(this.authenticationProvider.CurrentAccountSession, "No account session returned.");
                 Assert.AreEqual(

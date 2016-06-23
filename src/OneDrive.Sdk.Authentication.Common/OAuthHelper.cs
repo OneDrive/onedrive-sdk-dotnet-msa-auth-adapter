@@ -20,7 +20,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
         public OAuthHelper(IHttpProvider httpProvider)
         {
-            this.httpProvider = httpProvider;
+            this.httpProvider = httpProvider ?? new HttpProvider();
         }
 
         public async Task<string> GetAuthorizationCodeAsync(
@@ -220,8 +220,8 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             httpRequestMessage.Content = new StringContent(requestBodyString, Encoding.UTF8, "application/x-www-form-urlencoded");
 
-            using (var authResponse = await this.httpProvider.SendAsync(httpRequestMessage))
-            using (var responseStream = await authResponse.Content.ReadAsStreamAsync())
+            using (var authResponse = await this.httpProvider.SendAsync(httpRequestMessage).ConfigureAwait(false))
+            using (var responseStream = await authResponse.Content.ReadAsStreamAsync().ConfigureAwait(false))
             {
                 var responseValues =
                     this.httpProvider.Serializer.DeserializeObject<IDictionary<string, string>>(
