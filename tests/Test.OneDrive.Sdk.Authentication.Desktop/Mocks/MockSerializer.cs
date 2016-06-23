@@ -2,13 +2,16 @@
 //  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
 // ------------------------------------------------------------------------------
 
-namespace Microsoft.OneDrive.Sdk.Authentication
+namespace Test.OneDrive.Sdk.Authentication.Desktop.Mocks
 {
-    using System.Net;
-    using System.Text;
+    using Microsoft.Graph;
+    using Moq;
 
-    public class OAuthRequestStringBuilder : IOAuthRequestStringBuilder
+    public class MockSerializer : Mock<ISerializer>
     {
-        
+        public MockSerializer()
+            : base(MockBehavior.Strict)
+        {
+        }
     }
 }

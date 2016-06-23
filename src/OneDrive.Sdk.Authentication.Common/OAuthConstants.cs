@@ -56,6 +56,8 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
         public static class ErrorCodes
         {
+            public const string AuthenticationCanceled = "authenticationCanceled";
+
             public const string AuthenticationFailure = "authenticationFailure";
         }
     }

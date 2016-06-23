@@ -21,7 +21,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;WINSTORE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -29,7 +29,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;WINSTORE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -46,6 +46,9 @@
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\AccountSession.cs">
       <Link>AccountSession.cs</Link>
     </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\AuthenticationProvider.cs">
+      <Link>AuthenticationProvider.cs</Link>
+    </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\CredentialCache.cs">
       <Link>CredentialCache.cs</Link>
     </Compile>
@@ -55,21 +58,20 @@
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\CredentialCacheNotificationArgs.cs">
       <Link>CredentialCacheNotificationArgs.cs</Link>
     </Compile>
-    <Compile Include="..\OneDrive.Sdk.Authentication.Common\IOAuthRequestStringBuilder.cs">
-      <Link>IOAuthRequestStringBuilder.cs</Link>
-    </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthConstants.cs">
       <Link>OAuthConstants.cs</Link>
     </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthErrorHandler.cs">
       <Link>OAuthErrorHandler.cs</Link>
     </Compile>
-    <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthRequestStringBuilder.cs">
-      <Link>OAuthRequestStringBuilder.cs</Link>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthHelper.cs">
+      <Link>OAuthHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Web\IWebAuthenticationUi.cs">
+      <Link>Web\IWebAuthenticationUi.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="WebAuthenticationBrokerAuthenticationProvider.cs" />
     <Compile Include="WebAuthenticationBrokerWebAuthenticationUi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

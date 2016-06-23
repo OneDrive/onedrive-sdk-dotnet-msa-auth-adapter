@@ -20,34 +20,43 @@
 //  THE SOFTWARE.
 // ------------------------------------------------------------------------------
 
-namespace Test.OneDriveSdk.WinRT.Mocks
+namespace Test.OneDrive.Sdk.Authentication.WinStore.Mocks
 {
-    using Microsoft.OneDrive.Sdk;
+    using System;
+    using System.Net.Http;
+    using System.Threading.Tasks;
 
-    public class MockCredentialCache : CredentialCache
+    using Microsoft.Graph;
+
+    public delegate void SendAsyncCallback(HttpRequestMessage request);
+
+    public class MockHttpProvider : IHttpProvider
     {
-        public bool AddToCacheCalled { get; set; }
+        private HttpResponseMessage httpResponseMessage;
 
-        public bool DeleteFromCacheCalled { get; set; }
-
-        public bool GetResultFromCacheCalled { get; set; }
-
-        internal override void AddToCache(AccountSession accountSession)
+        public MockHttpProvider(HttpResponseMessage httpResponseMessage, ISerializer serializer = null)
         {
-            this.AddToCacheCalled = true;
-            base.AddToCache(accountSession);
+            this.httpResponseMessage = httpResponseMessage;
+            this.Serializer = serializer;
         }
 
-        internal override void DeleteFromCache(AccountSession accountSession)
+        public SendAsyncCallback OnSendAsync { get; set; }
+
+        public ISerializer Serializer { get; private set; }
+
+        public void Dispose()
         {
-            this.DeleteFromCacheCalled = true;
-            base.DeleteFromCache(accountSession);
+            this.httpResponseMessage.Dispose();
         }
 
-        internal override AccountSession GetResultFromCache(AccountType accountType, string clientId, string userId)
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
         {
-            this.GetResultFromCacheCalled = true;
-            return base.GetResultFromCache(accountType, clientId, userId);
+            if (this.OnSendAsync != null)
+            {
+                this.OnSendAsync(request);
+            }
+
+            return Task.FromResult(this.httpResponseMessage);
         }
     }
 }

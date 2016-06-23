@@ -19,7 +19,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;WINFORMS</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;DESKTOP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -28,7 +28,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;WINFORMS</DefineConstants>
+    <DefineConstants>TRACE;DESKTOP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -64,6 +64,9 @@
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\AccountSession.cs">
       <Link>AccountSession.cs</Link>
     </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\AuthenticationProvider.cs">
+      <Link>AuthenticationProvider.cs</Link>
+    </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\CredentialCache.cs">
       <Link>CredentialCache.cs</Link>
     </Compile>
@@ -79,27 +82,25 @@
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\DiscoveryServiceResponse.cs">
       <Link>DiscoveryServiceResponse.cs</Link>
     </Compile>
-    <Compile Include="..\OneDrive.Sdk.Authentication.Common\IOAuthRequestStringBuilder.cs">
-      <Link>IOAuthRequestStringBuilder.cs</Link>
-    </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthConstants.cs">
       <Link>OAuthConstants.cs</Link>
     </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthErrorHandler.cs">
       <Link>OAuthErrorHandler.cs</Link>
     </Compile>
-    <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthRequestStringBuilder.cs">
-      <Link>OAuthRequestStringBuilder.cs</Link>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthHelper.cs">
+      <Link>OAuthHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Web\IWebAuthenticationUi.cs">
+      <Link>Web\IWebAuthenticationUi.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AuthenticationProvider.cs" />
     <Compile Include="Web\FormsWebDialog.cs">
       <SubType>form</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Web\FormsWebAuthenticationUi.cs" />
-    <Compile Include="Web\IWebAuthenticationUi.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

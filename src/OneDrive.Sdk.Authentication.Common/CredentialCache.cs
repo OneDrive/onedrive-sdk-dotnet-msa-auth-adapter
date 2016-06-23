@@ -27,7 +27,16 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// Instantiates a new <see cref="CredentialCache"/>.
         /// </summary>
         /// <param name="serializer">The <see cref="ISerializer"/> for serializing cache contents.</param>
-        public CredentialCache(ISerializer serializer = null)
+        public CredentialCache()
+            : this(null, null)
+        {
+        }
+
+        /// <summary>
+        /// Instantiates a new <see cref="CredentialCache"/>.
+        /// </summary>
+        /// <param name="serializer">The <see cref="ISerializer"/> for serializing cache contents.</param>
+        public CredentialCache(ISerializer serializer)
             : this(null, serializer)
         {
         }
@@ -185,6 +194,15 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             }
         }
 
+        internal CredentialCacheKey GetKeyForAuthResult(AccountSession accountSession)
+        {
+            return new CredentialCacheKey
+            {
+                ClientId = accountSession.ClientId,
+                UserId = accountSession.UserId,
+            };
+        }
+
         internal virtual AccountSession GetResultFromCache(string clientId, string userId)
         {
             var cacheNotificationArgs = new CredentialCacheNotificationArgs { CredentialCache = this };
@@ -202,15 +220,6 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             this.OnAfterAccess(cacheNotificationArgs);
 
             return cacheResult;
-        }
-
-        private CredentialCacheKey GetKeyForAuthResult(AccountSession accountSession)
-        {
-            return new CredentialCacheKey
-            {
-                ClientId = accountSession.ClientId,
-                UserId = accountSession.UserId,
-            };
         }
 
         protected void OnAfterAccess(CredentialCacheNotificationArgs args)

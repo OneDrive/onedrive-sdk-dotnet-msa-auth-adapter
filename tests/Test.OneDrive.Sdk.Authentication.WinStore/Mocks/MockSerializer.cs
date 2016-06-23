@@ -20,11 +20,11 @@
 //  THE SOFTWARE.
 // ------------------------------------------------------------------------------
 
-namespace Test.OneDriveSdk.WinRT.Mocks
+namespace Test.OneDrive.Sdk.Authentication.WinStore.Mocks
 {
     using System.IO;
 
-    using Microsoft.OneDrive.Sdk;
+    using Microsoft.Graph;
 
     public delegate void DeserializeObjectStreamCallback(Stream stream);
     public delegate void DeserializeObjectStringCallback(string inputString);

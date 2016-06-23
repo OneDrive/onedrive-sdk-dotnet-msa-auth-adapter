@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace OneDriveSdk.WindowsForms.Properties {
+namespace Microsoft.OneDrive.Sdk.Authentication.Desktop.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

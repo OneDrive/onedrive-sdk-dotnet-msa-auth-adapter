@@ -44,6 +44,13 @@
       <HintPath>..\..\packages\Castle.Core.3.3.3\lib\net45\Castle.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.Graph.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\src\OneDrive.Sdk.Authentication.Common\Microsoft.Graph.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.OneDrive.Sdk">
+      <HintPath>..\..\src\OneDrive.Sdk.Authentication.Common\Microsoft.OneDrive.Sdk.dll</HintPath>
+    </Reference>
     <Reference Include="Moq, Version=4.5.10.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Moq.4.5.10\lib\net45\Moq.dll</HintPath>
       <Private>True</Private>
@@ -65,21 +72,30 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="AccountSessionTests.cs" />
+    <Compile Include="AuthenticationProviderTests.cs" />
+    <Compile Include="CredentialCacheKeyTests.cs" />
+    <Compile Include="CredentialCacheTests.cs" />
+    <Compile Include="Mocks\ExceptionHttpMessageHandler.cs" />
+    <Compile Include="Mocks\MockCredentialCache.cs" />
+    <Compile Include="Mocks\MockHttpProvider.cs" />
+    <Compile Include="Mocks\MockSerializer.cs" />
+    <Compile Include="Mocks\MockWebAuthenticationUi.cs" />
+    <Compile Include="Mocks\TestHttpMessageHandler.cs" />
+    <Compile Include="OAuthErrorHandlerTests.cs" />
+    <Compile Include="OAuthHelperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\OneDrive.Sdk.Authentication.Desktop\OneDrive.Sdk.Authentication.Desktop.csproj">
       <Project>{c48558a9-320f-464d-bef4-48266f3cf2d3}</Project>
-      <Name>Microsoft.OneDrive.Sdk.Authentication.Desktop</Name>
+      <Name>OneDrive.Sdk.Authentication.Desktop</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Authentication\" />
-    <Folder Include="Mocks\" />
-  </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
