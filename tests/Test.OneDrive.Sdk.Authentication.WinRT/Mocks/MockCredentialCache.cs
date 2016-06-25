@@ -20,30 +20,34 @@
 //  THE SOFTWARE.
 // ------------------------------------------------------------------------------
 
-namespace Test.OneDrive.Sdk.Authentication.WinStore.Mocks
+namespace Test.OneDrive.Sdk.Authentication.WinRT.Mocks
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-
     using Microsoft.OneDrive.Sdk.Authentication;
 
-    public delegate void AuthenticateCallback(Uri requestUri, Uri callbackUri);
-
-    public class MockWebAuthenticationUi : IWebAuthenticationUi
+    public class MockCredentialCache : CredentialCache
     {
-        public IDictionary<string, string> responseValues = new Dictionary<string, string>();
+        public bool AddToCacheCalled { get; set; }
 
-        public AuthenticateCallback OnAuthenticateAsync { get; set; }
+        public bool DeleteFromCacheCalled { get; set; }
 
-        public Task<IDictionary<string, string>> AuthenticateAsync(Uri requestUri, Uri callbackUri)
+        public bool GetResultFromCacheCalled { get; set; }
+
+        internal override void AddToCache(AccountSession accountSession)
         {
-            if (this.OnAuthenticateAsync != null)
-            {
-                this.OnAuthenticateAsync(requestUri, callbackUri);
-            }
+            this.AddToCacheCalled = true;
+            base.AddToCache(accountSession);
+        }
 
-            return Task.FromResult(this.responseValues);
+        internal override void DeleteFromCache(AccountSession accountSession)
+        {
+            this.DeleteFromCacheCalled = true;
+            base.DeleteFromCache(accountSession);
+        }
+
+        internal override AccountSession GetResultFromCache(string clientId, string userId)
+        {
+            this.GetResultFromCacheCalled = true;
+            return base.GetResultFromCache(clientId, userId);
         }
     }
 }

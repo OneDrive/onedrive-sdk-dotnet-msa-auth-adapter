@@ -16,13 +16,6 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
     public class OAuthHelper
     {
-        private IHttpProvider httpProvider;
-
-        public OAuthHelper(IHttpProvider httpProvider)
-        {
-            this.httpProvider = httpProvider ?? new HttpProvider();
-        }
-
         public async Task<string> GetAuthorizationCodeAsync(
             string appId,
             string returnUrl,
@@ -155,6 +148,26 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             string returnUrl,
             string[] scopes)
         {
+            using (var httpProvider = new HttpProvider())
+            {
+                return this.RedeemAuthorizationCodeAsync(
+                    authorizationCode,
+                    appId,
+                    clientSecret,
+                    returnUrl,
+                    scopes,
+                    httpProvider);
+            }
+        }
+
+        public Task<AccountSession> RedeemAuthorizationCodeAsync(
+            string authorizationCode,
+            string appId,
+            string clientSecret,
+            string returnUrl,
+            string[] scopes,
+            IHttpProvider httpProvider)
+        {
             if (string.IsNullOrEmpty(authorizationCode))
             {
                 throw new ServiceException(
@@ -171,7 +184,8 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                     appId,
                     returnUrl,
                     scopes,
-                    clientSecret));
+                    clientSecret),
+                httpProvider);
         }
 
         public Task<AccountSession> RedeemRefreshTokenAsync(
@@ -185,7 +199,24 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 appId,
                 /* clientSecret */ null,
                 returnUrl,
-                scopes);
+                scopes,
+                /* httpProvider */ null);
+        }
+
+        public Task<AccountSession> RedeemRefreshTokenAsync(
+            string refreshToken,
+            string appId,
+            string returnUrl,
+            string[] scopes,
+            IHttpProvider httpProvider)
+        {
+            return this.RedeemRefreshTokenAsync(
+                refreshToken,
+                appId,
+                /* clientSecret */ null,
+                returnUrl,
+                scopes,
+                httpProvider);
         }
 
         public Task<AccountSession> RedeemRefreshTokenAsync(
@@ -194,6 +225,23 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             string clientSecret,
             string returnUrl,
             string[] scopes)
+        {
+            return this.RedeemRefreshTokenAsync(
+                refreshToken,
+                appId,
+                clientSecret,
+                returnUrl,
+                scopes,
+                /* httpProvider */ null);
+        }
+
+        public Task<AccountSession> RedeemRefreshTokenAsync(
+            string refreshToken,
+            string appId,
+            string clientSecret,
+            string returnUrl,
+            string[] scopes,
+            IHttpProvider httpProvider)
         {
             if (string.IsNullOrEmpty(refreshToken))
             {
@@ -211,20 +259,29 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                     appId,
                     returnUrl,
                     scopes,
-                    clientSecret));
+                    clientSecret),
+                httpProvider);
         }
 
-        public async Task<AccountSession> SendTokenRequestAsync(string requestBodyString)
+        public Task<AccountSession> SendTokenRequestAsync(string requestBodyString)
+        {
+            using (var httpProvider = new HttpProvider())
+            {
+                return this.SendTokenRequestAsync(requestBodyString, httpProvider);
+            }
+        }
+
+        public async Task<AccountSession> SendTokenRequestAsync(string requestBodyString, IHttpProvider httpProvider)
         {
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, OAuthConstants.MicrosoftAccountTokenServiceUrl);
 
             httpRequestMessage.Content = new StringContent(requestBodyString, Encoding.UTF8, "application/x-www-form-urlencoded");
 
-            using (var authResponse = await this.httpProvider.SendAsync(httpRequestMessage).ConfigureAwait(false))
+            using (var authResponse = await httpProvider.SendAsync(httpRequestMessage).ConfigureAwait(false))
             using (var responseStream = await authResponse.Content.ReadAsStreamAsync().ConfigureAwait(false))
             {
                 var responseValues =
-                    this.httpProvider.Serializer.DeserializeObject<IDictionary<string, string>>(
+                    httpProvider.Serializer.DeserializeObject<IDictionary<string, string>>(
                         responseStream);
 
                 if (responseValues != null)

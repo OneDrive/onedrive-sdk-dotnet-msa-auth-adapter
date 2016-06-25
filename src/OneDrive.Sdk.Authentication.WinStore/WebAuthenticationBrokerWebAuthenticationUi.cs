@@ -56,10 +56,10 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             }
             else if (result != null && result.ResponseStatus == WebAuthenticationStatus.UserCancel)
             {
-                throw new ServiceException(new Error { Code = OAuthConstants.ErrorCodes.AuthenticationCanceled });
+                throw new ServiceException(new Error { Code = OAuthConstants.ErrorCodes.AuthenticationCancelled });
             }
 
-            throw new ServiceException(new Error { Code = OAuthConstants.ErrorCodes.AuthenticationCanceled });
+            throw new ServiceException(new Error { Code = OAuthConstants.ErrorCodes.AuthenticationCancelled });
         }
 
         private Task<WebAuthenticationResult> AuthenticateAsync(Uri requestUri, Uri callbackUri, WebAuthenticationOptions authenticationOptions)

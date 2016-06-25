@@ -47,7 +47,6 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
                 MsaAuthenticationProviderTests.ClientSecret,
                 MsaAuthenticationProviderTests.ReturnUrl,
                 this.scopes,
-                this.httpProvider.Object,
                 this.credentialCache.Object);
 
             this.authenticationProvider.webAuthenticationUi = this.webAuthenticationUi.Object;
@@ -116,7 +115,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
 
             this.credentialCache.Object.AddToCache(cachedAccountSession);
 
-            await this.authenticationProvider.AuthenticateUserAsync().ConfigureAwait(false);
+            await this.authenticationProvider.AuthenticateUserAsync(this.httpProvider.Object).ConfigureAwait(false);
 
             Assert.IsNotNull(this.authenticationProvider.CurrentAccountSession, "No account session returned.");
             Assert.AreEqual(
@@ -141,7 +140,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
 
             this.authenticationProvider.CurrentAccountSession = cachedAccountSession;
 
-            await this.authenticationProvider.AuthenticateUserAsync().ConfigureAwait(false);
+            await this.authenticationProvider.AuthenticateUserAsync(this.httpProvider.Object).ConfigureAwait(false);
 
             Assert.IsNotNull(this.authenticationProvider.CurrentAccountSession, "No account session returned.");
             Assert.AreEqual(
@@ -270,7 +269,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
                             { OAuthConstants.RefreshTokenKeyName, refreshedAccountSession.RefreshToken },
                         });
 
-                await this.authenticationProvider.AuthenticateUserAsync().ConfigureAwait(false);
+                await this.authenticationProvider.AuthenticateUserAsync(this.httpProvider.Object).ConfigureAwait(false);
 
                 Assert.IsNotNull(this.authenticationProvider.CurrentAccountSession, "No account session returned.");
                 Assert.AreEqual(

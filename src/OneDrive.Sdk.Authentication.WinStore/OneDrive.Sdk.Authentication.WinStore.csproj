@@ -46,15 +46,6 @@
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\AccountSession.cs">
       <Link>AccountSession.cs</Link>
     </Compile>
-    <Compile Include="..\OneDrive.Sdk.Authentication.Common\CredentialCache.cs">
-      <Link>CredentialCache.cs</Link>
-    </Compile>
-    <Compile Include="..\OneDrive.Sdk.Authentication.Common\CredentialCacheKey.cs">
-      <Link>CredentialCacheKey.cs</Link>
-    </Compile>
-    <Compile Include="..\OneDrive.Sdk.Authentication.Common\CredentialCacheNotificationArgs.cs">
-      <Link>CredentialCacheNotificationArgs.cs</Link>
-    </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\MsaAuthenticationProvider.cs">
       <Link>MsaAuthenticationProvider.cs</Link>
     </Compile>
@@ -66,6 +57,15 @@
     </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthHelper.cs">
       <Link>OAuthHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\CredentialCache.cs">
+      <Link>Caching\CredentialCache.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\CredentialCacheKey.cs">
+      <Link>Caching\CredentialCacheKey.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\CredentialCacheNotificationArgs.cs">
+      <Link>Caching\CredentialCacheNotificationArgs.cs</Link>
     </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\Web\IWebAuthenticationUi.cs">
       <Link>Web\IWebAuthenticationUi.cs</Link>

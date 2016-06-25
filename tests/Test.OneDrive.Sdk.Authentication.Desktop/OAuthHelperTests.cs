@@ -40,7 +40,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             this.httpProvider = new MockHttpProvider(this.httpResponseMessage, this.serializer.Object);
             this.webAuthenticationUi = new MockWebAuthenticationUi();
 
-            this.oAuthHelper = new OAuthHelper(this.httpProvider.Object);
+            this.oAuthHelper = new OAuthHelper();
         }
 
         [TestCleanup]
@@ -56,6 +56,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
                 OAuthHelperTests.AppId,
                 OAuthHelperTests.ReturnUrl,
                 this.scopes,
+                this.webAuthenticationUi.Object,
                 null).ConfigureAwait(false);
 
             Assert.IsNull(code, "Unexpected code returned.");
@@ -134,7 +135,8 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
                     OAuthHelperTests.AppId,
                     OAuthHelperTests.ClientSecret,
                     OAuthHelperTests.ReturnUrl,
-                    this.scopes).ConfigureAwait(false);
+                    this.scopes,
+                    this.httpProvider.Object).ConfigureAwait(false);
             }
             catch (ServiceException serviceException)
             {

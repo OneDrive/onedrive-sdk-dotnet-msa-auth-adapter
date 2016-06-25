@@ -20,43 +20,30 @@
 //  THE SOFTWARE.
 // ------------------------------------------------------------------------------
 
-namespace Test.OneDrive.Sdk.Authentication.WinStore.Mocks
+namespace Test.OneDrive.Sdk.Authentication.WinRT.Mocks
 {
     using System;
-    using System.Net.Http;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    using Microsoft.Graph;
+    using Microsoft.OneDrive.Sdk.Authentication;
 
-    public delegate void SendAsyncCallback(HttpRequestMessage request);
+    public delegate void AuthenticateCallback(Uri requestUri, Uri callbackUri);
 
-    public class MockHttpProvider : IHttpProvider
+    public class MockWebAuthenticationUi : IWebAuthenticationUi
     {
-        private HttpResponseMessage httpResponseMessage;
+        public IDictionary<string, string> responseValues = new Dictionary<string, string>();
 
-        public MockHttpProvider(HttpResponseMessage httpResponseMessage, ISerializer serializer = null)
+        public AuthenticateCallback OnAuthenticateAsync { get; set; }
+
+        public Task<IDictionary<string, string>> AuthenticateAsync(Uri requestUri, Uri callbackUri)
         {
-            this.httpResponseMessage = httpResponseMessage;
-            this.Serializer = serializer;
-        }
-
-        public SendAsyncCallback OnSendAsync { get; set; }
-
-        public ISerializer Serializer { get; private set; }
-
-        public void Dispose()
-        {
-            this.httpResponseMessage.Dispose();
-        }
-
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
-        {
-            if (this.OnSendAsync != null)
+            if (this.OnAuthenticateAsync != null)
             {
-                this.OnSendAsync(request);
+                this.OnAuthenticateAsync(requestUri, callbackUri);
             }
 
-            return Task.FromResult(this.httpResponseMessage);
+            return Task.FromResult(this.responseValues);
         }
     }
 }

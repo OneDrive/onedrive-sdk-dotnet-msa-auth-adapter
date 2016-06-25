@@ -20,7 +20,7 @@
 //  THE SOFTWARE.
 // ------------------------------------------------------------------------------
 
-namespace Test.OneDrive.Sdk.Authentication.WinStore
+namespace Test.OneDrive.Sdk.Authentication.WinRT
 {
     using System;
     using System.Threading.Tasks;
@@ -41,9 +41,10 @@ namespace Test.OneDrive.Sdk.Authentication.WinStore
         private readonly string appId = "app ID";
         private readonly string returnUrl = "https://localhost/return";
         private readonly string[] scopes = new string[] { "scopes" };
-        
-        protected MockCredentialCache credentialCache;
-        protected MockWebAuthenticationUi webAuthenticationUi;
+
+        private MsaAuthenticationProvider authenticationProvider;
+        private MockCredentialCache credentialCache;
+        private MockWebAuthenticationUi webAuthenticationUi;
 
         private bool signOut;
 
@@ -53,6 +54,14 @@ namespace Test.OneDrive.Sdk.Authentication.WinStore
             this.credentialCache = new MockCredentialCache();
             this.webAuthenticationUi = new MockWebAuthenticationUi();
             this.webAuthenticationUi.OnAuthenticateAsync = this.OnAuthenticateAsync;
+
+            this.authenticationProvider = new MsaAuthenticationProvider(
+                this.appId,
+                this.returnUrl,
+                this.scopes,
+                this.credentialCache);
+
+            this.authenticationProvider.webAuthenticationUi = this.webAuthenticationUi;
         }
 
         [TestMethod]
@@ -86,23 +95,16 @@ namespace Test.OneDrive.Sdk.Authentication.WinStore
                 {
                     OnSendAsync = (HttpRequestMessage requestMessage) =>
                     {
-                        Assert.IsTrue(requestMessage.RequestUri.ToString().Equals(OAuthConstants.MicrosoftAccountTokenServiceUrl), "Unexpected token request URL.");
+                        Assert.IsTrue(
+                            requestMessage.RequestUri.ToString().Equals(OAuthConstants.MicrosoftAccountTokenServiceUrl),
+                            "Unexpected token request URL.");
                     }
                 };
 
-                var authenticationProvider = new MsaAuthenticationProvider(
-                    this.appId,
-                    this.returnUrl,
-                    this.scopes,
-                    httpProvider,
-                    this.credentialCache);
+                await this.authenticationProvider.AuthenticateUserAsync(httpProvider).ConfigureAwait(false);
 
-                authenticationProvider.webAuthenticationUi = this.webAuthenticationUi;
-
-                await authenticationProvider.AuthenticateUserAsync().ConfigureAwait(false);
-
-                Assert.IsNotNull(authenticationProvider.CurrentAccountSession, "No account session returned.");
-                Assert.AreEqual(token, authenticationProvider.CurrentAccountSession.AccessToken, "Unexpected token returned.");
+                Assert.IsNotNull(this.authenticationProvider.CurrentAccountSession, "No account session returned.");
+                Assert.AreEqual(token, this.authenticationProvider.CurrentAccountSession.AccessToken, "Unexpected token returned.");
             }
         }
 
@@ -146,19 +148,18 @@ namespace Test.OneDrive.Sdk.Authentication.WinStore
                     }
                 };
 
-                var authenticationProvider = new MsaAuthenticationProvider(
+                this.authenticationProvider = new MsaAuthenticationProvider(
                     this.appId,
                     /* returnUrl */ null,
                     this.scopes,
-                    httpProvider,
                     this.credentialCache);
 
-                authenticationProvider.webAuthenticationUi = this.webAuthenticationUi;
+                this.authenticationProvider.webAuthenticationUi = this.webAuthenticationUi;
 
-                await authenticationProvider.AuthenticateUserAsync().ConfigureAwait(false);
+                await this.authenticationProvider.AuthenticateUserAsync(httpProvider).ConfigureAwait(false);
 
-                Assert.IsNotNull(authenticationProvider.CurrentAccountSession, "No account session returned.");
-                Assert.AreEqual(token, authenticationProvider.CurrentAccountSession.AccessToken, "Unexpected token returned.");
+                Assert.IsNotNull(this.authenticationProvider.CurrentAccountSession, "No account session returned.");
+                Assert.AreEqual(token, this.authenticationProvider.CurrentAccountSession.AccessToken, "Unexpected token returned.");
             }
         }
 
@@ -184,20 +185,11 @@ namespace Test.OneDrive.Sdk.Authentication.WinStore
                 ClientId = "12345",
             };
 
-            var authenticationProvider = new MsaAuthenticationProvider(
-                this.appId,
-                this.returnUrl,
-                this.scopes,
-                new MockHttpProvider(null, null),
-                this.credentialCache);
+            this.authenticationProvider.CurrentAccountSession = accountSession;
 
-            authenticationProvider.webAuthenticationUi = this.webAuthenticationUi;
+            await this.authenticationProvider.SignOutAsync().ConfigureAwait(false);
 
-            authenticationProvider.CurrentAccountSession = accountSession;
-
-            await authenticationProvider.SignOutAsync().ConfigureAwait(false);
-
-            Assert.IsNull(authenticationProvider.CurrentAccountSession, "Current account session not cleared.");
+            Assert.IsNull(this.authenticationProvider.CurrentAccountSession, "Current account session not cleared.");
             Assert.IsTrue(this.credentialCache.DeleteFromCacheCalled, "DeleteFromCache not called.");
         }
 
@@ -225,20 +217,18 @@ namespace Test.OneDrive.Sdk.Authentication.WinStore
                 ClientId = "12345",
             };
 
-            var authenticationProvider = new MsaAuthenticationProvider(
+            this.authenticationProvider = new MsaAuthenticationProvider(
                 this.appId,
                 /* returnUrl */ null,
                 this.scopes,
-                new MockHttpProvider(null, null),
                 this.credentialCache);
 
-            authenticationProvider.webAuthenticationUi = this.webAuthenticationUi;
+            this.authenticationProvider.webAuthenticationUi = this.webAuthenticationUi;
+            this.authenticationProvider.CurrentAccountSession = accountSession;
 
-            authenticationProvider.CurrentAccountSession = accountSession;
+            await this.authenticationProvider.SignOutAsync().ConfigureAwait(false);
 
-            await authenticationProvider.SignOutAsync().ConfigureAwait(false);
-
-            Assert.IsNull(authenticationProvider.CurrentAccountSession, "Current account session not cleared.");
+            Assert.IsNull(this.authenticationProvider.CurrentAccountSession, "Current account session not cleared.");
             Assert.IsTrue(this.credentialCache.DeleteFromCacheCalled, "DeleteFromCache not called.");
         }
 

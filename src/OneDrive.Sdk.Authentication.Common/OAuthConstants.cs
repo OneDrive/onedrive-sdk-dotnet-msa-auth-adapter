@@ -48,15 +48,25 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             
         public const string UserIdKeyName = "user_id";
 
-        internal const string MicrosoftAccountAuthenticationServiceUrl = "https://login.live.com/oauth20_authorize.srf";
+        public const string ActiveDirectoryAuthenticationServiceUrl = "https://login.microsoftonline.com/common/oauth2/authorize";
 
-        internal const string MicrosoftAccountSignOutUrl = "https://login.live.com/oauth20_logout.srf";
+        public const string ActiveDirectoryAuthenticationServiceUrlFormatString = "https://login.microsoftonline.com/{0}";
 
-        internal const string MicrosoftAccountTokenServiceUrl = "https://login.live.com/oauth20_token.srf";
+        public const string ActiveDirectoryDiscoveryResource = "https://api.office.com/discovery/";
+
+        public const string ActiveDirectoryDiscoveryServiceUrl = "https://api.office.com/discovery/v2.0/me/services";
+
+        public const string ActiveDirectorySignOutUrl = "https://login.microsoftonline.com/common/oauth2/logout";
+
+        public const string MicrosoftAccountAuthenticationServiceUrl = "https://login.live.com/oauth20_authorize.srf";
+
+        public const string MicrosoftAccountSignOutUrl = "https://login.live.com/oauth20_logout.srf";
+
+        public const string MicrosoftAccountTokenServiceUrl = "https://login.live.com/oauth20_token.srf";
 
         public static class ErrorCodes
         {
-            public const string AuthenticationCanceled = "authenticationCanceled";
+            public const string AuthenticationCancelled = "authenticationCancelled";
 
             public const string AuthenticationFailure = "authenticationFailure";
         }
