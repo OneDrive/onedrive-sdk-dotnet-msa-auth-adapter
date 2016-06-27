@@ -5,11 +5,7 @@
 namespace Microsoft.OneDrive.Sdk.Authentication
 {
     using System;
-    using System.Net.Http.Headers;
-    using System.Linq;
-    using System.Net.Http;
     using System.Security.Cryptography.X509Certificates;
-    using System.Text;
     using System.Threading.Tasks;
 
     using Microsoft.Graph;
@@ -266,7 +262,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             var authenticationResponseValues = await webAuthenticationUi.AuthenticateAsync(
                 requestUri,
-                redirectUri);
+                redirectUri).ConfigureAwait(false);
 
             OAuthErrorHandler.ThrowIfError(authenticationResponseValues);
 
@@ -277,7 +273,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                     code,
                     redirectUri,
                     clientCredential,
-                    serviceResourceId);
+                    serviceResourceId).ConfigureAwait(false);
             }
 
             return authenticationResult;
@@ -325,7 +321,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             var authenticationResponseValues = await webAuthenticationUi.AuthenticateAsync(
                 requestUri,
-                redirectUri);
+                redirectUri).ConfigureAwait(false);
 
             OAuthErrorHandler.ThrowIfError(authenticationResponseValues);
 
@@ -336,7 +332,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                     code,
                     redirectUri,
                     clientAssertionCertificate,
-                    serviceResourceId);
+                    serviceResourceId).ConfigureAwait(false);
             }
 
             return authenticationResult;

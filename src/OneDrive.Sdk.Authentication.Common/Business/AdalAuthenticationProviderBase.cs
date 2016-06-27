@@ -79,7 +79,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 {
                     await this.AuthenticateUserWithRefreshTokenAsync(
                         this.CurrentAuthenticationResult.RefreshToken,
-                        this.currentServiceResourceId);
+                        this.currentServiceResourceId).ConfigureAwait(false);
                 }
                 else
                 {
@@ -91,7 +91,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                             this.currentServiceResourceId,
                             this.CurrentAuthenticationResult.UserInfo == null
                                 ? null
-                                : this.CurrentAuthenticationResult.UserInfo.UniqueId);
+                                : this.CurrentAuthenticationResult.UserInfo.UniqueId).ConfigureAwait(false);
                     }
                     catch (Exception exception)
                     {
@@ -137,7 +137,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             try
             {
-                authenticationResult = await this.AuthenticateUserSilently(serviceResourceId, userId);
+                authenticationResult = await this.AuthenticateUserSilently(serviceResourceId, userId).ConfigureAwait(false);
 
                 this.ValidateAuthenticationResult(authenticationResult);
             }
@@ -152,7 +152,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             {
                 try
                 {
-                    authenticationResult = await this.AuthenticateUser(serviceResourceId, userId);
+                    authenticationResult = await this.AuthenticateUser(serviceResourceId, userId).ConfigureAwait(false);
                 }
                 catch (Exception exception)
                 {

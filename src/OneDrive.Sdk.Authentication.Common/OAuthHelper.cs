@@ -34,7 +34,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
                 var authenticationResponseValues = await webAuthenticationUi.AuthenticateAsync(
                     requestUri,
-                    new Uri(returnUrl));
+                    new Uri(returnUrl)).ConfigureAwait(false);
 
                 OAuthErrorHandler.ThrowIfError(authenticationResponseValues);
 

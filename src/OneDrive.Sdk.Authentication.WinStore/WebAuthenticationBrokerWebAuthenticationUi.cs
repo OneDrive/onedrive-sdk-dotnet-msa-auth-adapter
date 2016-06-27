@@ -42,7 +42,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             {
                 try
                 {
-                    result = await this.AuthenticateAsync(requestUri, callbackUri, WebAuthenticationOptions.None);
+                    result = await this.AuthenticateAsync(requestUri, callbackUri, WebAuthenticationOptions.None).ConfigureAwait(false);
                 }
                 catch (Exception exception)
                 {

@@ -25,7 +25,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         {
             using (var httpProvider = new HttpProvider())
             {
-                var businessServiceInfo = await this.RetrieveMyFilesServiceResourceAsync(httpProvider);
+                var businessServiceInfo = await this.RetrieveMyFilesServiceResourceAsync(httpProvider).ConfigureAwait(false);
                 return businessServiceInfo;
             }
         }

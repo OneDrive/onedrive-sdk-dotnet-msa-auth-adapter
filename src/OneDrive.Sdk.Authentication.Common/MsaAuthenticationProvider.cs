@@ -172,7 +172,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         {
             using (var httpProvider = new HttpProvider())
             {
-                await this.AuthenticateUserAsync(httpProvider, userName);
+                await this.AuthenticateUserAsync(httpProvider, userName).ConfigureAwait(false);
             }
         }
 
@@ -255,7 +255,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         {
             using (var httpProvider = new HttpProvider())
             {
-                var processedAccountSession = await this.ProcessCachedAccountSessionAsync(accountSession, httpProvider);
+                var processedAccountSession = await this.ProcessCachedAccountSessionAsync(accountSession, httpProvider).ConfigureAwait(false);
                 return processedAccountSession;
             }
         }

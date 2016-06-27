@@ -5,12 +5,6 @@
 namespace Microsoft.OneDrive.Sdk.Authentication
 {
     using System;
-    using System.Collections.Generic;
-    using System.Net.Http.Headers;
-    using System.Linq;
-    using System.Net;
-    using System.Net.Http;
-    using System.Text;
     using System.Threading.Tasks;
 
     using Microsoft.Graph;
@@ -66,7 +60,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 serviceResourceId,
                 this.clientId,
                 new Uri(this.returnUrl),
-                PromptBehavior.Auto);
+                PromptBehavior.Auto).AsTask().ConfigureAwait(false);
 
             this.ValidateAuthenticationResult(authenticationResult);
 
@@ -85,7 +79,9 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                     });
             }
 
-            var authenticationResult = await this.authenticationContext.AcquireTokenByRefreshTokenAsync(refreshToken, this.clientId);
+            var authenticationResult = await this.authenticationContext.AcquireTokenByRefreshTokenAsync(
+                refreshToken,
+                this.clientId).AsTask().ConfigureAwait(false);
 
             this.ValidateAuthenticationResult(authenticationResult);
 
@@ -109,7 +105,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             var authenticationResult = await this.authenticationContext.AcquireTokenByRefreshTokenAsync(
                 refreshToken,
                 this.clientId,
-                serviceResourceId);
+                serviceResourceId).AsTask().ConfigureAwait(false);
 
             this.ValidateAuthenticationResult(authenticationResult);
 
