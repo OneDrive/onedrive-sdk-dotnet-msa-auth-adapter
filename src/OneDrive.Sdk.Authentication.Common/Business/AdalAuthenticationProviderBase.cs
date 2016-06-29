@@ -24,7 +24,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
         protected readonly string clientId;
         protected readonly string returnUrl;
-        
+
         protected IAuthenticationContextWrapper authenticationContextWrapper;
 
         /// <summary>
@@ -73,6 +73,40 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             }
 
             this.adalCredentialCache = new AdalCredentialCache(this.authenticationContextWrapper.TokenCache);
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IAuthenticationContextWrapper"/> instance for the class.
+        /// Used for unit testing.
+        /// </summary>
+        internal IAuthenticationContextWrapper AuthenticationContextWrapper
+        {
+            get
+            {
+                return this.authenticationContextWrapper;
+            }
+        }
+
+        /// <summary>
+        /// Gets the client ID for the class. Used for unit testing.
+        /// </summary>
+        internal string ClientId
+        {
+            get
+            {
+                return this.clientId;
+            }
+        }
+
+        /// <summary>
+        /// Gets the return URL for the class. Used for unit testing.
+        /// </summary>
+        internal string ReturnUrl
+        {
+            get
+            {
+                return this.returnUrl;
+            }
         }
 
         protected abstract AuthenticateUserDelegate AuthenticateUser { get; set; }

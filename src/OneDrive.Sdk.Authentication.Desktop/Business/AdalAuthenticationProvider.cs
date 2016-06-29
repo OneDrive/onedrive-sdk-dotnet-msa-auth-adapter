@@ -134,6 +134,28 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             }
         }
 
+        /// <summary>
+        /// Gets the client certificate for the class. Used for unit testing.
+        /// </summary>
+        internal X509Certificate2 ClientCertificate
+        {
+            get
+            {
+                return this.clientCertificate;
+            }
+        }
+
+        /// <summary>
+        /// Gets the client secret for the class. Used for unit testing.
+        /// </summary>
+        internal string ClientSecret
+        {
+            get
+            {
+                return this.clientSecret;
+            }
+        }
+
         protected override AuthenticateUserDelegate AuthenticateUser { get; set; }
 
         protected override AuthenticateUserSilentlyDelegate AuthenticateUserSilently { get; set; }

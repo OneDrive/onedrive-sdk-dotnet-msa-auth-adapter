@@ -442,56 +442,19 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
         }
 
         [TestMethod]
-        public async Task AuthenticateUserAsync_UserId()
-        {
-            var userId = "id";
-
-            var mockUserInfo = new Mock<IUserInfo>();
-            mockUserInfo.SetupGet(userInfo => userInfo.UniqueId).Returns(userId);
-
-            var mockAuthenticationResult = new MockAuthenticationResult();
-            mockAuthenticationResult.SetupGet(result => result.AccessToken).Returns("token");
-            mockAuthenticationResult.SetupGet(result => result.AccessTokenType).Returns("type");
-            mockAuthenticationResult.SetupGet(result => result.ExpiresOn).Returns(DateTimeOffset.UtcNow);
-            mockAuthenticationResult.SetupGet(result => result.UserInfo).Returns(mockUserInfo.Object);
-
-            var mockAuthenticationContextWrapper = new MockAuthenticationContextWrapper();
-
-            mockAuthenticationContextWrapper.Setup(wrapper => wrapper.AcquireTokenSilentAsync(
-                It.Is<string>(resource => resource.Equals(AuthenticationTestBase.ServiceResourceId)),
-                It.Is<string>(clientId => clientId.Equals(AuthenticationTestBase.ClientId)),
-                It.Is<UserIdentifier>(user => user.Id.Equals(userId)))).Throws(new Exception());
-
-            mockAuthenticationContextWrapper.Setup(wrapper => wrapper.AcquireToken(
-                It.Is<string>(resource => resource.Equals(AuthenticationTestBase.ServiceResourceId)),
-                It.Is<string>(clientId => clientId.Equals(AuthenticationTestBase.ClientId)),
-                It.Is<Uri>(returnUri => returnUri == new Uri(AuthenticationTestBase.ReturnUrl)),
-                PromptBehavior.Auto,
-                It.Is<UserIdentifier>(user => user.Id.Equals(userId)))).Returns(mockAuthenticationResult.Object);
-
-            var authenticationProvider = new AdalAuthenticationProvider(
-                AuthenticationTestBase.ClientId,
-                AuthenticationTestBase.ReturnUrl,
-                mockAuthenticationContextWrapper.Object);
-
-            await authenticationProvider.AuthenticateUserAsync(AuthenticationTestBase.ServiceResourceId, userId);
-
-            Assert.AreEqual(mockAuthenticationResult.Object.AccessToken, authenticationProvider.CurrentAccountSession.AccessToken, "Unexpected access token set.");
-            Assert.AreEqual(mockAuthenticationResult.Object.AccessTokenType, authenticationProvider.CurrentAccountSession.AccessTokenType, "Unexpected access token type set.");
-            Assert.AreEqual(AuthenticationTestBase.ClientId, authenticationProvider.CurrentAccountSession.ClientId, "Unexpected client ID set.");
-            Assert.AreEqual(mockAuthenticationResult.Object.ExpiresOn, authenticationProvider.CurrentAccountSession.ExpiresOnUtc, "Unexpected expiration set.");
-            Assert.AreEqual(userId, authenticationProvider.CurrentAccountSession.UserId, "Unexpected user ID set.");
-        }
-
-        [TestMethod]
         public async Task AuthenticateUserAsync_ClientCertificate()
         {
             var clientCertificate = new X509Certificate2(@"Certs\testwebapplication.pfx", "password");
+            var userId = "user id";
 
             var mockAuthenticationResult = new MockAuthenticationResult();
             mockAuthenticationResult.SetupGet(result => result.AccessToken).Returns("token");
             mockAuthenticationResult.SetupGet(result => result.AccessTokenType).Returns("type");
             mockAuthenticationResult.SetupGet(result => result.ExpiresOn).Returns(DateTimeOffset.UtcNow);
+            
+            var mockUserInfo = new Mock<IUserInfo>();
+            mockUserInfo.SetupGet(userInfo => userInfo.UniqueId).Returns(userId);
+            mockAuthenticationResult.SetupGet(result => result.UserInfo).Returns(mockUserInfo.Object);
 
             var mockAuthenticationContextWrapper = new MockAuthenticationContextWrapper();
 
@@ -521,18 +484,24 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             
             await this.AuthenticateUserAsync(
                 authenticationProvider,
-                mockAuthenticationResult.Object);
+                mockAuthenticationResult.Object,
+                userId);
         }
 
         [TestMethod]
         public async Task AuthenticateUserAsync_ClientCredential()
         {
             var clientSecret = "clientSecret";
+            var userId = "user ID";
 
             var mockAuthenticationResult = new MockAuthenticationResult();
             mockAuthenticationResult.SetupGet(result => result.AccessToken).Returns("token");
             mockAuthenticationResult.SetupGet(result => result.AccessTokenType).Returns("type");
             mockAuthenticationResult.SetupGet(result => result.ExpiresOn).Returns(DateTimeOffset.UtcNow);
+
+            var mockUserInfo = new Mock<IUserInfo>();
+            mockUserInfo.SetupGet(userInfo => userInfo.UniqueId).Returns(userId);
+            mockAuthenticationResult.SetupGet(result => result.UserInfo).Returns(mockUserInfo.Object);
 
             var mockAuthenticationContextWrapper = new MockAuthenticationContextWrapper();
 
@@ -565,7 +534,8 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
 
             await this.AuthenticateUserAsync(
                 authenticationProvider,
-                mockAuthenticationResult.Object);
+                mockAuthenticationResult.Object,
+                userId);
         }
 
         [TestMethod]
@@ -889,6 +859,35 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ServiceException))]
+        public async Task AuthenticateUserWithAuthorizationCodeAsync_ReturnUrlRequired()
+        {
+            var authenticationProvider = new AdalAuthenticationProvider(
+                AuthenticationTestBase.ClientId,
+                /* returnUrl */ null);
+
+            try
+            {
+                await this.AuthenticateUserWithAuthorizationCodeAsync(
+                    "code",
+                    authenticationProvider,
+                    null,
+                    false);
+            }
+            catch (ServiceException exception)
+            {
+                Assert.IsNotNull(exception.Error, "Error not set in exception.");
+                Assert.IsTrue(exception.IsMatch(OAuthConstants.ErrorCodes.AuthenticationFailure), "Unexpected error code returned.");
+                Assert.AreEqual(
+                    "Return URL is required to authenticate a user with an authorization code.",
+                    exception.Error.Message,
+                    "Unexpected error message returned.");
+
+                throw;
+            }
+        }
+
+        [TestMethod]
         public async Task AuthenticateUserWithRefreshTokenAsync()
         {
             await this.AuthenticateUserWithRefreshTokenAsync(false);
@@ -1151,15 +1150,16 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
 
         public async Task AuthenticateUserAsync(
             AdalAuthenticationProvider authenticationProvider,
-            IAuthenticationResult authenticationResult)
+            IAuthenticationResult authenticationResult,
+            string userId = null)
         {
-            await authenticationProvider.AuthenticateUserAsync(AuthenticationTestBase.ServiceResourceId);
+            await authenticationProvider.AuthenticateUserAsync(AuthenticationTestBase.ServiceResourceId, userId);
             
             Assert.AreEqual(authenticationResult.AccessToken, authenticationProvider.CurrentAccountSession.AccessToken, "Unexpected access token set.");
             Assert.AreEqual(authenticationResult.AccessTokenType, authenticationProvider.CurrentAccountSession.AccessTokenType, "Unexpected access token type set.");
             Assert.AreEqual(AuthenticationTestBase.ClientId, authenticationProvider.CurrentAccountSession.ClientId, "Unexpected client ID set.");
             Assert.AreEqual(authenticationResult.ExpiresOn, authenticationProvider.CurrentAccountSession.ExpiresOnUtc, "Unexpected expiration set.");
-            Assert.IsNull(authenticationProvider.CurrentAccountSession.UserId, "Unexpected user ID set.");
+            Assert.AreEqual(userId, authenticationProvider.CurrentAccountSession.UserId, "Unexpected user ID set.");
         }
 
         public async Task AuthenticateUserWithAuthorizationCodeAsync(

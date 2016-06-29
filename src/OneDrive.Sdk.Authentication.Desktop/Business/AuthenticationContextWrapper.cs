@@ -29,7 +29,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
     public class AuthenticationContextWrapper : IAuthenticationContextWrapper
     {
-        private AuthenticationContext authenticationContext;
+        internal AuthenticationContext authenticationContext;
         internal ITokenCache tokenCache;
 
         /// <summary>

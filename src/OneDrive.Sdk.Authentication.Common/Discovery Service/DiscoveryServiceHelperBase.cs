@@ -20,6 +20,18 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             this.authenticationProvider = authenticationProvider;
         }
 
+        /// <summary>
+        /// Gets the <see cref="IAuthenticationProvider"/> instance for the class.
+        /// Used for unit testing.
+        /// </summary>
+        internal IAuthenticationProvider AuthenticationProvider
+        {
+            get
+            {
+                return this.authenticationProvider;
+            }
+        }
+
         protected async Task<BusinessServiceInformation> RetrieveMyFilesServiceResourceAsync()
         {
             using (var httpProvider = new HttpProvider())

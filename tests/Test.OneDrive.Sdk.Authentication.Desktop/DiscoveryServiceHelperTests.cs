@@ -7,6 +7,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
     using System;
     using System.Collections.Generic;
     using System.Net.Http;
+    using System.Security.Cryptography.X509Certificates;
     using System.Threading.Tasks;
 
     using Microsoft.Graph;
@@ -15,7 +16,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Mocks;
     using Moq;
-
+    
     [TestClass]
     public class DiscoveryServiceHelperTests : AuthenticationTestBase
     {
@@ -23,6 +24,72 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
         public override void Setup()
         {
             base.Setup();
+        }
+
+        [TestMethod]
+        public void DiscoveryServiceHelper()
+        {
+            var authenticationContext = new AuthenticationContext(OAuthConstants.ActiveDirectoryAuthenticationServiceUrl, false);
+            var discoveryServiceHelper = new DiscoveryServiceHelper(
+                AuthenticationTestBase.ClientId,
+                AuthenticationTestBase.ReturnUrl,
+                authenticationContext);
+
+            var authenticationProvider = discoveryServiceHelper.AuthenticationProvider as AdalAuthenticationProvider;
+            Assert.IsNotNull(authenticationProvider, "Unexpected authentication provider initialized.");
+
+            var authenticationContextWrapper = authenticationProvider.AuthenticationContextWrapper as AuthenticationContextWrapper;
+            Assert.IsNotNull(authenticationContextWrapper, "Unexpected authentication context wrapper initialized.");
+            Assert.AreEqual(authenticationContext, authenticationContextWrapper.authenticationContext, "Unexpected authentication context.");
+
+            Assert.IsNull(authenticationProvider.ClientCertificate, "Unexpected client certificate initialized.");
+            Assert.AreEqual(AuthenticationTestBase.ClientId, authenticationProvider.ClientId, "Unexpected client ID initialized.");
+            Assert.IsNull(authenticationProvider.ClientSecret, "Unexpected client secret initialized.");
+            Assert.AreEqual(AuthenticationTestBase.ReturnUrl, authenticationProvider.ReturnUrl, "Unexpected return URL initialized.");
+        }
+
+        [TestMethod]
+        public void DiscoveryServiceHelper_ClientCertificate()
+        {
+            var clientCertificate = new X509Certificate2(@"Certs\testwebapplication.pfx", "password");
+            var discoveryServiceHelper = new DiscoveryServiceHelper(
+                AuthenticationTestBase.ClientId,
+                clientCertificate,
+                AuthenticationTestBase.ReturnUrl);
+
+            var authenticationProvider = discoveryServiceHelper.AuthenticationProvider as AdalAuthenticationProvider;
+            Assert.IsNotNull(authenticationProvider, "Unexpected authentication provider initialized.");
+
+            var authenticationContextWrapper = authenticationProvider.AuthenticationContextWrapper as AuthenticationContextWrapper;
+            Assert.IsNotNull(authenticationContextWrapper, "Unexpected authentication context wrapper initialized.");
+            Assert.IsNotNull(authenticationContextWrapper.authenticationContext, "Unexpected authentication context.");
+
+            Assert.AreEqual(clientCertificate, authenticationProvider.ClientCertificate, "Unexpected client certificate initialized.");
+            Assert.AreEqual(AuthenticationTestBase.ClientId, authenticationProvider.ClientId, "Unexpected client ID initialized.");
+            Assert.IsNull(authenticationProvider.ClientSecret, "Unexpected client secret initialized.");
+            Assert.AreEqual(AuthenticationTestBase.ReturnUrl, authenticationProvider.ReturnUrl, "Unexpected return URL initialized.");
+        }
+
+        [TestMethod]
+        public void DiscoveryServiceHelper_ClientSecret()
+        {
+            var clientSecret = "client secret";
+            var discoveryServiceHelper = new DiscoveryServiceHelper(
+                AuthenticationTestBase.ClientId,
+                clientSecret,
+                AuthenticationTestBase.ReturnUrl);
+
+            var authenticationProvider = discoveryServiceHelper.AuthenticationProvider as AdalAuthenticationProvider;
+            Assert.IsNotNull(authenticationProvider, "Unexpected authentication provider initialized.");
+
+            var authenticationContextWrapper = authenticationProvider.AuthenticationContextWrapper as AuthenticationContextWrapper;
+            Assert.IsNotNull(authenticationContextWrapper, "Unexpected authentication context wrapper initialized.");
+            Assert.IsNotNull(authenticationContextWrapper.authenticationContext, "Unexpected authentication context.");
+
+            Assert.IsNull(authenticationProvider.ClientCertificate, "Unexpected client certificate initialized.");
+            Assert.AreEqual(AuthenticationTestBase.ClientId, authenticationProvider.ClientId, "Unexpected client ID initialized.");
+            Assert.AreEqual(clientSecret, authenticationProvider.ClientSecret, "Unexpected client secret initialized.");
+            Assert.AreEqual(AuthenticationTestBase.ReturnUrl, authenticationProvider.ReturnUrl, "Unexpected return URL initialized.");
         }
 
         [TestMethod]
