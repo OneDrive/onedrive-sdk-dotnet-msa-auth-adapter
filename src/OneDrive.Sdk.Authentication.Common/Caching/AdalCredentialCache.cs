@@ -20,7 +20,7 @@
 //  THE SOFTWARE.
 // ------------------------------------------------------------------------------
 
-namespace Microsoft.OneDrive.Sdk
+namespace Microsoft.OneDrive.Sdk.Authentication
 {
     using System;
     using System.Linq;
@@ -34,8 +34,16 @@ namespace Microsoft.OneDrive.Sdk
         /// <summary>
         /// Instantiates a new, empty <see cref="AdalCredentialCache"/>.
         /// </summary>
+        internal AdalCredentialCache(ITokenCache tokenCache)
+        {
+            this.tokenCache = tokenCache;
+        }
+
+        /// <summary>
+        /// Instantiates a new, empty <see cref="AdalCredentialCache"/>.
+        /// </summary>
         public AdalCredentialCache()
-            : this(null)
+            : this((byte[])null)
         {
         }
 
@@ -145,7 +153,7 @@ namespace Microsoft.OneDrive.Sdk
             }
         }
 
-        internal override AccountSession GetResultFromCache(AccountType accountType, string clientId, string userId)
+        internal override AccountSession GetResultFromCache(string clientId, string userId)
         {
             // Let ADAL handle the caching
             return null;

@@ -10,7 +10,6 @@ namespace Microsoft.OneDrive.Sdk.Authentication
     using System.Threading.Tasks;
 
     using Microsoft.Graph;
-    using Microsoft.IdentityModel.Clients.ActiveDirectory;
     
     public abstract class DiscoveryServiceHelperBase
     {
@@ -21,7 +20,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             this.authenticationProvider = authenticationProvider;
         }
 
-        protected async Task<BusinessServiceInfo> RetrieveMyFilesServiceResourceAsync()
+        protected async Task<BusinessServiceInformation> RetrieveMyFilesServiceResourceAsync()
         {
             using (var httpProvider = new HttpProvider())
             {
@@ -30,7 +29,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             }
         }
 
-        protected async Task<BusinessServiceInfo> RetrieveMyFilesServiceResourceAsync(IHttpProvider httpProvider)
+        protected async Task<BusinessServiceInformation> RetrieveMyFilesServiceResourceAsync(IHttpProvider httpProvider)
         {
             using (var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, OAuthConstants.ActiveDirectoryDiscoveryServiceUrl))
             {
@@ -64,20 +63,13 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                             });
                     }
 
-                return new BusinessServiceInfo
+                return new BusinessServiceInformation
                 {
                     ServiceEndpointBaseUrl = service.ServiceEndpointUri,
                     ServiceResourceId = service.ServiceResourceId,
                 };
                 }
             }
-        }
-
-        protected UserIdentifier GetUserIdentifierForAuthentication(string userId)
-        {
-            return string.IsNullOrEmpty(userId)
-                ? UserIdentifier.AnyUser
-                : new UserIdentifier(userId, UserIdentifierType.OptionalDisplayableId);
         }
     }
 }

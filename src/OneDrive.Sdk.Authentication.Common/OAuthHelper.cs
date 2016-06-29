@@ -17,7 +17,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
     public class OAuthHelper
     {
         public async Task<string> GetAuthorizationCodeAsync(
-            string appId,
+            string clientId,
             string returnUrl,
             string[] scopes,
             IWebAuthenticationUi webAuthenticationUi,
@@ -27,7 +27,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             {
                 var requestUri = new Uri(
                     this.GetAuthorizationCodeRequestUrl(
-                        appId,
+                        clientId,
                         returnUrl,
                         scopes,
                         userId));
@@ -51,15 +51,15 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// <summary>
         /// Gets the request URL for OAuth authentication using the code flow.
         /// </summary>
-        /// <param name="appId">The ID of the application.</param>
+        /// <param name="clientId">The ID of the application.</param>
         /// <param name="returnUrl">The return URL for the request. Defaults to the service info value.</param>
         /// <returns>The OAuth request URL.</returns>
-        public string GetAuthorizationCodeRequestUrl(string appId, string returnUrl, string[] scopes, string userId = null)
+        public string GetAuthorizationCodeRequestUrl(string clientId, string returnUrl, string[] scopes, string userId = null)
         {
             var requestUriStringBuilder = new StringBuilder();
             requestUriStringBuilder.Append(OAuthConstants.MicrosoftAccountAuthenticationServiceUrl);
             requestUriStringBuilder.AppendFormat("?{0}={1}", OAuthConstants.RedirectUriKeyName, returnUrl);
-            requestUriStringBuilder.AppendFormat("&{0}={1}", OAuthConstants.ClientIdKeyName, appId);
+            requestUriStringBuilder.AppendFormat("&{0}={1}", OAuthConstants.ClientIdKeyName, clientId);
 
             if (scopes != null)
             {
@@ -80,14 +80,14 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// Gets the request body for redeeming an authorization code for an access token.
         /// </summary>
         /// <param name="code">The authorization code to redeem.</param>
-        /// <param name="appId">The ID of the application.</param>
+        /// <param name="clientId">The ID of the application.</param>
         /// <param name="returnUrl">The return URL for the request. Defaults to the service info value.</param>
         /// <returns>The request body for the code redemption call.</returns>
-        public string GetAuthorizationCodeRedemptionRequestBody(string code, string appId, string returnUrl, string[] scopes, string clientSecret = null)
+        public string GetAuthorizationCodeRedemptionRequestBody(string code, string clientId, string returnUrl, string[] scopes, string clientSecret = null)
         {
             var requestBodyStringBuilder = new StringBuilder();
             requestBodyStringBuilder.AppendFormat("{0}={1}", OAuthConstants.RedirectUriKeyName, returnUrl);
-            requestBodyStringBuilder.AppendFormat("&{0}={1}", OAuthConstants.ClientIdKeyName, appId);
+            requestBodyStringBuilder.AppendFormat("&{0}={1}", OAuthConstants.ClientIdKeyName, clientId);
 
             if (scopes != null)
             {
@@ -110,11 +110,11 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// </summary>
         /// <param name="refreshToken">The refresh token to redeem.</param>
         /// <returns>The request body for the redemption call.</returns>
-        public string GetRefreshTokenRequestBody(string refreshToken, string appId, string returnUrl, string[] scopes, string clientSecret = null)
+        public string GetRefreshTokenRequestBody(string refreshToken, string clientId, string returnUrl, string[] scopes, string clientSecret = null)
         {
             var requestBodyStringBuilder = new StringBuilder();
             requestBodyStringBuilder.AppendFormat("{0}={1}", OAuthConstants.RedirectUriKeyName, returnUrl);
-            requestBodyStringBuilder.AppendFormat("&{0}={1}", OAuthConstants.ClientIdKeyName, appId);
+            requestBodyStringBuilder.AppendFormat("&{0}={1}", OAuthConstants.ClientIdKeyName, clientId);
 
             if (scopes != null)
             {
@@ -132,18 +132,18 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             return requestBodyStringBuilder.ToString();
         }
 
-        public string GetSignOutUrl(string appId, string returnUrl)
+        public string GetSignOutUrl(string clientId, string returnUrl)
         {
             return string.Format(
                 "{0}?client_id={1}&redirect_uri={2}",
                 OAuthConstants.MicrosoftAccountSignOutUrl,
-                appId,
+                clientId,
                 returnUrl);
         }
 
         public Task<AccountSession> RedeemAuthorizationCodeAsync(
             string authorizationCode,
-            string appId,
+            string clientId,
             string clientSecret,
             string returnUrl,
             string[] scopes)
@@ -152,7 +152,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             {
                 return this.RedeemAuthorizationCodeAsync(
                     authorizationCode,
-                    appId,
+                    clientId,
                     clientSecret,
                     returnUrl,
                     scopes,
@@ -162,7 +162,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
         public Task<AccountSession> RedeemAuthorizationCodeAsync(
             string authorizationCode,
-            string appId,
+            string clientId,
             string clientSecret,
             string returnUrl,
             string[] scopes,
@@ -181,7 +181,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             return this.SendTokenRequestAsync(
                 this.GetAuthorizationCodeRedemptionRequestBody(
                     authorizationCode,
-                    appId,
+                    clientId,
                     returnUrl,
                     scopes,
                     clientSecret),
@@ -190,13 +190,13 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
         public Task<AccountSession> RedeemRefreshTokenAsync(
             string refreshToken,
-            string appId,
+            string clientId,
             string returnUrl,
             string[] scopes)
         {
             return this.RedeemRefreshTokenAsync(
                 refreshToken,
-                appId,
+                clientId,
                 /* clientSecret */ null,
                 returnUrl,
                 scopes,
@@ -205,14 +205,14 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
         public Task<AccountSession> RedeemRefreshTokenAsync(
             string refreshToken,
-            string appId,
+            string clientId,
             string returnUrl,
             string[] scopes,
             IHttpProvider httpProvider)
         {
             return this.RedeemRefreshTokenAsync(
                 refreshToken,
-                appId,
+                clientId,
                 /* clientSecret */ null,
                 returnUrl,
                 scopes,
@@ -221,14 +221,14 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
         public Task<AccountSession> RedeemRefreshTokenAsync(
             string refreshToken,
-            string appId,
+            string clientId,
             string clientSecret,
             string returnUrl,
             string[] scopes)
         {
             return this.RedeemRefreshTokenAsync(
                 refreshToken,
-                appId,
+                clientId,
                 clientSecret,
                 returnUrl,
                 scopes,
@@ -237,7 +237,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
         public Task<AccountSession> RedeemRefreshTokenAsync(
             string refreshToken,
-            string appId,
+            string clientId,
             string clientSecret,
             string returnUrl,
             string[] scopes,
@@ -256,7 +256,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             return this.SendTokenRequestAsync(
                 this.GetRefreshTokenRequestBody(
                     refreshToken,
-                    appId,
+                    clientId,
                     returnUrl,
                     scopes,
                     clientSecret),

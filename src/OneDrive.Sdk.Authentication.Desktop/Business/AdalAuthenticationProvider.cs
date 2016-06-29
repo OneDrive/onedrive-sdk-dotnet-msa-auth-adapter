@@ -19,12 +19,59 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         private OAuthHelper oAuthHelper;
 
         internal IWebAuthenticationUi webAuthenticationUi;
-        
+
+        internal AdalAuthenticationProvider(
+            string clientId,
+            string returnUrl,
+            IAuthenticationContextWrapper authenticationContextWrapper)
+            : base(clientId, returnUrl, authenticationContextWrapper)
+        {
+            this.AuthenticateUser = this.PromptUserForAuthenticationAsync;
+            this.AuthenticateUserSilently = this.SilentlyAuthenticateUserAsync;
+
+            this.oAuthHelper = new OAuthHelper();
+        }
+
+        internal AdalAuthenticationProvider(
+            string clientId,
+            string clientSecret,
+            string returnUrl,
+            IAuthenticationContextWrapper authenticationContextWrapper)
+            : base(clientId, returnUrl, authenticationContextWrapper)
+        {
+            this.clientSecret = clientSecret;
+
+            this.AuthenticateUser = this.PromptUserForAuthenticationWithClientSecretAsync;
+            this.AuthenticateUserSilently = this.SilentlyAuthenticateUserWithClientSecretAsync;
+
+            this.oAuthHelper = new OAuthHelper();
+        }
+
+        internal AdalAuthenticationProvider(
+            string clientId,
+            X509Certificate2 clientCertificate,
+            string returnUrl,
+            IAuthenticationContextWrapper authenticationContextWrapper)
+            : base (clientId, returnUrl, authenticationContextWrapper)
+        {
+            this.clientCertificate = clientCertificate;
+
+            this.AuthenticateUser = this.PromptUserForAuthenticationWithClientCertificateAsync;
+            this.AuthenticateUserSilently = this.SilentlyAuthenticateUserWithClientCertificateAsync;
+
+            this.oAuthHelper = new OAuthHelper();
+        }
+
         public AdalAuthenticationProvider(
             string clientId,
             string returnUrl,
             AuthenticationContext authenticationContext = null)
-            : this(clientId, /* clientSecret */ null, /* clientCertificate */ null, returnUrl, authenticationContext)
+            : this(
+                  clientId,
+                  /* clientSecret */ null,
+                  /* clientCertificate */ null,
+                  returnUrl,
+                  authenticationContext)
         {
         }
 
@@ -33,7 +80,12 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             string clientSecret,
             string returnUrl,
             AuthenticationContext authenticationContext = null)
-            : this(clientId, clientSecret, /* clientCertificate */ null, returnUrl, authenticationContext)
+            : this(
+                  clientId,
+                  clientSecret,
+                  /* clientCertificate */ null,
+                  returnUrl,
+                  authenticationContext)
         {
         }
 
@@ -42,7 +94,12 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             X509Certificate2 clientCertificate,
             string returnUrl,
             AuthenticationContext authenticationContext = null)
-            : this(clientId, /* clientSecret */ null, clientCertificate, returnUrl, authenticationContext)
+            : this(
+                  clientId,
+                  /* clientSecret */ null,
+                  clientCertificate,
+                  returnUrl,
+                  authenticationContext)
         {
         }
 
@@ -81,41 +138,65 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
         protected override AuthenticateUserSilentlyDelegate AuthenticateUserSilently { get; set; }
 
-        public override async Task AuthenticateUserWithRefreshTokenAsync(string refreshToken)
+        public Task AuthenticateUserWithAuthorizationCodeAsync(string authorizationCode)
         {
-            if (string.IsNullOrEmpty(refreshToken))
+            return this.AuthenticateUserWithAuthorizationCodeAsync(authorizationCode, /* serviceResourceId */ null);
+        }
+
+        public async Task AuthenticateUserWithAuthorizationCodeAsync(string authorizationCode, string serviceResourceId)
+        {
+            if (string.IsNullOrEmpty(authorizationCode))
             {
                 throw new ServiceException(
                     new Error
                     {
                         Code = OAuthConstants.ErrorCodes.AuthenticationFailure,
-                        Message = "Refresh token is required to authenticate a user with a refresh token."
+                        Message = "Authorization code is required to authenticate a user with an authorization code."
                     });
             }
 
-            AuthenticationResult authenticationResult = null;
+            if (string.IsNullOrEmpty(returnUrl))
+            {
+                throw new ServiceException(
+                    new Error
+                    {
+                        Code = OAuthConstants.ErrorCodes.AuthenticationFailure,
+                        Message = "Return URL is required to authenticate a user with an authorization code."
+                    });
+            }
+
+            this.currentServiceResourceId = serviceResourceId;
+
+            IAuthenticationResult authenticationResult = null;
 
             try
             {
                 if (this.clientCertificate != null)
                 {
                     var clientAssertionCertificate = new ClientAssertionCertificate(this.clientId, this.clientCertificate);
-                    authenticationResult = await this.authenticationContext.AcquireTokenByRefreshTokenAsync(
-                        refreshToken,
-                        clientAssertionCertificate).ConfigureAwait(false);
+                    authenticationResult = await this.authenticationContextWrapper.AcquireTokenByAuthorizationCodeAsync(
+                        authorizationCode,
+                        new Uri(this.returnUrl),
+                        clientAssertionCertificate,
+                        serviceResourceId).ConfigureAwait(false);
                 }
                 else if (!string.IsNullOrEmpty(this.clientSecret))
                 {
                     var clientCredential = this.GetClientCredentialForAuthentication(this.clientId, this.clientSecret);
-                    authenticationResult = await this.authenticationContext.AcquireTokenByRefreshTokenAsync(
-                        refreshToken,
-                        clientCredential).ConfigureAwait(false);
+                    authenticationResult = await this.authenticationContextWrapper.AcquireTokenByAuthorizationCodeAsync(
+                        authorizationCode,
+                        new Uri(this.returnUrl),
+                        clientCredential,
+                        serviceResourceId).ConfigureAwait(false);
                 }
                 else
                 {
-                    authenticationResult = await this.authenticationContext.AcquireTokenByRefreshTokenAsync(
-                        refreshToken,
-                        this.clientId).ConfigureAwait(false);
+                    throw new ServiceException(
+                    new Error
+                    {
+                        Code = OAuthConstants.ErrorCodes.AuthenticationFailure,
+                        Message = "Client certificate or client secret is required to authenticate a user with an authorization code."
+                    });
                 }
             }
             catch (Exception exception)
@@ -128,7 +209,12 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 BusinessAuthenticationExceptionHelper.HandleAuthenticationException(null);
             }
 
-            this.CurrentAuthenticationResult = authenticationResult;
+            this.CurrentAccountSession = this.ConvertAuthenticationResultToAccountSession(authenticationResult);
+        }
+
+        public override Task AuthenticateUserWithRefreshTokenAsync(string refreshToken)
+        {
+            return this.AuthenticateUserWithRefreshTokenAsync(refreshToken, /* serviceResourceId */ null);
         }
 
         public override async Task AuthenticateUserWithRefreshTokenAsync(string refreshToken, string serviceResourceId)
@@ -145,14 +231,14 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             this.currentServiceResourceId = serviceResourceId;
 
-            AuthenticationResult authenticationResult = null;
+            IAuthenticationResult authenticationResult = null;
 
             try
             {
                 if (this.clientCertificate != null)
                 {
                     var clientAssertionCertificate = new ClientAssertionCertificate(this.clientId, this.clientCertificate);
-                    authenticationResult = await this.authenticationContext.AcquireTokenByRefreshTokenAsync(
+                    authenticationResult = await this.authenticationContextWrapper.AcquireTokenByRefreshTokenAsync(
                         refreshToken,
                         clientAssertionCertificate,
                         serviceResourceId).ConfigureAwait(false);
@@ -160,14 +246,14 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 else if (!string.IsNullOrEmpty(this.clientSecret))
                 {
                     var clientCredential = this.GetClientCredentialForAuthentication(this.clientId, this.clientSecret);
-                    authenticationResult = await this.authenticationContext.AcquireTokenByRefreshTokenAsync(
+                    authenticationResult = await this.authenticationContextWrapper.AcquireTokenByRefreshTokenAsync(
                         refreshToken,
                         clientCredential,
                         serviceResourceId).ConfigureAwait(false);
                 }
                 else
                 {
-                    authenticationResult = await this.authenticationContext.AcquireTokenByRefreshTokenAsync(
+                    authenticationResult = await this.authenticationContextWrapper.AcquireTokenByRefreshTokenAsync(
                         refreshToken,
                         this.clientId,
                         serviceResourceId).ConfigureAwait(false);
@@ -183,72 +269,82 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 BusinessAuthenticationExceptionHelper.HandleAuthenticationException(null);
             }
 
-            this.CurrentAuthenticationResult = authenticationResult;
+            this.CurrentAccountSession = this.ConvertAuthenticationResultToAccountSession(authenticationResult);
         }
 
-        private async Task<AuthenticationResult> SilentlyAuthenticateUserAsync(string serviceResourceId, string userId)
+        private async Task<IAuthenticationResult> SilentlyAuthenticateUserAsync(
+            string serviceResourceId,
+            string userId,
+            bool throwOnError)
         {
-            AuthenticationResult authenticationResult = null;
+            IAuthenticationResult authenticationResult = null;
 
             var userIdentifier = this.GetUserIdentifierForAuthentication(userId);
 
             try
             {
-                authenticationResult = await this.authenticationContext.AcquireTokenSilentAsync(
-                    OAuthConstants.ActiveDirectoryDiscoveryResource,
+                authenticationResult = await this.authenticationContextWrapper.AcquireTokenSilentAsync(
+                    serviceResourceId,
                     clientId,
                     userIdentifier).ConfigureAwait(false);
             }
             catch (Exception)
             {
-                // If an exception happens during silent authentication try interactive authentication.
+                if (throwOnError)
+                {
+                    throw;
+                }
             }
 
             return authenticationResult;
         }
 
-        private Task<AuthenticationResult> PromptUserForAuthenticationAsync(string serviceResourceId, string userId)
+        private Task<IAuthenticationResult> PromptUserForAuthenticationAsync(string serviceResourceId, string userId)
         {
             var userIdentifier = this.GetUserIdentifierForAuthentication(userId);
 
             return Task.FromResult(
-                this.authenticationContext.AcquireToken(
-                    OAuthConstants.ActiveDirectoryDiscoveryResource,
+                this.authenticationContextWrapper.AcquireToken(
+                    serviceResourceId,
                     clientId,
                     new Uri(returnUrl),
                     PromptBehavior.Auto,
                     userIdentifier));
         }
 
-        private async Task<AuthenticationResult> SilentlyAuthenticateUserWithClientSecretAsync(
+        private async Task<IAuthenticationResult> SilentlyAuthenticateUserWithClientSecretAsync(
             string serviceResourceId,
-            string userId = null)
+            string userId,
+            bool throwOnError)
         {
-            AuthenticationResult authenticationResult = null;
+            IAuthenticationResult authenticationResult = null;
 
             var clientCredential = this.GetClientCredentialForAuthentication(this.clientId, this.clientSecret);
             var userIdentifier = this.GetUserIdentifierForAuthentication(userId);
 
             try
             {
-                authenticationResult = await this.authenticationContext.AcquireTokenSilentAsync(
+                authenticationResult = await this.authenticationContextWrapper.AcquireTokenSilentAsync(
                     serviceResourceId,
                     clientCredential,
                     userIdentifier).ConfigureAwait(false);
             }
             catch (Exception)
             {
-                // If an exception happens during silent authentication try interactive authentication.
+                if (throwOnError)
+                {
+                    throw;
+                }
             }
 
             return authenticationResult;
         }
 
-        private async Task<AuthenticationResult> PromptUserForAuthenticationWithClientSecretAsync(
+        private async Task<IAuthenticationResult> PromptUserForAuthenticationWithClientSecretAsync(
             string serviceResourceId,
-            string userId = null)
+            string userId)
         {
-            AuthenticationResult authenticationResult = null;
+            IAuthenticationResult authenticationResult = null;
 
             var clientCredential = this.GetClientCredentialForAuthentication(this.clientId, this.clientSecret);
             var userIdentifier = this.GetUserIdentifierForAuthentication(userId);
@@ -269,7 +365,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             string code;
             if (authenticationResponseValues != null && authenticationResponseValues.TryGetValue("code", out code))
             {
-                authenticationResult = await this.authenticationContext.AcquireTokenByAuthorizationCodeAsync(
+                authenticationResult = await this.authenticationContextWrapper.AcquireTokenByAuthorizationCodeAsync(
                     code,
                     redirectUri,
                     clientCredential,
@@ -279,35 +375,39 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             return authenticationResult;
         }
 
-        private async Task<AuthenticationResult> SilentlyAuthenticateUserWithClientCertificateAsync(
+        private async Task<IAuthenticationResult> SilentlyAuthenticateUserWithClientCertificateAsync(
             string serviceResourceId,
-            string userId = null)
+            string userId,
+            bool throwOnError)
         {
-            AuthenticationResult authenticationResult = null;
+            IAuthenticationResult authenticationResult = null;
 
             var clientAssertionCertificate = new ClientAssertionCertificate(this.clientId, this.clientCertificate);
             var userIdentifier = this.GetUserIdentifierForAuthentication(userId);
 
             try
             {
-                authenticationResult = await this.authenticationContext.AcquireTokenSilentAsync(
+                authenticationResult = await this.authenticationContextWrapper.AcquireTokenSilentAsync(
                     serviceResourceId,
                     clientAssertionCertificate,
                     userIdentifier).ConfigureAwait(false);
             }
             catch (Exception)
             {
-                // If an exception happens during silent authentication try interactive authentication.
+                if (throwOnError)
+                {
+                    throw;
+                }
             }
 
             return authenticationResult;
         }
 
-        private async Task<AuthenticationResult> PromptUserForAuthenticationWithClientCertificateAsync(
+        private async Task<IAuthenticationResult> PromptUserForAuthenticationWithClientCertificateAsync(
             string serviceResourceId,
-            string userId = null)
+            string userId)
         {
-            AuthenticationResult authenticationResult = null;
+            IAuthenticationResult authenticationResult = null;
 
             var clientAssertionCertificate = new ClientAssertionCertificate(this.clientId, this.clientCertificate);
             var userIdentifier = this.GetUserIdentifierForAuthentication(userId);
@@ -328,7 +428,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             string code;
             if (authenticationResponseValues != null && authenticationResponseValues.TryGetValue("code", out code))
             {
-                authenticationResult = await this.authenticationContext.AcquireTokenByAuthorizationCodeAsync(
+                authenticationResult = await this.authenticationContextWrapper.AcquireTokenByAuthorizationCodeAsync(
                     code,
                     redirectUri,
                     clientAssertionCertificate,
@@ -340,9 +440,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
         private ClientCredential GetClientCredentialForAuthentication(string clientId, string clientSecret)
         {
-            return string.IsNullOrEmpty(clientSecret)
-                ? null
-                : new ClientCredential(clientId, clientSecret);
+            return new ClientCredential(clientId, clientSecret);
         }
     }
 }

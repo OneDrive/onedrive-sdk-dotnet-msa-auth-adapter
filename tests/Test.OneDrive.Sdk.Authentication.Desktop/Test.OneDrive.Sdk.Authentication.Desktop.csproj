@@ -48,6 +48,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\src\OneDrive.Sdk.Authentication.Common\Microsoft.Graph.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.IdentityModel.Clients.ActiveDirectory, Version=2.20.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.IdentityModel.Clients.ActiveDirectory.2.20.301151232\lib\net45\Microsoft.IdentityModel.Clients.ActiveDirectory.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Clients.ActiveDirectory.WindowsForms, Version=2.20.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.IdentityModel.Clients.ActiveDirectory.2.20.301151232\lib\net45\Microsoft.IdentityModel.Clients.ActiveDirectory.WindowsForms.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.OneDrive.Sdk">
       <HintPath>..\..\src\OneDrive.Sdk.Authentication.Common\Microsoft.OneDrive.Sdk.dll</HintPath>
     </Reference>
@@ -73,6 +81,15 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AccountSessionTests.cs" />
+    <Compile Include="AdalAuthenticationProviderTestBase.cs" />
+    <Compile Include="DiscoveryServiceHelperTests.cs" />
+    <Compile Include="AdalAuthenticationProviderTests.cs" />
+    <Compile Include="AdalCredentialCacheTests.cs" />
+    <Compile Include="Mocks\MockAdalCredentialCache.cs" />
+    <Compile Include="Mocks\MockAuthenticationContextWrapper.cs" />
+    <Compile Include="Mocks\MockAuthenticationResult.cs" />
+    <Compile Include="Mocks\MockTokenCache.cs" />
+    <Compile Include="Mocks\MockTokenCacheItem.cs" />
     <Compile Include="MsaAuthenticationProviderTests.cs" />
     <Compile Include="CredentialCacheKeyTests.cs" />
     <Compile Include="CredentialCacheTests.cs" />
@@ -93,6 +110,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Certs\testwebapplication.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

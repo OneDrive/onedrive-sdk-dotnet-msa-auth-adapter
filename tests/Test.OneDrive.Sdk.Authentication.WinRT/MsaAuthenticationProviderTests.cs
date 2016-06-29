@@ -38,7 +38,7 @@ namespace Test.OneDrive.Sdk.Authentication.WinRT
     [TestClass]
     public class MsaAuthenticationProviderTests
     {
-        private readonly string appId = "app ID";
+        private readonly string clientId = "client ID";
         private readonly string returnUrl = "https://localhost/return";
         private readonly string[] scopes = new string[] { "scopes" };
 
@@ -56,7 +56,7 @@ namespace Test.OneDrive.Sdk.Authentication.WinRT
             this.webAuthenticationUi.OnAuthenticateAsync = this.OnAuthenticateAsync;
 
             this.authenticationProvider = new MsaAuthenticationProvider(
-                this.appId,
+                this.clientId,
                 this.returnUrl,
                 this.scopes,
                 this.credentialCache);
@@ -149,7 +149,7 @@ namespace Test.OneDrive.Sdk.Authentication.WinRT
                 };
 
                 this.authenticationProvider = new MsaAuthenticationProvider(
-                    this.appId,
+                    this.clientId,
                     /* returnUrl */ null,
                     this.scopes,
                     this.credentialCache);
@@ -170,7 +170,7 @@ namespace Test.OneDrive.Sdk.Authentication.WinRT
             var expectedSignOutUrl = string.Format(
                 "{0}?client_id={1}&redirect_uri={2}",
                 OAuthConstants.MicrosoftAccountSignOutUrl,
-                this.appId,
+                this.clientId,
                 this.returnUrl);
 
             this.webAuthenticationUi.OnAuthenticateAsync = (Uri requestUri, Uri callbackUri) =>
@@ -202,7 +202,7 @@ namespace Test.OneDrive.Sdk.Authentication.WinRT
             var expectedSignOutUrl = string.Format(
                 "{0}?client_id={1}&redirect_uri={2}",
                 OAuthConstants.MicrosoftAccountSignOutUrl,
-                this.appId,
+                this.clientId,
                 applicationCallbackUrl);
 
             this.webAuthenticationUi.OnAuthenticateAsync = (Uri requestUri, Uri callbackUri) =>
@@ -218,7 +218,7 @@ namespace Test.OneDrive.Sdk.Authentication.WinRT
             };
 
             this.authenticationProvider = new MsaAuthenticationProvider(
-                this.appId,
+                this.clientId,
                 /* returnUrl */ null,
                 this.scopes,
                 this.credentialCache);

@@ -16,14 +16,33 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
     public abstract class AdalAuthenticationProviderBase : IAuthenticationProvider
     {
-        protected delegate Task<AuthenticationResult> AuthenticateUserDelegate(string serviceResourceId, string userId);
-        protected delegate Task<AuthenticationResult> AuthenticateUserSilentlyDelegate(string serviceResourceId, string userId);
+        internal AdalCredentialCache adalCredentialCache;
+        internal string currentServiceResourceId;
+
+        protected delegate Task<IAuthenticationResult> AuthenticateUserDelegate(string serviceResourceId, string userId);
+        protected delegate Task<IAuthenticationResult> AuthenticateUserSilentlyDelegate(string serviceResourceId, string userId, bool throwOnError);
 
         protected readonly string clientId;
         protected readonly string returnUrl;
-        protected string currentServiceResourceId;
+        
+        protected IAuthenticationContextWrapper authenticationContextWrapper;
 
-        protected AuthenticationContext authenticationContext;
+        /// <summary>
+        /// Constructor for unit testing.
+        /// </summary>
+        /// <param name="clientId">The ID of the client.</param>
+        /// <param name="returnUrl">The return URL for the client.</param>
+        /// <param name="authenticationContextWrapper">The context for authenticating against AAD.</param>
+        internal AdalAuthenticationProviderBase(
+            string clientId,
+            string returnUrl,
+            IAuthenticationContextWrapper authenticationContextWrapper)
+        {
+            this.clientId = clientId;
+            this.returnUrl = returnUrl;
+            this.adalCredentialCache = new AdalCredentialCache(authenticationContextWrapper.TokenCache);
+            this.authenticationContextWrapper = authenticationContextWrapper;
+        }
 
         internal AdalAuthenticationProviderBase(
             string clientId,
@@ -40,30 +59,31 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                     });
             }
 
-            if (string.IsNullOrEmpty(returnUrl))
-            {
-                throw new ServiceException(
-                    new Error
-                    {
-                        Code = OAuthConstants.ErrorCodes.AuthenticationFailure,
-                        Message = "AdalAuthenticationProvider requires a return URL for authenticating users."
-                    });
-            }
-
             this.clientId = clientId;
             this.returnUrl = returnUrl;
-            this.authenticationContext = authenticationContext ?? new AuthenticationContext(OAuthConstants.ActiveDirectoryAuthenticationServiceUrl);
+
+            if (authenticationContext != null)
+            {
+                this.authenticationContextWrapper = new AuthenticationContextWrapper(authenticationContext);
+            }
+            else
+            {
+                this.authenticationContextWrapper = new AuthenticationContextWrapper(
+                    new AuthenticationContext(OAuthConstants.ActiveDirectoryAuthenticationServiceUrl));
+            }
+
+            this.adalCredentialCache = new AdalCredentialCache(this.authenticationContextWrapper.TokenCache);
         }
 
         protected abstract AuthenticateUserDelegate AuthenticateUser { get; set; }
 
         protected abstract AuthenticateUserSilentlyDelegate AuthenticateUserSilently { get; set; }
 
-        public AuthenticationResult CurrentAuthenticationResult { get; protected set; }
+        public AccountSession CurrentAccountSession { get; internal set; }
 
         public async Task AuthenticateRequestAsync(HttpRequestMessage request)
         {
-            if (this.CurrentAuthenticationResult == null)
+            if (this.CurrentAccountSession == null)
             {
                 throw new ServiceException(
                     new Error
@@ -73,50 +93,52 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                     });
             }
 
-            if (this.IsExpiring(this.CurrentAuthenticationResult))
+            if (this.CurrentAccountSession.IsExpiring)
             {
-                if (!string.IsNullOrEmpty(this.CurrentAuthenticationResult.RefreshToken))
+                if (!string.IsNullOrEmpty(this.CurrentAccountSession.RefreshToken))
                 {
                     await this.AuthenticateUserWithRefreshTokenAsync(
-                        this.CurrentAuthenticationResult.RefreshToken,
+                        this.CurrentAccountSession.RefreshToken,
                         this.currentServiceResourceId).ConfigureAwait(false);
                 }
                 else
                 {
-                    AuthenticationResult silentAuthenticationResult = null;
+                    IAuthenticationResult silentAuthenticationResult = null;
+
+                    var authenticationFailedErrorMessage = "Failed to retrieve a cached account session or silently retrieve a new access token. Please call AuthenticateUserAsync...() again to re-authenticate.";
 
                     try
                     {
                         silentAuthenticationResult = await this.AuthenticateUserSilently(
                             this.currentServiceResourceId,
-                            this.CurrentAuthenticationResult.UserInfo == null
-                                ? null
-                                : this.CurrentAuthenticationResult.UserInfo.UniqueId).ConfigureAwait(false);
+                            this.CurrentAccountSession.UserId,
+                            true).ConfigureAwait(false);
                     }
                     catch (Exception exception)
                     {
+                        
                         throw new ServiceException(
                             new Error
                             {
                                 Code = OAuthConstants.ErrorCodes.AuthenticationFailure,
-                                Message = "Failed to retrieve a cached account session or silently retrieve a new access token. Please call AuthenticateUserAsync...() again to re-authenticate."
+                                Message = authenticationFailedErrorMessage
                             },
                             exception);
                     }
 
-                    this.ValidateAuthenticationResult(silentAuthenticationResult);
+                    this.ValidateAuthenticationResult(silentAuthenticationResult, authenticationFailedErrorMessage);
 
-                    this.CurrentAuthenticationResult = silentAuthenticationResult;
+                    this.CurrentAccountSession = this.ConvertAuthenticationResultToAccountSession(silentAuthenticationResult);
                 }
             }
 
-            var accessTokenType = string.IsNullOrEmpty(this.CurrentAuthenticationResult.AccessTokenType)
-                ? "bearer"
-                : this.CurrentAuthenticationResult.AccessTokenType;
+            var accessTokenType = string.IsNullOrEmpty(this.CurrentAccountSession.AccessTokenType)
+                ? OAuthConstants.Headers.Bearer
+                : this.CurrentAccountSession.AccessTokenType;
 
             request.Headers.Authorization = new AuthenticationHeaderValue(
                 accessTokenType,
-                this.CurrentAuthenticationResult.AccessToken);
+                this.CurrentAccountSession.AccessToken);
         }
 
         public async Task AuthenticateUserAsync(string serviceResourceId, string userId = null)
@@ -127,17 +149,17 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                     new Error
                     {
                         Code = OAuthConstants.ErrorCodes.AuthenticationFailure,
-                        Message = "Service resource ID is required to authenticate a user."
+                        Message = "Service resource ID is required to authenticate a user with AuthenticateUserAsync."
                     });
             }
 
             this.currentServiceResourceId = serviceResourceId;
 
-            AuthenticationResult authenticationResult = null;
+            IAuthenticationResult authenticationResult = null;
 
             try
             {
-                authenticationResult = await this.AuthenticateUserSilently(serviceResourceId, userId).ConfigureAwait(false);
+                authenticationResult = await this.AuthenticateUserSilently(serviceResourceId, userId, false).ConfigureAwait(false);
 
                 this.ValidateAuthenticationResult(authenticationResult);
             }
@@ -150,6 +172,16 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             if (authenticationResult == null)
             {
+                if (string.IsNullOrEmpty(returnUrl))
+                {
+                    throw new ServiceException(
+                        new Error
+                        {
+                            Code = OAuthConstants.ErrorCodes.AuthenticationFailure,
+                            Message = "The user could not be silently authenticated and return URL is required to prompt the user for authentication."
+                        });
+                }
+
                 try
                 {
                     authenticationResult = await this.AuthenticateUser(serviceResourceId, userId).ConfigureAwait(false);
@@ -165,16 +197,38 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 }
             }
 
-            this.CurrentAuthenticationResult = authenticationResult;
+            this.CurrentAccountSession = this.ConvertAuthenticationResultToAccountSession(authenticationResult);
         }
 
         public abstract Task AuthenticateUserWithRefreshTokenAsync(string refreshToken);
 
         public abstract Task AuthenticateUserWithRefreshTokenAsync(string refreshToken, string serviceResourceId);
 
-        public void SignOut()
+        public Task SignOutAsync()
         {
-            this.authenticationContext.TokenCache.Clear();
+            this.adalCredentialCache.Clear();
+            this.currentServiceResourceId = null;
+            this.CurrentAccountSession = null;
+
+            return Task.FromResult(0);
+        }
+
+        protected AccountSession ConvertAuthenticationResultToAccountSession(IAuthenticationResult authenticationResult)
+        {
+            if (authenticationResult == null)
+            {
+                return null;
+            }
+
+            return new AccountSession
+            {
+                AccessToken = authenticationResult.AccessToken,
+                AccessTokenType = authenticationResult.AccessTokenType,
+                ClientId = this.clientId,
+                ExpiresOnUtc = authenticationResult.ExpiresOn,
+                RefreshToken = authenticationResult.RefreshToken,
+                UserId = authenticationResult.UserInfo == null ? null : authenticationResult.UserInfo.UniqueId,
+            };
         }
 
         protected UserIdentifier GetUserIdentifierForAuthentication(string userId)
@@ -184,20 +238,20 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 : new UserIdentifier(userId, UserIdentifierType.OptionalDisplayableId);
         }
 
-        protected bool IsExpiring(AuthenticationResult authenticationResult)
+        protected virtual void ValidateAuthenticationResult(IAuthenticationResult authenticationResult, string errorMessage = null)
         {
-            return authenticationResult != null && authenticationResult.ExpiresOn >= DateTimeOffset.UtcNow.AddMinutes(5);
-        }
+            if (string.IsNullOrEmpty(errorMessage))
+            {
+                errorMessage = "Failed to retrieve a valid authentication result.";
+            }
 
-        protected virtual void ValidateAuthenticationResult(AuthenticationResult authenticationResult)
-        {
             if (authenticationResult == null)
             {
                 throw new ServiceException(
                     new Error
                     {
                         Code = OAuthConstants.ErrorCodes.AuthenticationFailure,
-                        Message = "Failed to retrieve a valid authentication result.",
+                        Message = errorMessage,
                     });
             }
         }

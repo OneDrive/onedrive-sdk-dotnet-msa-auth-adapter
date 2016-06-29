@@ -19,7 +19,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
     [TestClass]
     public class MsaAuthenticationProviderTests
     {
-        private const string AppId = "12345";
+        private const string ClientId = "12345";
         private const string ClientSecret = "client secret";
         private const string ReturnUrl = "https://localhost/return";
         private const string UserId = "user ID";
@@ -43,7 +43,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             this.webAuthenticationUi = new MockWebAuthenticationUi();
 
             this.authenticationProvider = new MsaAuthenticationProvider(
-                MsaAuthenticationProviderTests.AppId,
+                MsaAuthenticationProviderTests.ClientId,
                 MsaAuthenticationProviderTests.ClientSecret,
                 MsaAuthenticationProviderTests.ReturnUrl,
                 this.scopes,
@@ -74,7 +74,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             {
                 await this.authenticationProvider.AuthenticateRequestAsync(httpRequestMessage).ConfigureAwait(false);
                 Assert.AreEqual(
-                    string.Format("bearer {0}", cachedAccountSession.AccessToken),
+                    string.Format("{0} {1}", OAuthConstants.Headers.Bearer, cachedAccountSession.AccessToken),
                     httpRequestMessage.Headers.Authorization.ToString(),
                     "Unexpected authorization header set.");
             }
@@ -109,7 +109,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             var cachedAccountSession = new AccountSession
             {
                 AccessToken = "token",
-                ClientId = MsaAuthenticationProviderTests.AppId,
+                ClientId = MsaAuthenticationProviderTests.ClientId,
                 ExpiresOnUtc = DateTimeOffset.UtcNow.AddMinutes(10),
             };
 
@@ -160,7 +160,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             var cachedAccountSession = new AccountSession
             {
                 AccessToken = "token",
-                ClientId = MsaAuthenticationProviderTests.AppId,
+                ClientId = MsaAuthenticationProviderTests.ClientId,
                 ExpiresOnUtc = DateTimeOffset.UtcNow.AddMinutes(4),
                 UserId = MsaAuthenticationProviderTests.UserId,
             };
@@ -210,7 +210,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             var expectedSignOutUrl = string.Format(
                 "{0}?client_id={1}&redirect_uri={2}",
                 OAuthConstants.MicrosoftAccountSignOutUrl,
-                MsaAuthenticationProviderTests.AppId,
+                MsaAuthenticationProviderTests.ClientId,
                 MsaAuthenticationProviderTests.ReturnUrl);
 
             var accountSession = new AccountSession

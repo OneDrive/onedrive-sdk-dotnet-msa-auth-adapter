@@ -20,7 +20,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
     /// </summary>
     public class MsaAuthenticationProvider : IAuthenticationProvider
     {
-        private readonly string appId;
+        private readonly string clientId;
         private readonly string clientSecret;
         private readonly string returnUrl;
         private readonly string[] scopes;
@@ -34,8 +34,8 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// <summary>
         /// Constructs an <see cref="MsaAuthenticationProvider"/>.
         /// </summary>
-        public MsaAuthenticationProvider(string appId, string returnUrl, string[] scopes)
-            : this(appId, /* clientSecret */ null, returnUrl, scopes, /* httpProvider */ null)
+        public MsaAuthenticationProvider(string clientId, string returnUrl, string[] scopes)
+            : this(clientId, /* clientSecret */ null, returnUrl, scopes, /* httpProvider */ null)
         {
         }
 
@@ -43,13 +43,13 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// Constructs an <see cref="MsaAuthenticationProvider"/>.
         /// </summary>
         public MsaAuthenticationProvider(
-            string appId,
+            string clientId,
             string clientSecret,
             string returnUrl,
             string[] scopes,
             CredentialCache credentialCache)
         {
-            this.appId = appId;
+            this.clientId = clientId;
             this.clientSecret = clientSecret;
             this.returnUrl = returnUrl;
             this.scopes = scopes;
@@ -64,8 +64,8 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// <summary>
         /// Constructs an <see cref="AuthenticationProvider"/>.
         /// </summary>
-        public MsaAuthenticationProvider(string appId, string returnUrl, string[] scopes)
-            : this (appId, returnUrl, scopes, /* credentialCache */ null)
+        public MsaAuthenticationProvider(string clientId, string returnUrl, string[] scopes)
+            : this (clientId, returnUrl, scopes, /* credentialCache */ null)
         {
         }
 
@@ -73,12 +73,12 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// Constructs an <see cref="MsaAuthenticationProvider"/>.
         /// </summary>
         public MsaAuthenticationProvider(
-            string appId,
+            string clientId,
             string returnUrl,
             string[] scopes,
             CredentialCache credentialCache)
         {
-            this.appId = appId;
+            this.clientId = clientId;
             this.clientSecret = null;
 
             this.returnUrl = string.IsNullOrEmpty(returnUrl)
@@ -120,7 +120,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             if (!string.IsNullOrEmpty(authResult.AccessToken))
             {
                 var tokenTypeString = string.IsNullOrEmpty(authResult.AccessTokenType)
-                    ? "bearer"
+                    ? OAuthConstants.Headers.Bearer
                     : authResult.AccessTokenType;
                 request.Headers.Authorization = new AuthenticationHeaderValue(tokenTypeString, authResult.AccessToken);
             }
@@ -135,7 +135,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             {
                 if (this.webAuthenticationUi != null)
                 {
-                    var requestUri = new Uri(this.oAuthHelper.GetSignOutUrl(this.appId, this.returnUrl));
+                    var requestUri = new Uri(this.oAuthHelper.GetSignOutUrl(this.clientId, this.returnUrl));
 
                     await this.webAuthenticationUi.AuthenticateAsync(requestUri, new Uri(this.returnUrl)).ConfigureAwait(false);
                 }
@@ -189,7 +189,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             {
                 // Log the user in if we haven't already pulled their credentials from the cache.
                 var code = await this.oAuthHelper.GetAuthorizationCodeAsync(
-                    this.appId,
+                    this.clientId,
                     this.returnUrl,
                     this.scopes,
                     this.webAuthenticationUi,
@@ -199,7 +199,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 {
                     authResult = await this.oAuthHelper.RedeemAuthorizationCodeAsync(
                         code,
-                        this.appId,
+                        this.clientId,
                         this.clientSecret,
                         this.returnUrl,
                         this.scopes,
@@ -235,7 +235,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             }
 
             var cacheResult = this.CredentialCache.GetResultFromCache(
-                this.appId,
+                this.clientId,
                 userId);
 
             var processedResult = await this.ProcessCachedAccountSessionAsync(cacheResult, httpProvider).ConfigureAwait(false);
@@ -271,7 +271,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 {
                     accountSession = await this.oAuthHelper.RedeemRefreshTokenAsync(
                         accountSession.RefreshToken,
-                        this.appId,
+                        this.clientId,
                         this.clientSecret,
                         this.returnUrl,
                         this.scopes,

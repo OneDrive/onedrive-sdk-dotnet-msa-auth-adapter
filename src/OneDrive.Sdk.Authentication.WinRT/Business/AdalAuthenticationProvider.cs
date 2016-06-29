@@ -14,15 +14,8 @@ namespace Microsoft.OneDrive.Sdk.Authentication
     {
         public AdalAuthenticationProvider(
             string clientId,
-            string returnUrl)
-            : this(clientId, returnUrl, null)
-        {
-        }
-
-        public AdalAuthenticationProvider(
-            string clientId,
             string returnUrl,
-            AuthenticationContext authenticationContext)
+            AuthenticationContext authenticationContext = null)
             : base (clientId, returnUrl, authenticationContext)
         {
             this.AuthenticateUser = this.PromptUserForAuthenticationAsync;
@@ -33,59 +26,50 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
         protected override AuthenticateUserSilentlyDelegate AuthenticateUserSilently { get; set; }
 
-        internal async Task<AuthenticationResult> SilentlyAuthenticateUserAsync(string serviceResourceId, string userId)
+        internal async Task<IAuthenticationResult> SilentlyAuthenticateUserAsync(
+            string serviceResourceId,
+            string userId,
+            bool throwOnError)
         {
-            AuthenticationResult authenticationResult = null;
+            IAuthenticationResult authenticationResult = null;
 
             try
             {
-                authenticationResult = await this.authenticationContext.AcquireTokenSilentAsync(
-                    OAuthConstants.ActiveDirectoryDiscoveryResource,
+                authenticationResult = await this.authenticationContextWrapper.AcquireTokenSilentAsync(
+                    serviceResourceId,
                     this.clientId,
-                    this.GetUserIdentifierForAuthentication(userId)).AsTask().ConfigureAwait(false);
+                    this.GetUserIdentifierForAuthentication(userId)).ConfigureAwait(false);
             }
             catch (Exception)
             {
-                // If an exception happens during silent authentication try interactive authentication.
+                if (throwOnError)
+                {
+                    throw;
+                }
             }
 
             return authenticationResult;
         }
 
-        internal async Task<AuthenticationResult> PromptUserForAuthenticationAsync(
+        internal async Task<IAuthenticationResult> PromptUserForAuthenticationAsync(
             string serviceResourceId,
             string userId)
         {
-            var authenticationResult = await this.authenticationContext.AcquireTokenAsync(
+            var authenticationResult = await this.authenticationContextWrapper.AcquireTokenAsync(
                 serviceResourceId,
                 this.clientId,
                 new Uri(this.returnUrl),
-                PromptBehavior.Auto).AsTask().ConfigureAwait(false);
+                PromptBehavior.Auto,
+                this.GetUserIdentifierForAuthentication(userId)).ConfigureAwait(false);
 
             this.ValidateAuthenticationResult(authenticationResult);
 
             return authenticationResult;
         }
 
-        public override async Task AuthenticateUserWithRefreshTokenAsync(string refreshToken)
+        public override Task AuthenticateUserWithRefreshTokenAsync(string refreshToken)
         {
-            if (string.IsNullOrEmpty(refreshToken))
-            {
-                throw new ServiceException(
-                    new Error
-                    {
-                        Code = OAuthConstants.ErrorCodes.AuthenticationFailure,
-                        Message = "Refresh token is required to authenticate a user with a refresh token."
-                    });
-            }
-
-            var authenticationResult = await this.authenticationContext.AcquireTokenByRefreshTokenAsync(
-                refreshToken,
-                this.clientId).AsTask().ConfigureAwait(false);
-
-            this.ValidateAuthenticationResult(authenticationResult);
-
-            this.CurrentAuthenticationResult = authenticationResult;
+            return this.AuthenticateUserWithRefreshTokenAsync(refreshToken, /* serviceResourceId */ null);
         }
 
         public override async Task AuthenticateUserWithRefreshTokenAsync(string refreshToken, string serviceResourceId)
@@ -102,26 +86,33 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             this.currentServiceResourceId = serviceResourceId;
 
-            var authenticationResult = await this.authenticationContext.AcquireTokenByRefreshTokenAsync(
+            var authenticationResult = await this.authenticationContextWrapper.AcquireTokenByRefreshTokenAsync(
                 refreshToken,
                 this.clientId,
-                serviceResourceId).AsTask().ConfigureAwait(false);
+                serviceResourceId).ConfigureAwait(false);
 
             this.ValidateAuthenticationResult(authenticationResult);
 
-            this.CurrentAuthenticationResult = authenticationResult;
+            this.CurrentAccountSession = this.ConvertAuthenticationResultToAccountSession(authenticationResult);
         }
 
-        protected override void ValidateAuthenticationResult(AuthenticationResult authenticationResult)
+        protected override void ValidateAuthenticationResult(IAuthenticationResult authenticationResult, string errorMessage = null)
         {
             if (authenticationResult == null || authenticationResult.Status != AuthenticationStatus.Success)
             {
+                if (string.IsNullOrEmpty(errorMessage))
+                {
+                    errorMessage = "Failed to retrieve a valid authentication result.";
+                }
+
+                var innerException = new Exception(authenticationResult.ErrorDescription);
                 throw new ServiceException(
                     new Error
                     {
                         Code = OAuthConstants.ErrorCodes.AuthenticationFailure,
-                        Message = authenticationResult.ErrorDescription,
-                    });
+                        Message = errorMessage,
+                    },
+                    innerException);
             }
         }
     }

@@ -4,7 +4,7 @@
 
 namespace Microsoft.OneDrive.Sdk.Authentication
 {
-    public class BusinessServiceInfo
+    public class BusinessServiceInformation
     {
         public string ServiceEndpointBaseUrl { get; set; }
 

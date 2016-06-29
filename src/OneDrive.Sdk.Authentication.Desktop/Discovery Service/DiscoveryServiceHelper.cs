@@ -6,7 +6,8 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 {
     using System.Security.Cryptography.X509Certificates;
     using System.Threading.Tasks;
-    
+
+    using Microsoft.Graph;
     using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
     public class DiscoveryServiceHelper : DiscoveryServiceHelperBase
@@ -24,7 +25,11 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             X509Certificate2 clientCertificate,
             string returnUrl,
             AuthenticationContext authenticationContext = null)
-            : this(new AdalAuthenticationProvider(clientId, clientCertificate, returnUrl, authenticationContext))
+            : this(new AdalAuthenticationProvider(
+                clientId,
+                clientCertificate,
+                returnUrl,
+                authenticationContext))
         {
         }
 
@@ -33,7 +38,11 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             string clientSecret,
             string returnUrl,
             AuthenticationContext authenticationContext = null)
-            : this(new AdalAuthenticationProvider(clientId, clientSecret, returnUrl, authenticationContext))
+            : this(new AdalAuthenticationProvider(
+                clientId,
+                clientSecret,
+                returnUrl,
+                authenticationContext))
         {
         }
 
@@ -42,26 +51,42 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         {
         }
 
-        public async Task<BusinessServiceInfo> DiscoverFilesEndpointForUserAsync(string userId = null)
+        public async Task<BusinessServiceInformation> DiscoverFilesEndpointInformationForUserAsync(
+            string userId = null,
+            IHttpProvider httpProvider = null)
         {
             await ((AdalAuthenticationProvider)this.authenticationProvider).AuthenticateUserAsync(
                 OAuthConstants.ActiveDirectoryDiscoveryResource,
                 userId).ConfigureAwait(false);
 
-            var businessServiceInfo = await this.RetrieveMyFilesServiceResourceAsync().ConfigureAwait(false);
-
-            return businessServiceInfo;
+            return await this.RetrieveMyFilesInformationAsync(httpProvider).ConfigureAwait(false);
         }
 
-        public async Task<BusinessServiceInfo> DiscoverFilesEndpointForUserWithRefreshTokenAsync(string refreshToken)
+        public async Task<BusinessServiceInformation> DiscoverFilesEndpointInformationForUserWithRefreshTokenAsync(
+            string refreshToken,
+            IHttpProvider httpProvider = null)
         {
             await ((AdalAuthenticationProvider)this.authenticationProvider).AuthenticateUserWithRefreshTokenAsync(
                 refreshToken,
                 OAuthConstants.ActiveDirectoryDiscoveryResource).ConfigureAwait(false);
 
-            var businessServiceInfo = await this.RetrieveMyFilesServiceResourceAsync().ConfigureAwait(false);
+            return await this.RetrieveMyFilesInformationAsync(httpProvider).ConfigureAwait(false);
+        }
 
-            return businessServiceInfo;
+        private async Task<BusinessServiceInformation> RetrieveMyFilesInformationAsync(IHttpProvider httpProvider)
+        {
+            BusinessServiceInformation businessServiceInformation = null;
+
+            if (httpProvider == null)
+            {
+                businessServiceInformation = await this.RetrieveMyFilesServiceResourceAsync().ConfigureAwait(false);
+            }
+            else
+            {
+                businessServiceInformation = await this.RetrieveMyFilesServiceResourceAsync(httpProvider).ConfigureAwait(false);
+            }
+
+            return businessServiceInformation;
         }
     }
 }

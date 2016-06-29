@@ -70,5 +70,10 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             public const string AuthenticationFailure = "authenticationFailure";
         }
+
+        public static class Headers
+        {
+            public const string Bearer = "bearer";
+        }
     }
 }

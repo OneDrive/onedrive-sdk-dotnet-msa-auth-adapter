@@ -4,10 +4,22 @@
 
 namespace Microsoft.OneDrive.Sdk.Authentication
 {
-    public class BusinessServiceInfo
-    {
-        public string ServiceEndpointBaseUrl { get; set; }
+    using System;
 
-        public string ServiceResourceId { get; set; }
+    public interface IUserInfo
+    {
+        string DisplayableId { get; }
+
+        string FamilyName { get; }
+
+        string GivenName { get; }
+
+        string IdentityProvider { get; }
+
+        Uri PasswordChangeUrl { get; }
+
+        DateTimeOffset? PasswordExpiresOn { get; }
+
+        string UniqueId { get; }
     }
 }

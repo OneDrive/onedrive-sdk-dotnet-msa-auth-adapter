@@ -87,8 +87,26 @@
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\AdalAuthenticationProviderBase.cs">
       <Link>Business\AdalAuthenticationProviderBase.cs</Link>
     </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\AuthenticationResultWrapper.cs">
+      <Link>Business\AuthenticationResultWrapper.cs</Link>
+    </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\BusinessAuthenticationExceptionHelper.cs">
       <Link>Business\BusinessAuthenticationExceptionHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\BusinessServiceInformation.cs">
+      <Link>Business\BusinessServiceInformation.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\IAuthenticationResult.cs">
+      <Link>Business\IAuthenticationResult.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\IUserInfo.cs">
+      <Link>Business\IUserInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\UserInfoWrapper.cs">
+      <Link>Business\UserInfoWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\AdalCredentialCache.cs">
+      <Link>Caching\AdalCredentialCache.cs</Link>
     </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\CredentialCache.cs">
       <Link>Caching\CredentialCache.cs</Link>
@@ -98,6 +116,18 @@
     </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\CredentialCacheNotificationArgs.cs">
       <Link>Caching\CredentialCacheNotificationArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\ITokenCache.cs">
+      <Link>Caching\ITokenCache.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\ITokenCacheItem.cs">
+      <Link>Caching\ITokenCacheItem.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\TokenCacheItemWrapper.cs">
+      <Link>Caching\TokenCacheItemWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\TokenCacheWrapper.cs">
+      <Link>Caching\TokenCacheWrapper.cs</Link>
     </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\Discovery Service\DiscoveryService.cs">
       <Link>Discovery Service\DiscoveryService.cs</Link>
@@ -113,8 +143,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Business\BusinessServiceInfo.cs" />
+    <Compile Include="Business\AuthenticationContextWrapper.cs" />
     <Compile Include="Business\AdalAuthenticationProvider.cs" />
+    <Compile Include="Business\IAuthenticationContextWrapper.cs" />
     <Compile Include="Discovery Service\DiscoveryServiceHelper.cs" />
     <Compile Include="Web\FormsWebDialog.cs">
       <SubType>form</SubType>

@@ -17,7 +17,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
     [TestClass]
     public class OAuthHelperTests
     {
-        private const string AppId = "12345";
+        private const string ClientId = "12345";
         private const string ClientSecret = "client secret";
         private const string ReturnUrl = "https://localhost/return";
         private const string UserId = "user ID";
@@ -53,7 +53,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
         public async Task GetAuthorizationCodeAsync_NullWebAuthenticationUi()
         {
             var code = await this.oAuthHelper.GetAuthorizationCodeAsync(
-                OAuthHelperTests.AppId,
+                OAuthHelperTests.ClientId,
                 OAuthHelperTests.ReturnUrl,
                 this.scopes,
                 this.webAuthenticationUi.Object,
@@ -68,7 +68,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             var code = "code";
             var requestBodyString = this.oAuthHelper.GetAuthorizationCodeRedemptionRequestBody(
                 code,
-                OAuthHelperTests.AppId,
+                OAuthHelperTests.ClientId,
                 OAuthHelperTests.ReturnUrl,
                 this.scopes,
                 OAuthHelperTests.ClientSecret);
@@ -85,7 +85,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             var code = "code";
             var requestBodyString = this.oAuthHelper.GetAuthorizationCodeRedemptionRequestBody(
                 code,
-                OAuthHelperTests.AppId,
+                OAuthHelperTests.ClientId,
                 OAuthHelperTests.ReturnUrl,
                 this.scopes);
 
@@ -99,7 +99,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             var token = "token";
             var requestBodyString = this.oAuthHelper.GetRefreshTokenRequestBody(
                 token,
-                OAuthHelperTests.AppId,
+                OAuthHelperTests.ClientId,
                 OAuthHelperTests.ReturnUrl,
                 this.scopes,
                 OAuthHelperTests.ClientSecret);
@@ -116,7 +116,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             var token = "token";
             var requestBodyString = this.oAuthHelper.GetRefreshTokenRequestBody(
                 token,
-                OAuthHelperTests.AppId,
+                OAuthHelperTests.ClientId,
                 OAuthHelperTests.ReturnUrl,
                 this.scopes);
 
@@ -132,7 +132,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             {
                 await this.oAuthHelper.RedeemAuthorizationCodeAsync(
                     /* authorizationCode */ null,
-                    OAuthHelperTests.AppId,
+                    OAuthHelperTests.ClientId,
                     OAuthHelperTests.ClientSecret,
                     OAuthHelperTests.ReturnUrl,
                     this.scopes,
@@ -158,7 +158,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
             {
                 await this.oAuthHelper.RedeemRefreshTokenAsync(
                     /* refreshToken */ null,
-                    OAuthHelperTests.AppId,
+                    OAuthHelperTests.ClientId,
                     OAuthHelperTests.ReturnUrl,
                     this.scopes).ConfigureAwait(false);
             }
