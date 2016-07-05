@@ -24,8 +24,7 @@ namespace Test.OneDrive.Sdk.Authentication.WinRT
 {
     using System;
     using System.Threading.Tasks;
-
-    using Microsoft.OneDrive.Sdk;
+    
     using Microsoft.OneDrive.Sdk.Authentication;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
     using Mocks;

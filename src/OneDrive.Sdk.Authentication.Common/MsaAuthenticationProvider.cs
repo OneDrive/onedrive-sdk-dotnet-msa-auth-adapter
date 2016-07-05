@@ -137,7 +137,19 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 {
                     var requestUri = new Uri(this.oAuthHelper.GetSignOutUrl(this.clientId, this.returnUrl));
 
-                    await this.webAuthenticationUi.AuthenticateAsync(requestUri, new Uri(this.returnUrl)).ConfigureAwait(false);
+                    try
+                    {
+                        await this.webAuthenticationUi.AuthenticateAsync(requestUri, new Uri(this.returnUrl)).ConfigureAwait(false);
+                    }
+                    catch (ServiceException serviceException)
+                    {
+                        // Sometimes WebAuthenticationBroker can throw authentication cancelled on the sign out call. We don't care
+                        // about this so swallow the error.
+                        if (!serviceException.IsMatch(OAuthConstants.ErrorCodes.AuthenticationCancelled))
+                        {
+                            throw;
+                        }
+                    }
                 }
 
                 this.DeleteUserCredentialsFromCache(this.CurrentAccountSession);
