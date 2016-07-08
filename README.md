@@ -1,14 +1,10 @@
-# Microsoft Graph .NET Client Library
+# Authentication Adapter for the OneDrive SDK
 
-[![Build status](https://ci.appveyor.com/api/projects/status/3av5qjyletkwf6h8/branch/master?svg=true)](https://ci.appveyor.com/project/OneDrive/msgraph-sdk-dotnet/branch/master)
+This library makes it easy to to consume Microsoft account and Azure Active Directory authentication for the [OneDrive SDK](https://github.com/OneDrive/onedrive-sdk-csharp). It provides IAuthenticationProvider imlementations for Microsoft account OAuth and [ADAL](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet) authentication.
 
-Integrate the [Microsoft Graph API](https://graph.microsoft.io) into your .NET
-project!
+The Authentication Adapter for the OneDrive SDK Library is built as a Portable Class Library. It targets the following frameworks:
 
-The Microsoft Graph .NET Client Library is built as a Portable Class Library targeting profile 111.
-This targets the following frameworks:
-
-* .NET 4.5
+* .NET 4.5+
 * .NET for Windows Store apps
 * Windows Phone 8.1 and higher
 
@@ -16,8 +12,8 @@ This targets the following frameworks:
 
 To install the client library via NuGet:
 
-* Search for `Microsoft.Graph` in the NuGet Library, or
-* Type `Install-Package Microsoft.Graph` into the Package Manager Console.
+* Search for `Microsoft.OneDrive.Sdk.Authentication` in the NuGet Library, or
+* Type `Install-Package Microsoft.OneDrive.Sdk.Authentication` into the Package Manager Console.
 
 ## Getting started
 
@@ -33,69 +29,84 @@ supported authentication portals:
   a new application in your tenant's Active Directory to support work or school
   users for your tenant or multiple tenants.
   
-### 2. Authenticate for the Microsoft Graph service
+### 2. Create a Microsoft account authentication provider
 
-The Microsoft Graph .NET Client Library does not include any default authentication implementations.
-Instead, the user will want to authenticate with the library of their choice, or against the OAuth
-endpoint directly, and built-in **DelegateAuthenticationProvider** class to authenticate each request.
-For more information on `DelegateAuthenticationProvider`, see the [library overview](docs/overview.md)
+```csharp
+var msaAuthenticationProvider = new MsaAuthenticationProvider(
+        clientId,
+        returnUrl,
+        scopes);
+```
 
-The recommended library for authenticating against AAD is [ADAL](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet).
+The MsaAuthenticationProvider constructor has an overload that takes in client secret for platforms that support web clients.
 
-For an example of authenticating a UWP app using the V2 Authentication Endpoint, see the [Microsoft Graph UWP Connect Library](https://github.com/OfficeDev/Microsoft-Graph-UWP-Connect-Library).
+#### Authenticate a user
+
+```csharp
+msaAuthenticationProvider.AuthenticateUserAsync();
+```
+
+AuthenticateUserAsync will perform the action of prompting the user with authentication UI.
+
+### 2. Create an Azure Active Directory authentication provider
+
+```csharp
+var adalAuthenticationProvider = new AdalAuthenticationProvider(AccountSelection.AadClientId, AccountSelection.AadReturnUrl);
+```
+
+The AdalAuthenticationProvider constructor has an overload that takes in client secret or client certificate for platforms that support web clients.
+The developer can also pass in an AuthenticationContext, in case the app is already using ADAL for authentication and would like to re-use their authentication context.
+
+#### Look up service information for a user using Discovery Service
+
+The DiscoveryServiceHelper is used to look up discovery service information for a user. It takes in an AdalAuthenticationProvider to authenticate the user for the discovery service endpoint.
+
+```csharp
+var discoveryServiceHelper = new DiscoveryServiceHelper(adalAuthenticationProvider);
+var businessServiceInformation = await discoveryServiceHelper.DiscoverFilesEndpointInformationForUserAsync();
+```
+
+#### Authenticate a user, with possible UI prompt
+
+```csharp
+        await adalAuthenticationProvider.AuthenticateUserAsync(serviceResourceId);
+```
+
+#### Authenticate a user with refresh token
+
+```csharp
+        await adalAuthenticationProvider.AuthenticateUserWithRefreshTokenAsync(refreshToken, serviceResourceId);
+```
+
+serviceResourceId is optional when authenticating using a refresh token. If not provided, the access token will be granted for the resource that generated the refresh token.
+
+#### Authenticate a user with an authorization code
+
+```csharp
+        await adalAuthenticationProvider.AuthenticateUserWithAuthorizationCodeAsync(authorizationCode, serviceResourceId);
+```
+
+serviceResourceId is optional when authenticating using an authorization code. If not provided, the access token will be granted for the resource that generated the code.
 
 ### 3. Create a Microsoft Graph client object with an authentication provider
 
-An instance of the **GraphServiceClient** class handles building requests,
-sending them to Microsoft Graph API, and processing the responses. To create a
-new instance of this class, you need to provide an instance of
-`IAuthenticationProvider` which can authenticate requests to Microsoft Graph.
-
-For more information on initializing a client instance, see the [library overview](docs/overview.md)
-
-### 4. Make requests to the graph
-
-Once you have completed authentication and have a GraphServiceClient, you can
-begin to make calls to the service. The requests in the SDK follow the format
-of the Microsoft Graph API's RESTful syntax.
-
-For example, to retrieve a user's default drive:
-
 ```csharp
-var drive = await graphClient.Me.Drive.Request().GetAsync();
+var client = new OneDriveClient(baseUrl, authenticationProvider);
 ```
 
-`GetAsync` will return a `Drive` object on success and throw a
-`ServiceException` on error.
+## Sample projects
 
-To get the current user's root folder of their default drive:
-
-```csharp
-var rootItem = await graphClient.Me.Drive.Root.Request().GetAsync();
-```
-
-`GetAsync` will return a `DriveItem` object on success and throw a
-`ServiceException` on error.
-
-For a general overview of how the SDK is designed, see [overview](docs/overview.md).
-
-The following sample applications are also available:
-* [Microsoft Graph UWP Connect Library](https://github.com/OfficeDev/Microsoft-Graph-UWP-Connect-Library) - Windows Universal app
 
 ## Documentation and resources
 
-* [Overview](docs/overview.md)
-* [Collections](docs/collections.md)
-* [Errors](docs/errors.md)
-* [Microsoft Graph API](https://graph.microsoft.io)
 
 ## Issues
 
-To view or log issues, see [issues](https://github.com/microsoftgraph/msgraph-sdk-dotnet/issues).
+To view or log issues, see [issues](https://github.com/OneDrive/onedrive-sdk-dotnet-msa-auth-adapter/issues).
 
 ## Other resources
 
-* NuGet Package: [https://www.nuget.org/packages/Microsoft.Graph](https://www.nuget.org/packages/Microsoft.Graph)
+* NuGet Package: [https://www.nuget.org/packages/Microsoft.OneDrive.Sdk.Authentication](https://www.nuget.org/packages/Microsoft.OneDrive.Sdk.Authentication)
 
 
 ## License
