@@ -99,6 +99,17 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         public AccountSession CurrentAccountSession { get; set; }
 
         /// <summary>
+        /// Gets whether or not the current client is authenticated.
+        /// </summary>
+        public bool IsAuthenticated
+        {
+            get
+            {
+                return this.CurrentAccountSession != null;
+            }
+        }
+
+        /// <summary>
         /// Authenticates the provided request object.
         /// </summary>
         /// <param name="request">The <see cref="HttpRequestMessage"/> to authenticate.</param>
@@ -131,7 +142,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// </summary>
         public async Task SignOutAsync()
         {
-            if (this.CurrentAccountSession != null)
+            if (this.IsAuthenticated)
             {
                 if (this.webAuthenticationUi != null)
                 {
