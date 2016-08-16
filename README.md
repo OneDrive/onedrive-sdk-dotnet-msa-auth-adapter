@@ -106,7 +106,7 @@ To view or log issues, see [issues](https://github.com/OneDrive/onedrive-sdk-dot
 
 ## Other resources
 
-* NuGet Package: [https://www.nuget.org/packages/Microsoft.OneDrive.Sdk.Authentication](https://www.nuget.org/packages/Microsoft.OneDrive.Sdk.Authentication)
+* NuGet Package: [https://www.nuget.org/packages/Microsoft.OneDrive.Sdk.Authentication](https://www.nuget.org/packages/Microsoft.OneDriveSDK.Authentication/)
 
 
 ## License
