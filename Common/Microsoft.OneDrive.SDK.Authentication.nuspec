@@ -33,13 +33,13 @@
   </metadata>
   <files>
     <!-- Standard .NET projects, like Windows Forms or ASP.NET -->  
-    <file src="..\src\OneDrive.Sdk.Authentication.Desktop\bin\Release\Microsoft.OneDrive.Sdk.Authentication.Desktop.dll" target="lib\net451\Microsoft.OneDrive.Sdk.Authentication.Desktop.dll" />
+    <file src="..\lib\Microsoft.OneDrive.Sdk.Authentication.Desktop.dll" target="lib\net451\Microsoft.OneDrive.Sdk.Authentication.Desktop.dll" />
 
     <!-- Windows Phone 8.1 -->
-    <file src="..\src\OneDrive.Sdk.Authentication.WinStore\bin\Release\Microsoft.OneDrive.Sdk.Authentication.WinStore.dll" target="lib\portable-win81+wpa81\Microsoft.OneDrive.Sdk.Authentication.WinStore.dll" />  
+    <file src="..\lib\Microsoft.OneDrive.Sdk.Authentication.WinStore.dll" target="lib\portable-win81+wpa81\Microsoft.OneDrive.Sdk.Authentication.WinStore.dll" />  
 
     <!-- Windows 8.1 -->
-    <file src="..\src\OneDrive.Sdk.Authentication.WinRT\bin\x86\Release\Microsoft.OneDrive.Sdk.Authentication.WinRT.dll" target="lib\win81\Microsoft.OneDrive.Sdk.Authentication.WinRT.dll" />  
-    <file src="..\src\OneDrive.Sdk.Authentication.WinRT\bin\x86\Release\Microsoft.OneDrive.Sdk.Authentication.WinStore.dll" target="lib\win81\Microsoft.OneDrive.Sdk.Authentication.WinStore.dll" />  
+    <file src="..\lib\Microsoft.OneDrive.Sdk.Authentication.WinRT.dll" target="lib\win81\Microsoft.OneDrive.Sdk.Authentication.WinRT.dll" />  
+    <file src="..\lib\Microsoft.OneDrive.Sdk.Authentication.WinStore.dll" target="lib\win81\Microsoft.OneDrive.Sdk.Authentication.WinStore.dll" />  
   </files>
 </package>
