@@ -27,7 +27,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             // Attempt to authentication without prompting the user first.
             try
             {
-                result = await this.AuthenticateAsync(requestUri, callbackUri, WebAuthenticationOptions.SilentMode).ConfigureAwait(false);
+                result = await this.AuthenticateAsync(requestUri, callbackUri, WebAuthenticationOptions.SilentMode);
             }
             catch (Exception)
             {
@@ -42,7 +42,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             {
                 try
                 {
-                    result = await this.AuthenticateAsync(requestUri, callbackUri, WebAuthenticationOptions.None).ConfigureAwait(false);
+                    result = await this.AuthenticateAsync(requestUri, callbackUri, WebAuthenticationOptions.None);
                 }
                 catch (Exception exception)
                 {
