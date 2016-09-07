@@ -141,7 +141,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 returnUrl);
         }
 
-        public Task<AccountSession> RedeemAuthorizationCodeAsync(
+        public async Task<AccountSession> RedeemAuthorizationCodeAsync(
             string authorizationCode,
             string clientId,
             string clientSecret,
@@ -150,17 +150,17 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         {
             using (var httpProvider = new HttpProvider())
             {
-                return this.RedeemAuthorizationCodeAsync(
+                return await this.RedeemAuthorizationCodeAsync(
                     authorizationCode,
                     clientId,
                     clientSecret,
                     returnUrl,
                     scopes,
-                    httpProvider);
+                    httpProvider).ConfigureAwait(false);
             }
         }
 
-        public Task<AccountSession> RedeemAuthorizationCodeAsync(
+        public async Task<AccountSession> RedeemAuthorizationCodeAsync(
             string authorizationCode,
             string clientId,
             string clientSecret,
@@ -178,64 +178,64 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                     });
             }
 
-            return this.SendTokenRequestAsync(
+            return await this.SendTokenRequestAsync(
                 this.GetAuthorizationCodeRedemptionRequestBody(
                     authorizationCode,
                     clientId,
                     returnUrl,
                     scopes,
                     clientSecret),
-                httpProvider);
+                httpProvider).ConfigureAwait(false);
         }
 
-        public Task<AccountSession> RedeemRefreshTokenAsync(
+        public async Task<AccountSession> RedeemRefreshTokenAsync(
             string refreshToken,
             string clientId,
             string returnUrl,
             string[] scopes)
         {
-            return this.RedeemRefreshTokenAsync(
+            return await this.RedeemRefreshTokenAsync(
                 refreshToken,
                 clientId,
                 /* clientSecret */ null,
                 returnUrl,
                 scopes,
-                /* httpProvider */ null);
+                /* httpProvider */ null).ConfigureAwait(false);
         }
 
-        public Task<AccountSession> RedeemRefreshTokenAsync(
+        public async Task<AccountSession> RedeemRefreshTokenAsync(
             string refreshToken,
             string clientId,
             string returnUrl,
             string[] scopes,
             IHttpProvider httpProvider)
         {
-            return this.RedeemRefreshTokenAsync(
+            return await this.RedeemRefreshTokenAsync(
                 refreshToken,
                 clientId,
                 /* clientSecret */ null,
                 returnUrl,
                 scopes,
-                httpProvider);
+                httpProvider).ConfigureAwait(false);
         }
 
-        public Task<AccountSession> RedeemRefreshTokenAsync(
+        public async Task<AccountSession> RedeemRefreshTokenAsync(
             string refreshToken,
             string clientId,
             string clientSecret,
             string returnUrl,
             string[] scopes)
         {
-            return this.RedeemRefreshTokenAsync(
+            return await this.RedeemRefreshTokenAsync(
                 refreshToken,
                 clientId,
                 clientSecret,
                 returnUrl,
                 scopes,
-                /* httpProvider */ null);
+                /* httpProvider */ null).ConfigureAwait(false);
         }
 
-        public Task<AccountSession> RedeemRefreshTokenAsync(
+        public async Task<AccountSession> RedeemRefreshTokenAsync(
             string refreshToken,
             string clientId,
             string clientSecret,
@@ -253,21 +253,21 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                     });
             }
 
-            return this.SendTokenRequestAsync(
+            return await this.SendTokenRequestAsync(
                 this.GetRefreshTokenRequestBody(
                     refreshToken,
                     clientId,
                     returnUrl,
                     scopes,
                     clientSecret),
-                httpProvider);
+                httpProvider).ConfigureAwait(false);
         }
 
-        public Task<AccountSession> SendTokenRequestAsync(string requestBodyString)
+        public async Task<AccountSession> SendTokenRequestAsync(string requestBodyString)
         {
             using (var httpProvider = new HttpProvider())
             {
-                return this.SendTokenRequestAsync(requestBodyString, httpProvider);
+                return await this.SendTokenRequestAsync(requestBodyString, httpProvider).ConfigureAwait(false);
             }
         }
 
