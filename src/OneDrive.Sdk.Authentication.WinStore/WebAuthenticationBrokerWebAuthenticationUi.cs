@@ -59,7 +59,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 throw new ServiceException(new Error { Code = OAuthConstants.ErrorCodes.AuthenticationCancelled, Message = "Authentication cancelled by user."});
             }
 
-            throw new ServiceException(new Error { Code = OAuthConstants.ErrorCodes.AuthenticationCancelled, Message = "WebAuthenticationBroker.AuthenticateAsync() returned null." });
+            throw new ServiceException(new Error { Code = OAuthConstants.ErrorCodes.AuthenticationNeverOccured });
         }
 
         private Task<WebAuthenticationResult> AuthenticateAsync(Uri requestUri, Uri callbackUri, WebAuthenticationOptions authenticationOptions)

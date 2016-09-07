@@ -69,6 +69,8 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             public const string AuthenticationCancelled = "authenticationCancelled";
 
             public const string AuthenticationFailure = "authenticationFailure";
+
+            public const string AuthenticationNeverOccured = "authenticationNeverOccured";
         }
 
         public static class Headers
