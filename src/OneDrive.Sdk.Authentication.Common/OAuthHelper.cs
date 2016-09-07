@@ -156,7 +156,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                     clientSecret,
                     returnUrl,
                     scopes,
-                    httpProvider);
+                    httpProvider).ConfigureAwait(false);
             }
         }
 
@@ -185,7 +185,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                     returnUrl,
                     scopes,
                     clientSecret),
-                httpProvider);
+                httpProvider).ConfigureAwait(false);
         }
 
         public async Task<AccountSession> RedeemRefreshTokenAsync(
@@ -200,7 +200,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 /* clientSecret */ null,
                 returnUrl,
                 scopes,
-                /* httpProvider */ null);
+                /* httpProvider */ null).ConfigureAwait(false);
         }
 
         public async Task<AccountSession> RedeemRefreshTokenAsync(
@@ -216,7 +216,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 /* clientSecret */ null,
                 returnUrl,
                 scopes,
-                httpProvider);
+                httpProvider).ConfigureAwait(false);
         }
 
         public async Task<AccountSession> RedeemRefreshTokenAsync(
@@ -232,7 +232,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 clientSecret,
                 returnUrl,
                 scopes,
-                /* httpProvider */ null);
+                /* httpProvider */ null).ConfigureAwait(false);
         }
 
         public async Task<AccountSession> RedeemRefreshTokenAsync(
@@ -260,14 +260,14 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                     returnUrl,
                     scopes,
                     clientSecret),
-                httpProvider);
+                httpProvider).ConfigureAwait(false);
         }
 
         public async Task<AccountSession> SendTokenRequestAsync(string requestBodyString)
         {
             using (var httpProvider = new HttpProvider())
             {
-                return await this.SendTokenRequestAsync(requestBodyString, httpProvider);
+                return await this.SendTokenRequestAsync(requestBodyString, httpProvider).ConfigureAwait(false);
             }
         }
 
