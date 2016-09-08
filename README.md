@@ -12,8 +12,8 @@ The Authentication Adapter for the OneDrive SDK Library is built as a Portable C
 
 To install the client library via NuGet:
 
-* Search for `Microsoft.OneDrive.Sdk.Authentication` in the NuGet Library, or
-* Type `Install-Package Microsoft.OneDrive.Sdk.Authentication` into the Package Manager Console.
+* Search for `Microsoft.OneDriveSdk.Authentication` in the NuGet Library, or
+* Type `Install-Package Microsoft.OneDriveSdk.Authentication` into the Package Manager Console.
 
 ## Getting started
 
@@ -106,7 +106,7 @@ To view or log issues, see [issues](https://github.com/OneDrive/onedrive-sdk-dot
 
 ## Other resources
 
-* NuGet Package: [https://www.nuget.org/packages/Microsoft.OneDrive.Sdk.Authentication](https://www.nuget.org/packages/Microsoft.OneDriveSDK.Authentication/)
+* NuGet Package: [https://www.nuget.org/packages/Microsoft.OneDriveSdk.Authentication](https://www.nuget.org/packages/Microsoft.OneDriveSDK.Authentication/)
 
 
 ## License
