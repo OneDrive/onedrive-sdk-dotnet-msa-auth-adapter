@@ -151,7 +151,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Graph.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Graph.Core, Version=1.1.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Graph.Core.1.1.1\lib\portable45-net45+win8+wpa81\Microsoft.Graph.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
