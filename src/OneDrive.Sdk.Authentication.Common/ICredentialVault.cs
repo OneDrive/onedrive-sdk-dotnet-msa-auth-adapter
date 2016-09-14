@@ -8,6 +8,8 @@ namespace Microsoft.OneDrive.Sdk.Authentication
     {
         void AddAccountSessionToVault(AccountSession accountSession);
 
-        AccountSession RetrieveAccountSession(string clientId, string userId = null);
+        AccountSession RetrieveAccountSession();
+
+        bool DeleteStoredAccountSession();
     }
 }

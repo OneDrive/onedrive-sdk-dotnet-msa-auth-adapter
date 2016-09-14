@@ -9,12 +9,33 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
     public class CredentialVault : ICredentialVault
     {
+        private static readonly string vaultResourcePrefix = "OneDriveSDK_AuthAdapter";
+        private static readonly string vaultNullUserName = "DefaultUser";
+
+        private string clientId { get; set; }
+        private string vaultResourceName { get { return CredentialVault.vaultResourcePrefix + this.clientId; } }
+
+        public CredentialVault(string clientId)
+        {
+            if (string.IsNullOrEmpty(clientId))
+            {
+                throw new ArgumentException("You must provide a clientId");
+            }
+
+            this.clientId = clientId;
+        }
+
         public void AddAccountSessionToVault(AccountSession accountSession)
         {
             throw new NotImplementedException();
         }
 
-        public AccountSession RetrieveAccountSession(string clientId, string userId = null)
+        public AccountSession RetrieveAccountSession()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool DeleteStoredAccountSession()
         {
             throw new NotImplementedException();
         }

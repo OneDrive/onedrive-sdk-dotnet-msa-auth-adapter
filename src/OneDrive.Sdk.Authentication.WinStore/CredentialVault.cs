@@ -4,6 +4,9 @@
 
 namespace Microsoft.OneDrive.Sdk.Authentication
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using Windows.Security.Credentials;
 
     public class CredentialVault : ICredentialVault
@@ -11,36 +14,78 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         private static readonly string vaultResourceName = "OneDriveSDK_AuthAdapter";
         private static readonly string vaultNullUserName = "DefaultUser";
 
+        private string clientId { get; set; }
+
+        public CredentialVault(string clientId)
+        {
+            if (string.IsNullOrEmpty(clientId))
+            {
+                throw new ArgumentException("You must provide a clientId");
+            }
+
+            this.clientId = clientId;
+        }
+
         public void AddAccountSessionToVault(AccountSession accountSession)
         {
+            if (string.IsNullOrEmpty(accountSession.RefreshToken))
+            {
+                throw new ArgumentException("AccountSession.RefreshToken must not be null or empty.");
+            }
+
             var vault = new PasswordVault();
-            var userName = CredentialVault.BuildUserName(accountSession.ClientId, accountSession.UserId);
-            var cred = new PasswordCredential(CredentialVault.vaultResourceName, userName, accountSession.RefreshToken);
+            var cred = new PasswordCredential(CredentialVault.vaultResourceName, this.clientId, accountSession.RefreshToken);
             vault.Add(cred);
         }
 
-        public AccountSession RetrieveAccountSession(string clientId, string userId = null)
+        public AccountSession RetrieveAccountSession()
         {
-            var vault = new PasswordVault();
-            var cred = vault.Retrieve(CredentialVault.vaultResourceName, CredentialVault.BuildUserName(clientId, userId));
+            var creds = this.RetrieveCredentialFromVault();
 
-            if (cred != null)
+            if (creds != null)
             {
                 return new AccountSession
                     {
-                        ClientId = clientId,
-                        RefreshToken = cred.Password
+                        ClientId = this.clientId,
+                        RefreshToken = creds.Password,
+                        ExpiresOnUtc = DateTimeOffset.MinValue
                     };
-            }
+            }            
             else
             {
                 return null;
             }
         }
 
-        private static string BuildUserName(string clientId, string userId = null)
+        public bool DeleteStoredAccountSession()
         {
-            return clientId + userId ?? CredentialVault.vaultNullUserName;
+            var creds = this.RetrieveCredentialFromVault();
+
+            if (creds != null)
+            {
+                var vault = new PasswordVault();
+                vault.Remove(creds);
+                return true;
+            }
+
+            return false;
+        }
+
+        private PasswordCredential RetrieveCredentialFromVault()
+        {
+            var vault = new PasswordVault();
+            PasswordCredential creds = null;
+
+            try
+            {
+                creds = vault.Retrieve(CredentialVault.vaultResourceName, this.clientId);
+            }
+            catch (System.Runtime.InteropServices.COMException)
+            {
+                // This happens when the vault is empty. Swallow.
+            }
+
+            return creds;
         }
     }
 }
