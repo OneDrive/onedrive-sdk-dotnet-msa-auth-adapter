@@ -25,17 +25,17 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             this.clientId = clientId;
         }
 
-        public void AddAccountSessionToVault(AccountSession accountSession)
+        public void AddCredentialCacheToVault(CredentialCache credentialCache)
         {
             throw new NotImplementedException();
         }
 
-        public AccountSession RetrieveAccountSession()
+        public bool RetrieveCredentialCache(CredentialCache credentialCache)
         {
             throw new NotImplementedException();
         }
 
-        public bool DeleteStoredAccountSession()
+        public bool DeleteStoredCredentialCache()
         {
             throw new NotImplementedException();
         }

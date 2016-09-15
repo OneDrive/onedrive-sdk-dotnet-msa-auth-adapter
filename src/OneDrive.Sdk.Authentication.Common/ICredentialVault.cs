@@ -6,10 +6,24 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 {
     public interface ICredentialVault
     {
-        void AddAccountSessionToVault(AccountSession accountSession);
+        /// <summary>
+        /// Store the CredentialCache somewhere safe. If anything was previously
+        /// stored in this vault, it is deleted.
+        /// </summary>
+        /// <param name="credentialCache">The cache to be serialized and stored.</param>
+        void AddCredentialCacheToVault(CredentialCache credentialCache);
 
-        AccountSession RetrieveAccountSession();
+        /// <summary>
+        /// Retrieve the cache information and store it in <paramref name="credentialCache"/>
+        /// </summary>
+        /// <param name="credentialCache">Place to store the retrieved credentials.</param>
+        /// <returns>True if the cache was successfully retrieved, otherwise false.</returns>
+        bool RetrieveCredentialCache(CredentialCache credentialCache);
 
-        bool DeleteStoredAccountSession();
+        /// <summary>
+        /// Clear out stored credentials.
+        /// </summary>
+        /// <returns>True if the credentials were cleared, otherwise false.</returns>
+        bool DeleteStoredCredentialCache();
     }
 }

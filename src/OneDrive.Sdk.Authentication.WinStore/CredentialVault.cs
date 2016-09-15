@@ -26,38 +26,32 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             this.clientId = clientId;
         }
 
-        public void AddAccountSessionToVault(AccountSession accountSession)
+        public void AddCredentialCacheToVault(CredentialCache credentialCache)
         {
-            if (string.IsNullOrEmpty(accountSession.RefreshToken))
-            {
-                throw new ArgumentException("AccountSession.RefreshToken must not be null or empty.");
-            }
+            this.DeleteStoredCredentialCache();
 
             var vault = new PasswordVault();
-            var cred = new PasswordCredential(CredentialVault.vaultResourceName, this.clientId, accountSession.RefreshToken);
+            var cred = new PasswordCredential(
+                CredentialVault.vaultResourceName,
+                this.clientId,
+                Convert.ToBase64String(credentialCache.GetCacheBlob()));
             vault.Add(cred);
         }
 
-        public AccountSession RetrieveAccountSession()
+        public bool RetrieveCredentialCache(CredentialCache credentialCache)
         {
             var creds = this.RetrieveCredentialFromVault();
 
             if (creds != null)
             {
-                return new AccountSession
-                    {
-                        ClientId = this.clientId,
-                        RefreshToken = creds.Password,
-                        ExpiresOnUtc = DateTimeOffset.MinValue
-                    };
-            }            
-            else
-            {
-                return null;
+                credentialCache.InitializeCacheFromBlob(Convert.FromBase64String(creds.Password));
+                return true;
             }
+
+            return false;
         }
 
-        public bool DeleteStoredAccountSession()
+        public bool DeleteStoredCredentialCache()
         {
             var creds = this.RetrieveCredentialFromVault();
 

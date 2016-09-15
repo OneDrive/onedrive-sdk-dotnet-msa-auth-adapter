@@ -27,6 +27,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         
         private OAuthHelper oAuthHelper;
 
+        internal ICredentialVault credentialVault;
         internal IWebAuthenticationUi webAuthenticationUi;
 
 #if DESKTOP
@@ -67,6 +68,35 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         public MsaAuthenticationProvider(string clientId, string returnUrl, string[] scopes)
             : this (clientId, returnUrl, scopes, /* credentialCache */ null)
         {
+        }
+
+        /// <summary>
+        /// Constructs an <see cref="AuthenticationProvider"/>.
+        /// </summary>
+        public MsaAuthenticationProvider(string clientId, string returnUrl, string[] scopes, ICredentialVault credentialVault)
+            : this(clientId, returnUrl, scopes, /* credentialCache */ null, credentialVault)
+        {
+        }
+
+        /// <summary>
+        /// Constructs an <see cref="MsaAuthenticationProvider"/>.
+        /// </summary>
+        public MsaAuthenticationProvider(
+            string clientId,
+            string returnUrl,
+            string[] scopes,
+            CredentialCache credentialCache,
+            ICredentialVault credentialVault)
+            : this(clientId, returnUrl, scopes, credentialCache)
+        {
+            if (credentialVault != null)
+            {
+                this.CredentialCache.BeforeAccess = cacheArgs => credentialVault.RetrieveCredentialCache(cacheArgs.CredentialCache);
+                this.CredentialCache.AfterAccess = cacheArgs =>
+                    {
+                        credentialVault.AddCredentialCacheToVault(cacheArgs.CredentialCache);
+                    };
+            }
         }
 
         /// <summary>
