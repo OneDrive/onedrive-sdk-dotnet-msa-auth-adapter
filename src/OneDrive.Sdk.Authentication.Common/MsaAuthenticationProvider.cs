@@ -66,7 +66,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// Constructs an <see cref="AuthenticationProvider"/>.
         /// </summary>
         public MsaAuthenticationProvider(string clientId, string returnUrl, string[] scopes)
-            : this (clientId, returnUrl, scopes, /* credentialCache */ null)
+            : this(clientId, returnUrl, scopes, /* credentialCache */ null, /* credentialVault */ null)
         {
         }
 
