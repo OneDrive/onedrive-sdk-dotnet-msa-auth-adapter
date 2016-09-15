@@ -206,12 +206,6 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             {
                 this.CredentialCache.AddToCache(accountSession);
             }
-
-            if (accountSession.RefreshToken != null)
-            {
-                var credentialVault = new CredentialVault(this.clientId);
-                credentialVault.AddAccountSessionToVault(accountSession);
-            }
         }
 
         protected void DeleteUserCredentialsFromCache(AccountSession accountSession)
@@ -321,12 +315,6 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
         internal async Task<AccountSession> ProcessCachedAccountSessionAsync(AccountSession accountSession, IHttpProvider httpProvider)
         {
-            if (accountSession == null)
-            {
-                var credentialVault = new CredentialVault(this.clientId);
-                accountSession = credentialVault.RetrieveAccountSession();
-            }
-
             if (accountSession != null)
             {
                 var shouldRefresh = accountSession.ShouldRefresh;
