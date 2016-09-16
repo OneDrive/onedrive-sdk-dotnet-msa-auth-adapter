@@ -94,7 +94,12 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                     binaryWriter.Write(this.Serializer.SerializeObject(cacheItem.Value));
                 }
 
-                binaryWriter.Write(this.Serializer.SerializeObject(this.MostRecentlyUsedKey));
+                var shouldWriteMruKey = this.MostRecentlyUsedKey != null;
+                binaryWriter.Write(shouldWriteMruKey); // To tell the reader that MRUKey needs to be read
+                if (shouldWriteMruKey)
+                {
+                    binaryWriter.Write(this.Serializer.SerializeObject(this.MostRecentlyUsedKey));
+                }
 
                 var length = (int)stream.Position;
                 stream.Position = 0;
@@ -148,7 +153,8 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                         }
                     }
 
-                    this.MostRecentlyUsedKey = this.Serializer.DeserializeObject<CredentialCacheKey>(binaryReader.ReadString());
+                    var shouldReadMruKey = binaryReader.ReadBoolean();
+                    this.MostRecentlyUsedKey = shouldReadMruKey ? this.Serializer.DeserializeObject<CredentialCacheKey>(binaryReader.ReadString()) : null;
                 }
             }
         }
