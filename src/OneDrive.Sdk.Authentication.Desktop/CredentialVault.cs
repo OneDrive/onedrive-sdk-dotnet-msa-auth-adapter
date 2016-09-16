@@ -9,8 +9,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
     public class CredentialVault : ICredentialVault
     {
-        private static readonly string vaultResourcePrefix = "OneDriveSDK_AuthAdapter";
-        private static readonly string vaultNullUserName = "DefaultUser";
+        private const string vaultResourcePrefix = "OneDriveSDK_AuthAdapter";
 
         private string clientId { get; set; }
         private string vaultResourceName { get { return CredentialVault.vaultResourcePrefix + this.clientId; } }

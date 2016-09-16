@@ -20,8 +20,9 @@ namespace Microsoft.OneDrive.Sdk.Authentication
     {
         internal readonly IDictionary<CredentialCacheKey, AccountSession> cacheDictionary =
             new ConcurrentDictionary<CredentialCacheKey, AccountSession>();
+        internal CredentialCacheKey MostRecentlyUsedKey { get; set; }
 
-        private const int CacheVersion = 1;
+        private const int CacheVersion = 2;
 
         /// <summary>
         /// Instantiates a new <see cref="CredentialCache"/>.
@@ -50,6 +51,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         {
             this.Serializer = serializer ?? new Serializer();
             this.InitializeCacheFromBlob(blob);
+            this.MostRecentlyUsedKey = null;
         }
 
         /// <summary>
@@ -91,6 +93,8 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                     binaryWriter.Write(this.Serializer.SerializeObject(cacheItem.Key));
                     binaryWriter.Write(this.Serializer.SerializeObject(cacheItem.Value));
                 }
+
+                binaryWriter.Write(this.Serializer.SerializeObject(this.MostRecentlyUsedKey));
 
                 var length = (int)stream.Position;
                 stream.Position = 0;
@@ -143,6 +147,8 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                             this.cacheDictionary.Add(credentialCacheKey, authResult);
                         }
                     }
+
+                    this.MostRecentlyUsedKey = this.Serializer.DeserializeObject<CredentialCacheKey>(binaryReader.ReadString());
                 }
             }
         }
@@ -172,6 +178,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             var cacheKey = this.GetKeyForAuthResult(accountSession);
             this.cacheDictionary[cacheKey] = accountSession;
+            this.MostRecentlyUsedKey = cacheKey;
 
             this.HasStateChanged = true;
             this.OnAfterAccess(cacheNotificationArgs);
@@ -187,6 +194,10 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
                 var credentialCacheKey = this.GetKeyForAuthResult(accountSession);
                 this.cacheDictionary.Remove(credentialCacheKey);
+                if (credentialCacheKey.Equals(this.MostRecentlyUsedKey))
+                {
+                    this.MostRecentlyUsedKey = null;
+                }
 
                 this.HasStateChanged = true;
 
@@ -205,21 +216,45 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
         internal virtual AccountSession GetResultFromCache(string clientId, string userId)
         {
-            var cacheNotificationArgs = new CredentialCacheNotificationArgs { CredentialCache = this };
-            this.OnBeforeAccess(cacheNotificationArgs);
-
             var credentialCacheKey = new CredentialCacheKey
             {
                 ClientId = clientId,
                 UserId = userId,
             };
 
+            return this.GetResultFromCache(credentialCacheKey);
+        }
+
+        internal virtual AccountSession GetResultFromCache(CredentialCacheKey credentialCacheKey)
+        {
+            var cacheNotificationArgs = new CredentialCacheNotificationArgs { CredentialCache = this };
+            this.OnBeforeAccess(cacheNotificationArgs);
+
             AccountSession cacheResult = null;
-            this.cacheDictionary.TryGetValue(credentialCacheKey, out cacheResult);
+            if (this.cacheDictionary.TryGetValue(credentialCacheKey, out cacheResult))
+            {
+                this.MostRecentlyUsedKey = credentialCacheKey;
+            }
 
             this.OnAfterAccess(cacheNotificationArgs);
 
             return cacheResult;
+        }
+
+        /// <summary>
+        /// Gets the most recently read or written result from cache.
+        /// </summary>
+        /// <returns>Most recently used result. Null if no cache value is stored
+        /// as most recently used (could be that most-recently used value was deleted).
+        /// </returns>
+        internal virtual AccountSession GetMostRecentlyUsedResultFromCache()
+        {
+            if (this.MostRecentlyUsedKey == null)
+            {
+                return null;
+            }
+
+            return this.GetResultFromCache(this.MostRecentlyUsedKey);
         }
 
         protected void OnAfterAccess(CredentialCacheNotificationArgs args)
