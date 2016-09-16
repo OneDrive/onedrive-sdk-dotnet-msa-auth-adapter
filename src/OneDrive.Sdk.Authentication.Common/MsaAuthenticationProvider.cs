@@ -222,9 +222,11 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// </summary>
         /// <param name="userName">The login name of the user, if known.</param>
         /// <returns>The authentication token.</returns>
+        public async Task RestoreMostRecentFromCacheOrAuthenticateUserAsync(string userName = null)
         {
             using (var httpProvider = new HttpProvider())
             {
+                await this.RestoreMostRecentFromCacheOrAuthenticateUserAsync(httpProvider, userName).ConfigureAwait(false);
             }
         }
 
@@ -235,6 +237,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// <param name="httpProvider">HttpProvider for any web requests needed for authentication</param>
         /// <param name="userName">The login name of the user, if known.</param>
         /// <returns>The authentication token.</returns>
+        public async Task RestoreMostRecentFromCacheOrAuthenticateUserAsync(IHttpProvider httpProvider, string userName = null)
         {
             var authResult = await this.GetMostRecentAuthenticationResultFromCacheAsync(httpProvider).ConfigureAwait(false);
 
