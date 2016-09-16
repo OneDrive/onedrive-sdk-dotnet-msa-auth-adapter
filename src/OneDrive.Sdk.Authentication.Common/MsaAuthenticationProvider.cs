@@ -252,6 +252,10 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             {
                 await this.AuthenticateUserAsync(httpProvider, userName);
             }
+            else
+            {
+                this.CacheAuthResult(authResult);
+            }
         }
 
         /// <summary>
