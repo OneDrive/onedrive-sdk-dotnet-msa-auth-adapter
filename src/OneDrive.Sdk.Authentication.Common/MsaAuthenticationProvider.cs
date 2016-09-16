@@ -217,6 +217,34 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         }
 
         /// <summary>
+        /// Retrieves the authentication token. Tries the to retrieve the most recently
+        /// used credentials if available.
+        /// </summary>
+        /// <param name="userName">The login name of the user, if known.</param>
+        /// <returns>The authentication token.</returns>
+        {
+            using (var httpProvider = new HttpProvider())
+            {
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the authentication token. Tries the to retrieve the most recently
+        /// used credentials if available.
+        /// </summary>
+        /// <param name="httpProvider">HttpProvider for any web requests needed for authentication</param>
+        /// <param name="userName">The login name of the user, if known.</param>
+        /// <returns>The authentication token.</returns>
+        {
+            var authResult = await this.GetMostRecentAuthenticationResultFromCacheAsync(httpProvider).ConfigureAwait(false);
+
+            if (authResult == null)
+            {
+                await this.AuthenticateUserAsync(httpProvider, userName);
+            }
+        }
+
+        /// <summary>
         /// Retrieves the authentication token.
         /// </summary>
         /// <param name="userName">The login name of the user, if known.</param>
@@ -232,6 +260,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// <summary>
         /// Retrieves the authentication token.
         /// </summary>
+        /// <param name="httpProvider">HttpProvider for any web requests needed for authentication</param>
         /// <param name="userName">The login name of the user, if known.</param>
         /// <returns>The authentication token.</returns>
         public async Task AuthenticateUserAsync(IHttpProvider httpProvider, string userName = null)
@@ -290,6 +319,23 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             var cacheResult = this.CredentialCache.GetResultFromCache(
                 this.clientId,
                 userId);
+
+            var processedResult = await this.ProcessCachedAccountSessionAsync(cacheResult, httpProvider).ConfigureAwait(false);
+
+            if (processedResult == null && cacheResult != null)
+            {
+                this.CredentialCache.DeleteFromCache(cacheResult);
+                this.CurrentAccountSession = null;
+
+                return null;
+            }
+
+            return processedResult;
+        }
+
+        internal async Task<AccountSession> GetMostRecentAuthenticationResultFromCacheAsync(IHttpProvider httpProvider)
+        {
+            var cacheResult = this.CredentialCache.GetMostRecentlyUsedResultFromCache();
 
             var processedResult = await this.ProcessCachedAccountSessionAsync(cacheResult, httpProvider).ConfigureAwait(false);
 
