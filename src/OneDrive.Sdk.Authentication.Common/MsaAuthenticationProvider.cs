@@ -91,10 +91,17 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         {
             if (credentialVault != null)
             {
-                this.CredentialCache.BeforeAccess = cacheArgs => credentialVault.RetrieveCredentialCache(cacheArgs.CredentialCache);
+                this.CredentialCache.BeforeAccess = cacheArgs =>
+                    {
+                        credentialVault.RetrieveCredentialCache(cacheArgs.CredentialCache);
+                        cacheArgs.CredentialCache.HasStateChanged = false;
+                    };
                 this.CredentialCache.AfterAccess = cacheArgs =>
                     {
-                        credentialVault.AddCredentialCacheToVault(cacheArgs.CredentialCache);
+                        if (cacheArgs.CredentialCache.HasStateChanged)
+                        {
+                            credentialVault.AddCredentialCacheToVault(cacheArgs.CredentialCache);
+                        }
                     };
             }
         }
