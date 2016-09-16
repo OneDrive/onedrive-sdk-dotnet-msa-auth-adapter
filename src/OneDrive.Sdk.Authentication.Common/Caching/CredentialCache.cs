@@ -222,23 +222,14 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 UserId = userId,
             };
 
-            return this.GetResultFromCache(credentialCacheKey);
-        }
-
-        internal virtual AccountSession GetResultFromCache(CredentialCacheKey credentialCacheKey)
-        {
             var cacheNotificationArgs = new CredentialCacheNotificationArgs { CredentialCache = this };
             this.OnBeforeAccess(cacheNotificationArgs);
 
-            AccountSession cacheResult = null;
-            if (this.cacheDictionary.TryGetValue(credentialCacheKey, out cacheResult))
-            {
-                this.MostRecentlyUsedKey = credentialCacheKey;
-            }
+            var result = this.GetResultFromCache(credentialCacheKey);
 
             this.OnAfterAccess(cacheNotificationArgs);
 
-            return cacheResult;
+            return result;
         }
 
         /// <summary>
@@ -249,12 +240,36 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// </returns>
         internal virtual AccountSession GetMostRecentlyUsedResultFromCache()
         {
+            var cacheNotificationArgs = new CredentialCacheNotificationArgs { CredentialCache = this };
+            this.OnBeforeAccess(cacheNotificationArgs);
+
             if (this.MostRecentlyUsedKey == null)
             {
                 return null;
             }
 
-            return this.GetResultFromCache(this.MostRecentlyUsedKey);
+            var result = this.GetResultFromCache(this.MostRecentlyUsedKey);
+
+            this.OnAfterAccess(cacheNotificationArgs);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Actual cache read. Notifications should be sent before & after this method.
+        /// Updates this.MostRecentlyUsedKey.
+        /// </summary>
+        /// <param name="credentialCacheKey">Key to look up</param>
+        /// <returns>Result from cache.</returns>
+        private AccountSession GetResultFromCache(CredentialCacheKey credentialCacheKey)
+        {
+            AccountSession cacheResult = null;
+            if (this.cacheDictionary.TryGetValue(credentialCacheKey, out cacheResult))
+            {
+                this.MostRecentlyUsedKey = credentialCacheKey;
+            }
+
+            return cacheResult;
         }
 
         protected void OnAfterAccess(CredentialCacheNotificationArgs args)
