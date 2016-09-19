@@ -31,13 +31,49 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         internal IWebAuthenticationUi webAuthenticationUi;
 
 #if DESKTOP
+        /// <summary>
+        /// Constructs an <see cref="AuthenticationProvider"/>.
+        /// </summary>
+        public MsaAuthenticationProvider(string clientId, string returnUrl, string[] scopes)
+            : this(clientId, /*clientSecret*/ null, returnUrl, scopes, /* credentialCache */ null, /* credentialVault */ null)
+        {
+        }
+
+        /// <summary>
+        /// Constructs an <see cref="AuthenticationProvider"/>.
+        /// </summary>
+        public MsaAuthenticationProvider(string clientId, string returnUrl, string[] scopes, ICredentialVault credentialVault)
+            : this(clientId, /*clientSecret*/ null, returnUrl, scopes, /* credentialCache */ null, credentialVault)
+        {
+        }
 
         /// <summary>
         /// Constructs an <see cref="MsaAuthenticationProvider"/>.
         /// </summary>
-        public MsaAuthenticationProvider(string clientId, string returnUrl, string[] scopes)
-            : this(clientId, /* clientSecret */ null, returnUrl, scopes, /* httpProvider */ null)
+        public MsaAuthenticationProvider(
+            string clientId,
+            string clientSecret,
+            string returnUrl,
+            string[] scopes,
+            CredentialCache credentialCache,
+            ICredentialVault credentialVault)
+            : this(clientId, clientSecret, returnUrl, scopes, credentialCache)
         {
+            if (credentialVault != null)
+            {
+                this.CredentialCache.BeforeAccess = cacheArgs =>
+                {
+                    credentialVault.RetrieveCredentialCache(cacheArgs.CredentialCache);
+                    cacheArgs.CredentialCache.HasStateChanged = false;
+                };
+                this.CredentialCache.AfterAccess = cacheArgs =>
+                {
+                    if (cacheArgs.CredentialCache.HasStateChanged)
+                    {
+                        credentialVault.AddCredentialCacheToVault(cacheArgs.CredentialCache);
+                    }
+                };
+            }
         }
 
         /// <summary>
