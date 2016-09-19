@@ -253,14 +253,19 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                     });
             }
 
-            return await this.SendTokenRequestAsync(
-                this.GetRefreshTokenRequestBody(
-                    refreshToken,
-                    clientId,
-                    returnUrl,
-                    scopes,
-                    clientSecret),
-                httpProvider).ConfigureAwait(false);
+            var tokenRequestBody = this.GetRefreshTokenRequestBody(
+                refreshToken,
+                clientId,
+                returnUrl,
+                scopes,
+                clientSecret);
+
+            if (httpProvider == null)
+            {
+                return await this.SendTokenRequestAsync(tokenRequestBody);
+            }
+
+            return await this.SendTokenRequestAsync(tokenRequestBody, httpProvider).ConfigureAwait(false);
         }
 
         public async Task<AccountSession> SendTokenRequestAsync(string requestBodyString)

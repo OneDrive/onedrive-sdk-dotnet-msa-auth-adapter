@@ -27,16 +27,53 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         
         private OAuthHelper oAuthHelper;
 
+        internal ICredentialVault credentialVault;
         internal IWebAuthenticationUi webAuthenticationUi;
 
 #if DESKTOP
+        /// <summary>
+        /// Constructs an <see cref="AuthenticationProvider"/>.
+        /// </summary>
+        public MsaAuthenticationProvider(string clientId, string returnUrl, string[] scopes)
+            : this(clientId, /*clientSecret*/ null, returnUrl, scopes, /* credentialCache */ null, /* credentialVault */ null)
+        {
+        }
+
+        /// <summary>
+        /// Constructs an <see cref="AuthenticationProvider"/>.
+        /// </summary>
+        public MsaAuthenticationProvider(string clientId, string returnUrl, string[] scopes, ICredentialVault credentialVault)
+            : this(clientId, /*clientSecret*/ null, returnUrl, scopes, /* credentialCache */ null, credentialVault)
+        {
+        }
 
         /// <summary>
         /// Constructs an <see cref="MsaAuthenticationProvider"/>.
         /// </summary>
-        public MsaAuthenticationProvider(string clientId, string returnUrl, string[] scopes)
-            : this(clientId, /* clientSecret */ null, returnUrl, scopes, /* httpProvider */ null)
+        public MsaAuthenticationProvider(
+            string clientId,
+            string clientSecret,
+            string returnUrl,
+            string[] scopes,
+            CredentialCache credentialCache,
+            ICredentialVault credentialVault)
+            : this(clientId, clientSecret, returnUrl, scopes, credentialCache)
         {
+            if (credentialVault != null)
+            {
+                this.CredentialCache.BeforeAccess = cacheArgs =>
+                {
+                    credentialVault.RetrieveCredentialCache(cacheArgs.CredentialCache);
+                    cacheArgs.CredentialCache.HasStateChanged = false;
+                };
+                this.CredentialCache.AfterAccess = cacheArgs =>
+                {
+                    if (cacheArgs.CredentialCache.HasStateChanged)
+                    {
+                        credentialVault.AddCredentialCacheToVault(cacheArgs.CredentialCache);
+                    }
+                };
+            }
         }
 
         /// <summary>
@@ -65,8 +102,44 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// Constructs an <see cref="AuthenticationProvider"/>.
         /// </summary>
         public MsaAuthenticationProvider(string clientId, string returnUrl, string[] scopes)
-            : this (clientId, returnUrl, scopes, /* credentialCache */ null)
+            : this(clientId, returnUrl, scopes, /* credentialCache */ null, /* credentialVault */ null)
         {
+        }
+
+        /// <summary>
+        /// Constructs an <see cref="AuthenticationProvider"/>.
+        /// </summary>
+        public MsaAuthenticationProvider(string clientId, string returnUrl, string[] scopes, ICredentialVault credentialVault)
+            : this(clientId, returnUrl, scopes, /* credentialCache */ null, credentialVault)
+        {
+        }
+
+        /// <summary>
+        /// Constructs an <see cref="MsaAuthenticationProvider"/>.
+        /// </summary>
+        public MsaAuthenticationProvider(
+            string clientId,
+            string returnUrl,
+            string[] scopes,
+            CredentialCache credentialCache,
+            ICredentialVault credentialVault)
+            : this(clientId, returnUrl, scopes, credentialCache)
+        {
+            if (credentialVault != null)
+            {
+                this.CredentialCache.BeforeAccess = cacheArgs =>
+                    {
+                        credentialVault.RetrieveCredentialCache(cacheArgs.CredentialCache);
+                        cacheArgs.CredentialCache.HasStateChanged = false;
+                    };
+                this.CredentialCache.AfterAccess = cacheArgs =>
+                    {
+                        if (cacheArgs.CredentialCache.HasStateChanged)
+                        {
+                            credentialVault.AddCredentialCacheToVault(cacheArgs.CredentialCache);
+                        }
+                    };
+            }
         }
 
         /// <summary>
@@ -162,7 +235,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                         }
                     }
                 }
-
+                
                 this.DeleteUserCredentialsFromCache(this.CurrentAccountSession);
                 this.CurrentAccountSession = null;
             }
@@ -187,6 +260,41 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         }
 
         /// <summary>
+        /// Retrieves the authentication token. Tries the to retrieve the most recently
+        /// used credentials if available.
+        /// </summary>
+        /// <param name="userName">The login name of the user, if known.</param>
+        /// <returns>The authentication token.</returns>
+        public async Task RestoreMostRecentFromCacheOrAuthenticateUserAsync(string userName = null)
+        {
+            using (var httpProvider = new HttpProvider())
+            {
+                await this.RestoreMostRecentFromCacheOrAuthenticateUserAsync(httpProvider, userName).ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the authentication token. Tries the to retrieve the most recently
+        /// used credentials if available.
+        /// </summary>
+        /// <param name="httpProvider">HttpProvider for any web requests needed for authentication</param>
+        /// <param name="userName">The login name of the user, if known.</param>
+        /// <returns>The authentication token.</returns>
+        public async Task RestoreMostRecentFromCacheOrAuthenticateUserAsync(IHttpProvider httpProvider, string userName = null)
+        {
+            var authResult = await this.GetMostRecentAuthenticationResultFromCacheAsync(httpProvider).ConfigureAwait(false);
+
+            if (authResult == null)
+            {
+                await this.AuthenticateUserAsync(httpProvider, userName);
+            }
+            else
+            {
+                this.CacheAuthResult(authResult);
+            }
+        }
+
+        /// <summary>
         /// Retrieves the authentication token.
         /// </summary>
         /// <param name="userName">The login name of the user, if known.</param>
@@ -202,6 +310,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// <summary>
         /// Retrieves the authentication token.
         /// </summary>
+        /// <param name="httpProvider">HttpProvider for any web requests needed for authentication</param>
         /// <param name="userName">The login name of the user, if known.</param>
         /// <returns>The authentication token.</returns>
         public async Task AuthenticateUserAsync(IHttpProvider httpProvider, string userName = null)
@@ -240,7 +349,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 }
             }
 
-            this.CacheAuthResult(authResult);
+            this.CacheAuthResult(authResult);          
         }
 
         internal async Task<AccountSession> GetAuthenticationResultFromCacheAsync(string userId, IHttpProvider httpProvider)
@@ -260,6 +369,23 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             var cacheResult = this.CredentialCache.GetResultFromCache(
                 this.clientId,
                 userId);
+
+            var processedResult = await this.ProcessCachedAccountSessionAsync(cacheResult, httpProvider).ConfigureAwait(false);
+
+            if (processedResult == null && cacheResult != null)
+            {
+                this.CredentialCache.DeleteFromCache(cacheResult);
+                this.CurrentAccountSession = null;
+
+                return null;
+            }
+
+            return processedResult;
+        }
+
+        internal async Task<AccountSession> GetMostRecentAuthenticationResultFromCacheAsync(IHttpProvider httpProvider)
+        {
+            var cacheResult = this.CredentialCache.GetMostRecentlyUsedResultFromCache();
 
             var processedResult = await this.ProcessCachedAccountSessionAsync(cacheResult, httpProvider).ConfigureAwait(false);
 

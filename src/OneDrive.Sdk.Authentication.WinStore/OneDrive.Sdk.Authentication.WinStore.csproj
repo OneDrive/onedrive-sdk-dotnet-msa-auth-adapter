@@ -46,6 +46,9 @@
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\AccountSession.cs">
       <Link>AccountSession.cs</Link>
     </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\ICredentialVault.cs">
+      <Link>ICredentialVault.cs</Link>
+    </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\MsaAuthenticationProvider.cs">
       <Link>MsaAuthenticationProvider.cs</Link>
     </Compile>
@@ -72,6 +75,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CredentialVault.cs" />
     <Compile Include="WebAuthenticationBrokerWebAuthenticationUi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

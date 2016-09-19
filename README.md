@@ -94,8 +94,27 @@ serviceResourceId is optional when authenticating using an authorization code. I
 var client = new OneDriveClient(baseUrl, authenticationProvider);
 ```
 
-## Sample projects
+### Cache sessions
 
+MasAuthProvider can store sessions for re-use later. Make the following changes to take advantage of silent re-authentication:
+1. When constructing `MsaAuthenticationProvider`, provide an instantiation of `ICredentialVault`. A default implementation is available in `CredentialVault`.
+2. Instead of calling `AuthenticateAsync`, call `RestoreMostRecentFromCacheOrAuthenticateUserAsync` on the instance of `MsaAuthenticationProvider`.
+
+```csharp
+var msaAuthProvider = new MsaAuthenticationProvider(
+    clientId,
+    returnUrl,
+    scopes,
+    new CredentialVault(clientId));
+authTask = msaAuthProvider.RestoreMostRecentFromCacheOrAuthenticateUserAsync();
+app.OneDriveClient = new OneDriveClient(this.oneDriveConsumerBaseUrl, msaAuthProvider);
+```
+
+This will store the session in a secure location (encrypted on disk with the user's context, so only the current user can decrypt), and also retrieve previous sessions.
+If a previous session is found with a refresh token, then its redemption will be attempted before prompting the user to log in. If the refresh token is valid then the user
+will not see authentication UI at all.
+
+To clear out this cache, simply call `await MsaAuthenticationProvider.SignOutAsync()`. The contents of the cache will be deleted.
 
 ## Documentation and resources
 
