@@ -11,9 +11,9 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
     public class CredentialVault : ICredentialVault
     {
-        private const string vaultResourceName = "OneDriveSDK_AuthAdapter";
+        private const string VaultResourceName = "OneDriveSDK_AuthAdapter";
 
-        private string clientId { get; set; }
+        private string ClientId { get; set; }
 
         public CredentialVault(string clientId)
         {
@@ -22,7 +22,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 throw new ArgumentException("You must provide a clientId");
             }
 
-            this.clientId = clientId;
+            this.ClientId = clientId;
         }
 
         public void AddCredentialCacheToVault(CredentialCache credentialCache)
@@ -31,8 +31,8 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             var vault = new PasswordVault();
             var cred = new PasswordCredential(
-                CredentialVault.vaultResourceName,
-                this.clientId,
+                CredentialVault.VaultResourceName,
+                this.ClientId,
                 Convert.ToBase64String(credentialCache.GetCacheBlob()));
             vault.Add(cred);
         }
@@ -71,7 +71,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             try
             {
-                creds = vault.Retrieve(CredentialVault.vaultResourceName, this.clientId);
+                creds = vault.Retrieve(CredentialVault.VaultResourceName, this.ClientId);
             }
             catch (System.Runtime.InteropServices.COMException)
             {

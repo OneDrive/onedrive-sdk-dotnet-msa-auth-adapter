@@ -5,14 +5,18 @@
 namespace Microsoft.OneDrive.Sdk.Authentication
 {
     using System;
+    using System.IO;
     using System.Security.Cryptography;
 
     public class CredentialVault : ICredentialVault
     {
-        private const string vaultResourcePrefix = "OneDriveSDK_AuthAdapter";
+        private const string VaultNamePrefix = "OneDriveSDK_AuthAdapter";
 
-        private string clientId { get; set; }
-        private string vaultResourceName { get { return CredentialVault.vaultResourcePrefix + this.clientId; } }
+        private string ClientId { get; set; }
+
+        private string VaultFileName => $"{VaultNamePrefix}_{this.ClientId}.dat";
+
+        private readonly byte[] _additionalEntropy;
 
         public CredentialVault(string clientId)
         {
@@ -21,22 +25,65 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 throw new ArgumentException("You must provide a clientId");
             }
 
-            this.clientId = clientId;
+            this.ClientId = clientId;
+            this._additionalEntropy = null;
+        }
+
+        public CredentialVault(string clientId, byte[] secondaryKeyBytes) : this(clientId)
+        {
+            this._additionalEntropy = secondaryKeyBytes;
         }
 
         public void AddCredentialCacheToVault(CredentialCache credentialCache)
         {
-            throw new NotImplementedException();
+            this.DeleteStoredCredentialCache();
+            
+            var cacheBlob = this.Protect(credentialCache.GetCacheBlob());
+            using (var outStream = File.OpenWrite(this.VaultFileName))
+            {
+                outStream.Write(cacheBlob, 0, cacheBlob.Length);
+            } 
         }
 
         public bool RetrieveCredentialCache(CredentialCache credentialCache)
         {
-            throw new NotImplementedException();
+            var filePath = this.GetVaultFilePath();
+
+            if (File.Exists(filePath))
+            {
+                credentialCache.InitializeCacheFromBlob(this.Unprotect(File.ReadAllBytes(filePath)));
+                return true;
+            }
+
+            return false;
         }
 
         public bool DeleteStoredCredentialCache()
         {
-            throw new NotImplementedException();
+            var filePath = this.GetVaultFilePath();
+
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+                return true;
+            }
+
+            return false;
+        }
+
+        private string GetVaultFilePath()
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), this.VaultFileName);
+        }
+
+        private byte[] Protect(byte[] data)
+        {
+            return ProtectedData.Protect(data, this._additionalEntropy, DataProtectionScope.CurrentUser);
+        }
+
+        private byte[] Unprotect(byte[] protectedData)
+        {
+            return ProtectedData.Unprotect(protectedData, this._additionalEntropy, DataProtectionScope.CurrentUser);
         }
     }
 }
