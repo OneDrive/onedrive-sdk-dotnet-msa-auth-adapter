@@ -73,7 +73,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             {
                 creds = vault.Retrieve(CredentialVault.VaultResourceName, this.ClientId);
             }
-            catch (System.Runtime.InteropServices.COMException)
+            catch (Exception)
             {
                 // This happens when the vault is empty. Swallow.
             }
