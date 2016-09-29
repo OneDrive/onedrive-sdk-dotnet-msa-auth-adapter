@@ -22,61 +22,67 @@
 
 namespace Microsoft.OneDrive.Sdk
 {
+    using Microsoft.Graph;
+    using Microsoft.OneDrive.Sdk.Authentication;
+
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Windows.Security.Authentication.OnlineId;
 
-    public class OnlineIdAuthenticationProvider : AuthenticationProvider
+    public class OnlineIdAuthenticationProvider : MsaAuthenticationProvider
     {
-        private OnlineIdAuthenticator authenticator;
+        private readonly int ticketExpirationTimeInMinutes = 60;
+        private readonly OnlineIdAuthenticator authenticator;
 
-        public OnlineIdAuthenticationProvider(ServiceInfo serviceInfo)
-            : base(serviceInfo)
+        public OnlineIdAuthenticationProvider(
+            string clientId,
+            string returnUrl,
+            string[] scopes)
+            :base(clientId, returnUrl, scopes)
         {
             this.authenticator = new OnlineIdAuthenticator();
         }
 
-        /// <summary>
-        /// Signs the current user out.
-        /// </summary>
-        public override async Task SignOutAsync()
+        public override async Task AuthenticateUserAsync(IHttpProvider httpProvider, string userName = null)
         {
-            if (this.CurrentAccountSession != null && this.CurrentAccountSession.CanSignOut)
+            var authResult = await this.GetAuthenticationResultFromCacheAsync(userName, httpProvider);
+
+            if (authResult == null)
             {
-                if (this.authenticator.CanSignOut)
+                authResult = await this.GetAccountSessionAsync();
+
+                if (authResult == null || string.IsNullOrEmpty(authResult.AccessToken))
                 {
-                    await this.authenticator.SignOutUserAsync();
+                    throw new ServiceException(
+                        new Error
+                        {
+                            Code = OAuthConstants.ErrorCodes.AuthenticationFailure,
+                            Message = "Failed to retrieve a valid authentication token for the user."
+                        });
                 }
-
-                this.DeleteUserCredentialsFromCache(this.CurrentAccountSession);
-                this.CurrentAccountSession = null;
             }
-        }
-
-        protected override Task<AccountSession> GetAuthenticationResultAsync()
-        {
-            return this.GetAccountSessionAsync();
+            
+            this.CacheAuthResult(authResult);
         }
 
         internal async Task<AccountSession> GetAccountSessionAsync()
         {
             try
             {
-                var serviceTicketRequest = new OnlineIdServiceTicketRequest(string.Join(" ", this.ServiceInfo.Scopes), "DELEGATION");
-                var ticketRequests = new List<OnlineIdServiceTicketRequest>();
-                ticketRequests.Add(serviceTicketRequest);
-                var authenticationResponse = await this.authenticator.AuthenticateUserAsync(ticketRequests, (Windows.Security.Authentication.OnlineId.CredentialPromptType) this.ServiceInfo.MicrosoftAccountPromptType);
+                var serviceTicketRequest = new OnlineIdServiceTicketRequest(string.Join(" ", this.scopes), "DELEGATION");
+                var ticketRequests = new List<OnlineIdServiceTicketRequest> { serviceTicketRequest };
+                var authenticationResponse = await this.authenticator.AuthenticateUserAsync(ticketRequests, Windows.Security.Authentication.OnlineId.CredentialPromptType.PromptIfNeeded);
 
                 var ticket = authenticationResponse.Tickets.FirstOrDefault();
 
                 if (ticket == null || string.IsNullOrEmpty(ticket.Value))
                 {
-                    throw new OneDriveException(
+                    throw new ServiceException(
                         new Error
                         {
-                            Code = OneDriveErrorCode.AuthenticationFailure.ToString(),
+                            Code = OAuthConstants.ErrorCodes.AuthenticationFailure,
                             Message = string.Format(
                                 "Failed to retrieve a valid authentication token from OnlineIdAuthenticator for user {0}.",
                                 authenticationResponse.SignInName)
@@ -86,17 +92,21 @@ namespace Microsoft.OneDrive.Sdk
                 var accountSession = new AccountSession
                 {
                     AccessToken = ticket == null ? null : ticket.Value,
-                    AccountType = this.ServiceInfo.AccountType,
-                    CanSignOut = this.authenticator.CanSignOut,
+                    ExpiresOnUtc = DateTimeOffset.UtcNow.AddMinutes(this.ticketExpirationTimeInMinutes),
+                    //CanSignOut = this.authenticator.CanSignOut,
                     ClientId = this.authenticator.ApplicationId.ToString(),
-                    UserId = authenticationResponse.SafeCustomerId,
+                    UserId = authenticationResponse.SafeCustomerId
                 };
 
                 return accountSession;
             }
+            catch (TaskCanceledException taskCanceledException)
+            {
+                throw new ServiceException(new Error { Code = OAuthConstants.ErrorCodes.AuthenticationCancelled, Message = "Authentication was canceled." }, taskCanceledException);
+            }
             catch (Exception exception)
             {
-                throw new OneDriveException(new Error { Code = OneDriveErrorCode.AuthenticationFailure.ToString(), Message = exception.Message }, exception);
+                throw new ServiceException(new Error { Code = OAuthConstants.ErrorCodes.AuthenticationFailure, Message = exception.Message }, exception);
             }
         }
     }

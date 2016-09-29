@@ -20,10 +20,10 @@ namespace Microsoft.OneDrive.Sdk.Authentication
     /// </summary>
     public class MsaAuthenticationProvider : IAuthenticationProvider
     {
-        private readonly string clientId;
-        private readonly string clientSecret;
-        private readonly string returnUrl;
-        private readonly string[] scopes;
+        internal readonly string clientId;
+        internal string clientSecret;
+        internal string returnUrl;
+        internal string[] scopes;
         
         private OAuthHelper oAuthHelper;
 
@@ -313,7 +313,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// <param name="httpProvider">HttpProvider for any web requests needed for authentication</param>
         /// <param name="userName">The login name of the user, if known.</param>
         /// <returns>The authentication token.</returns>
-        public async Task AuthenticateUserAsync(IHttpProvider httpProvider, string userName = null)
+        public virtual async Task AuthenticateUserAsync(IHttpProvider httpProvider, string userName = null)
         {
             var authResult = await this.GetAuthenticationResultFromCacheAsync(userName, httpProvider).ConfigureAwait(false);
 
