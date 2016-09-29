@@ -109,5 +109,20 @@ namespace Microsoft.OneDrive.Sdk
                 throw new ServiceException(new Error { Code = OAuthConstants.ErrorCodes.AuthenticationFailure, Message = exception.Message }, exception);
             }
         }
+
+        internal override async Task<AccountSession> ProcessCachedAccountSessionAsync(AccountSession accountSession, IHttpProvider httpProvider)
+        {
+            if (accountSession != null && accountSession.ShouldRefresh)
+            {
+                accountSession = await this.GetAccountSessionAsync();
+
+                if (accountSession != null && !string.IsNullOrEmpty(accountSession.AccessToken))
+                {
+                    return accountSession;
+                }
+            }
+
+            return null;
+        }
     }
 }

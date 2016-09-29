@@ -409,7 +409,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             }
         }
 
-        internal async Task<AccountSession> ProcessCachedAccountSessionAsync(AccountSession accountSession, IHttpProvider httpProvider)
+        internal virtual async Task<AccountSession> ProcessCachedAccountSessionAsync(AccountSession accountSession, IHttpProvider httpProvider)
         {
             if (accountSession != null)
             {

@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CredentialVault.cs" />
+    <Compile Include="OnlineIdAuthenticationProvider.cs" />
     <Compile Include="WebAuthenticationBrokerWebAuthenticationUi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
