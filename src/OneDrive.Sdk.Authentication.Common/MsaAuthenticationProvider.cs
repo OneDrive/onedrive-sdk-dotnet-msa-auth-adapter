@@ -295,6 +295,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         }
 
         /// <summary>
+        /// Retrieves the authentication token. Retrieves the most recently
         /// used credentials if available, without showing the sign in UI if credentials are unavailable.
         /// </summary>
         /// <param name="userName">The login name of the user, if known.</param>
@@ -308,6 +309,8 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         }
 
         /// <summary>
+        /// Retrieves the authentication token. Retrieves the most recently
+        /// used credentials if available, without showing the sign in UI if credentials are unavailable.
         /// </summary>
         /// <param name="httpProvider">HttpProvider for any web requests needed for authentication</param>
         /// <param name="userName">The login name of the user, if known.</param>
