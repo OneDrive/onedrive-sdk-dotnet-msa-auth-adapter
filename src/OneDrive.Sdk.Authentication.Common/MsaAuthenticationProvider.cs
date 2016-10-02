@@ -295,6 +295,33 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         }
 
         /// <summary>
+        /// used credentials if available, without showing the sign in UI if credentials are unavailable.
+        /// </summary>
+        /// <param name="userName">The login name of the user, if known.</param>
+        /// <returns>The authentication token.</returns>
+        public async Task RestoreMostRecentFromCacheAsync(string userName = null)
+        {
+            using (var httpProvider = new HttpProvider())
+            {
+                await this.RestoreMostRecentFromCacheAsync(httpProvider, userName).ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="httpProvider">HttpProvider for any web requests needed for authentication</param>
+        /// <param name="userName">The login name of the user, if known.</param>
+        /// <returns>The authentication token.</returns>
+        public async Task RestoreMostRecentFromCacheAsync(IHttpProvider httpProvider, string userName = null)
+        {
+            var authResult = await this.GetMostRecentAuthenticationResultFromCacheAsync(httpProvider).ConfigureAwait(false);
+            if (authResult != null)
+            {
+                this.CacheAuthResult(authResult);
+            }
+        }
+
+        /// <summary>
         /// Retrieves the authentication token.
         /// </summary>
         /// <param name="userName">The login name of the user, if known.</param>
