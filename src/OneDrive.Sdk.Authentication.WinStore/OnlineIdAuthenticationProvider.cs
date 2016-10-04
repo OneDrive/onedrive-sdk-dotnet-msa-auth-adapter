@@ -112,11 +112,18 @@ namespace Microsoft.OneDrive.Sdk
 
         internal override async Task<AccountSession> ProcessCachedAccountSessionAsync(AccountSession accountSession, IHttpProvider httpProvider)
         {
-            if (accountSession != null && accountSession.ShouldRefresh)
+            if (accountSession != null)
             {
-                accountSession = await this.GetAccountSessionAsync();
+                if (accountSession.ShouldRefresh) // Don't check 'CanRefresh' because this type can always refresh
+                {
+                    accountSession = await this.GetAccountSessionAsync();
 
-                if (accountSession != null && !string.IsNullOrEmpty(accountSession.AccessToken))
+                    if (accountSession != null && !string.IsNullOrEmpty(accountSession.AccessToken))
+                    {
+                        return accountSession;
+                    }
+                }
+                else
                 {
                     return accountSession;
                 }
