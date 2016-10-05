@@ -66,6 +66,23 @@ namespace Microsoft.OneDrive.Sdk
             this.CacheAuthResult(authResult);
         }
 
+        /// <summary>
+        /// Signs the current user out.
+        /// </summary>
+        public override async Task SignOutAsync()
+        {
+            if (this.IsAuthenticated)
+            {
+                if (this.authenticator.CanSignOut)
+                {
+                    await this.authenticator.SignOutUserAsync();
+                }                
+
+                this.DeleteUserCredentialsFromCache(this.CurrentAccountSession);
+                this.CurrentAccountSession = null;
+            }
+        }
+
         internal async Task<AccountSession> GetAccountSessionAsync()
         {
             try

@@ -213,7 +213,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// <summary>
         /// Signs the current user out.
         /// </summary>
-        public async Task SignOutAsync()
+        public virtual async Task SignOutAsync()
         {
             if (this.IsAuthenticated)
             {
