@@ -37,10 +37,8 @@ namespace Microsoft.OneDrive.Sdk
         private readonly OnlineIdAuthenticator authenticator;
 
         public OnlineIdAuthenticationProvider(
-            string clientId,
-            string returnUrl,
             string[] scopes)
-            :base(clientId, returnUrl, scopes)
+            :base(null, null, scopes)
         {
             this.authenticator = new OnlineIdAuthenticator();
         }
@@ -53,7 +51,7 @@ namespace Microsoft.OneDrive.Sdk
             {
                 authResult = await this.GetAccountSessionAsync();
 
-                if (authResult == null || string.IsNullOrEmpty(authResult.AccessToken))
+                if (string.IsNullOrEmpty(authResult?.AccessToken))
                 {
                     throw new ServiceException(
                         new Error
@@ -77,7 +75,7 @@ namespace Microsoft.OneDrive.Sdk
 
                 var ticket = authenticationResponse.Tickets.FirstOrDefault();
 
-                if (ticket == null || string.IsNullOrEmpty(ticket.Value))
+                if (string.IsNullOrEmpty(ticket?.Value))
                 {
                     throw new ServiceException(
                         new Error
@@ -91,9 +89,8 @@ namespace Microsoft.OneDrive.Sdk
 
                 var accountSession = new AccountSession
                 {
-                    AccessToken = ticket == null ? null : ticket.Value,
+                    AccessToken = string.IsNullOrEmpty(ticket.Value) ? null : ticket.Value,
                     ExpiresOnUtc = DateTimeOffset.UtcNow.AddMinutes(this.ticketExpirationTimeInMinutes),
-                    //CanSignOut = this.authenticator.CanSignOut,
                     ClientId = this.authenticator.ApplicationId.ToString(),
                     UserId = authenticationResponse.SafeCustomerId
                 };
@@ -117,8 +114,8 @@ namespace Microsoft.OneDrive.Sdk
                 if (accountSession.ShouldRefresh) // Don't check 'CanRefresh' because this type can always refresh
                 {
                     accountSession = await this.GetAccountSessionAsync();
-
-                    if (accountSession != null && !string.IsNullOrEmpty(accountSession.AccessToken))
+                    
+                    if (!string.IsNullOrEmpty(accountSession?.AccessToken))
                     {
                         return accountSession;
                     }
