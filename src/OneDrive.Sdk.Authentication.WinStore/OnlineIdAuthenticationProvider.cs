@@ -33,6 +33,7 @@ namespace Microsoft.OneDrive.Sdk
 
     public class OnlineIdAuthenticationProvider : MsaAuthenticationProvider
     {
+        private const string onlineIdServiceTicketRequestType = "DELEGATION";
         private readonly int ticketExpirationTimeInMinutes = 60;
         private readonly OnlineIdAuthenticator authenticator;
 
@@ -69,7 +70,7 @@ namespace Microsoft.OneDrive.Sdk
         {
             try
             {
-                var serviceTicketRequest = new OnlineIdServiceTicketRequest(string.Join(" ", this.scopes), "DELEGATION");
+                var serviceTicketRequest = new OnlineIdServiceTicketRequest(string.Join(" ", this.scopes), onlineIdServiceTicketRequestType);
                 var ticketRequests = new List<OnlineIdServiceTicketRequest> { serviceTicketRequest };
                 var authenticationResponse = await this.authenticator.AuthenticateUserAsync(ticketRequests, Windows.Security.Authentication.OnlineId.CredentialPromptType.PromptIfNeeded);
 
