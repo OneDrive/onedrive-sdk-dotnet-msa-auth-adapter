@@ -300,11 +300,11 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// </summary>
         /// <param name="userName">The login name of the user, if known.</param>
         /// <returns>The authentication token.</returns>
-        public async Task RestoreMostRecentFromCacheAsync(string userName = null)
+        public async Task<bool> RestoreMostRecentFromCacheAsync(string userName = null)
         {
             using (var httpProvider = new HttpProvider())
             {
-                await this.RestoreMostRecentFromCacheAsync(httpProvider, userName).ConfigureAwait(false);
+                return await this.RestoreMostRecentFromCacheAsync(httpProvider, userName).ConfigureAwait(false);
             }
         }
 
@@ -315,13 +315,14 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// <param name="httpProvider">HttpProvider for any web requests needed for authentication</param>
         /// <param name="userName">The login name of the user, if known.</param>
         /// <returns>The authentication token.</returns>
-        public async Task RestoreMostRecentFromCacheAsync(IHttpProvider httpProvider, string userName = null)
+        public async Task<bool> RestoreMostRecentFromCacheAsync(IHttpProvider httpProvider, string userName = null)
         {
             var authResult = await this.GetMostRecentAuthenticationResultFromCacheAsync(httpProvider).ConfigureAwait(false);
             if (authResult != null)
             {
                 this.CacheAuthResult(authResult);
             }
+            return authResult != null;
         }
 
         /// <summary>
