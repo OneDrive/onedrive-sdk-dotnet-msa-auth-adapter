@@ -40,6 +40,14 @@ var msaAuthenticationProvider = new MsaAuthenticationProvider(
 
 The MsaAuthenticationProvider constructor has an overload that takes in client secret for platforms that support web clients.
 
+If you are building a UWP app, you can leverage the user's signed-in account. Simply construct an `OnlineIdAuthenticationProvider`:
+
+```csharp
+var msaAuthenticationProvider = new OnlineIdAuthenticationProvider(scopes);
+```
+
+This type inherits from `MsaAuthenticationProvider` and behaves similarly. It will also refresh the user's token as needed.
+
 #### Authenticate a user
 
 ```csharp
@@ -105,6 +113,7 @@ var msaAuthProvider = new MsaAuthenticationProvider(
     clientId,
     returnUrl,
     scopes,
+    /*CredentialCache*/ null,
     new CredentialVault(clientId));
 authTask = msaAuthProvider.RestoreMostRecentFromCacheOrAuthenticateUserAsync();
 app.OneDriveClient = new OneDriveClient(this.oneDriveConsumerBaseUrl, msaAuthProvider);
@@ -115,6 +124,8 @@ If a previous session is found with a refresh token, then its redemption will be
 will not see authentication UI at all.
 
 To clear out this cache, simply call `await MsaAuthenticationProvider.SignOutAsync()`. The contents of the cache will be deleted.
+
+Note: CredentialVault is not necassary if you are using `OnlineIdAuthenticationProvider`.
 
 ## Documentation and resources
 
