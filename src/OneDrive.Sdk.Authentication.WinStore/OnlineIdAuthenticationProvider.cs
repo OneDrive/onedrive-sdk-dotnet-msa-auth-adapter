@@ -36,12 +36,14 @@ namespace Microsoft.OneDrive.Sdk
         private const string onlineIdServiceTicketRequestType = "DELEGATION";
         private readonly int ticketExpirationTimeInMinutes = 60;
         private readonly OnlineIdAuthenticator authenticator;
+        private readonly CredentialPromptType credentialPromptType;
 
         public OnlineIdAuthenticationProvider(
-            string[] scopes)
+            string[] scopes, CredentialPromptType credentialPromptType = CredentialPromptType.PromptIfNeeded)
             :base(null, null, scopes)
         {
             this.authenticator = new OnlineIdAuthenticator();
+            this.credentialPromptType = credentialPromptType;
         }
 
         public override async Task AuthenticateUserAsync(IHttpProvider httpProvider, string userName = null)
@@ -89,7 +91,7 @@ namespace Microsoft.OneDrive.Sdk
             {
                 var serviceTicketRequest = new OnlineIdServiceTicketRequest(string.Join(" ", this.scopes), onlineIdServiceTicketRequestType);
                 var ticketRequests = new List<OnlineIdServiceTicketRequest> { serviceTicketRequest };
-                var authenticationResponse = await this.authenticator.AuthenticateUserAsync(ticketRequests, Windows.Security.Authentication.OnlineId.CredentialPromptType.PromptIfNeeded);
+                var authenticationResponse = await this.authenticator.AuthenticateUserAsync(ticketRequests, credentialPromptType);
 
                 var ticket = authenticationResponse.Tickets.FirstOrDefault();
 
