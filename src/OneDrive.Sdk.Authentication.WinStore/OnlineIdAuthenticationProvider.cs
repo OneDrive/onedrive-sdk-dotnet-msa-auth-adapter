@@ -40,9 +40,9 @@ namespace Microsoft.OneDrive.Sdk
 
         public enum PromptType
         {
-            PromptIfNeeded,
-            RetypeCredentials,
-            DoNotPrompt
+            PromptIfNeeded = CredentialPromptType.PromptIfNeeded,
+            RetypeCredentials = CredentialPromptType.RetypeCredentials,
+            DoNotPrompt = CredentialPromptType.DoNotPrompt
         }
 
         public OnlineIdAuthenticationProvider(
