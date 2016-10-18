@@ -38,12 +38,19 @@ namespace Microsoft.OneDrive.Sdk
         private readonly OnlineIdAuthenticator authenticator;
         private readonly CredentialPromptType credentialPromptType;
 
+        public enum PromptType
+        {
+            PromptIfNeeded,
+            RetypeCredentials,
+            DoNotPrompt
+        }
+
         public OnlineIdAuthenticationProvider(
-            string[] scopes, CredentialPromptType credentialPromptType = CredentialPromptType.PromptIfNeeded)
+            string[] scopes, PromptType promptType = PromptType.PromptIfNeeded)
             :base(null, null, scopes)
         {
             this.authenticator = new OnlineIdAuthenticator();
-            this.credentialPromptType = credentialPromptType;
+            this.credentialPromptType = (CredentialPromptType)promptType;
         }
 
         public override async Task AuthenticateUserAsync(IHttpProvider httpProvider, string userName = null)
