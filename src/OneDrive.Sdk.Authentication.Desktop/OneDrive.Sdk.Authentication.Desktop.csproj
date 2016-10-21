@@ -149,6 +149,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Business\AdalDaemonAuthenticationProvider.cs" />
     <Compile Include="Business\AuthenticationContextWrapper.cs" />
     <Compile Include="Business\AdalAuthenticationProvider.cs" />
     <Compile Include="Business\IAuthenticationContextWrapper.cs" />
