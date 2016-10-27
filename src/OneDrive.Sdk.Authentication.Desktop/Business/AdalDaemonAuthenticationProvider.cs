@@ -1,4 +1,9 @@
-﻿using System;
+﻿// ------------------------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  
+//  Licensed under the MIT License.  
+//  See License in the project root for license information.
+// ------------------------------------------------------------------------------
+using System;
 using System.Threading.Tasks;
 using Microsoft.Graph;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
@@ -9,48 +14,58 @@ using System.Threading;
 
 namespace Microsoft.OneDrive.Sdk.Authentication.Business
 {
-    public class AdalDaemonAuthenticationProvider : IAuthenticationProvider
+    public class AdalDaemonAuthenticationProvider : AdalAuthenticationProviderBase
     {
-        public AccountSession CurrentAccountSession { get; internal set; }
-        string clientId;
-        string clientKey;
+        private const int _retryCount = 3;
+        private const int _retrySleepDuration = 3000;
+        string _clientId;
+        string _clientKey;
 
-        public AuthenticationContext authContext;
+        public IAuthenticationContextWrapper authContextWrapper;
         ClientCredential clientCredential;
 
-        // 'applicationId' : Your Application ID
-        // 'applicationKey' : Your Application Key
-        // 'tenant' : is usually a domain name for your Office365 service. Like 'yourcompany.onmicrosoft.com'
+        protected override AuthenticateUserDelegate AuthenticateUser { get; set; }
+        protected override AuthenticateUserSilentlyDelegate AuthenticateUserSilently { get; set; }
+
+        /// <summary>
+        /// Authenticates the user silently 
+        /// </summary>
+        /// <param name="clientId">Your Application ID</param>
+        /// <param name="clientSecret">Your Application Key</param>
+        /// <param name="tenant">is usually a domain name for your Office365 service. Like 'yourcompany.onmicrosoft.com'</param>
         public AdalDaemonAuthenticationProvider(
-            string applicationId,
-            string applicationKey,
-            string tenant) 
+            string clientId,
+            string returnUrl,
+            string clientSecret,
+            string tenant,
+            IAuthenticationContextWrapper authenticationContextWrapper) : base(clientId, returnUrl, authenticationContextWrapper)
         {
-            clientId = applicationId;
-            clientKey = applicationKey;
+            _clientId = clientId;
+            _clientKey = clientSecret;
 
             string authority = String.Format(CultureInfo.InvariantCulture, "https://login.microsoftonline.com/{0}", tenant);
-            authContext = new AuthenticationContext(authority);
-            clientCredential = new ClientCredential(clientId, clientKey);
+            authContextWrapper = authenticationContextWrapper;
+            clientCredential = new ClientCredential(_clientId, _clientKey);
+
+            this.AuthenticateUser = this.PromptUserForAuthenticationAsync;
+            this.AuthenticateUserSilently = this.SilentlyAuthenticateUserAsync;
         }
-
-
-
 
         public async Task AuthenticateUserAsync(string serviceResourceId)
         {
-            AuthenticationResult result = null;
+            IAuthenticationResult result = null;
             result = null;
             int retryCount = 0;
             bool retry = false;
-
+            currentServiceResourceId = serviceResourceId;
             do
             {
                 retry = false;
                 try
                 {
-                    // ADAL includes an in memory cache, so this call will only send a message to the server if the cached token is expired.
-                    result = await authContext.AcquireTokenAsync(serviceResourceId, clientCredential);
+                    result = await this.authContextWrapper.AcquireDaemonTokenSilentAsync(
+                        serviceResourceId,
+                        clientCredential);
                 }
                 catch (AdalException ex)
                 {
@@ -58,77 +73,67 @@ namespace Microsoft.OneDrive.Sdk.Authentication.Business
                     {
                         retry = true;
                         retryCount++;
-                        Thread.Sleep(3000);
+                        await Task.Delay(_retrySleepDuration);
                     }
-
-                    Console.WriteLine(
-                        String.Format("An error occurred while acquiring a token\nTime: {0}\nError: {1}\nRetry: {2}\n",
-                        DateTime.Now.ToString(),
-                        ex.ToString(),
-                        retry.ToString()));
                 }
 
-            } while ((retry == true) && (retryCount < 3));
-
+            } while ((retry == true) && (retryCount < _retryCount));
 
             this.CurrentAccountSession = this.ConvertAuthenticationResultToAccountSession(result);
         }
 
-        public async Task AuthenticateRequestAsync(HttpRequestMessage request)
+        public override Task AuthenticateUserWithRefreshTokenAsync(string refreshToken)
         {
-            if (this.CurrentAccountSession == null)
-            {
-                throw new ServiceException(
-                    new Error
-                    {
-                        Code = OAuthConstants.ErrorCodes.AuthenticationFailure,
-                        Message = "Please call one of the AuthenticateUserAsync...() methods to authenticate the user before trying to authenticate a request.",
-                    });
-            }
-
-            if (this.CurrentAccountSession.IsExpiring)
-            {
-                throw new ServiceException(
-                            new Error
-                            {
-                                Code = OAuthConstants.ErrorCodes.AuthenticationFailure,
-                                Message = ""
-                            });
-            }
-
-            var accessTokenType = string.IsNullOrEmpty(this.CurrentAccountSession.AccessTokenType)
-                ? OAuthConstants.Headers.Bearer
-                : this.CurrentAccountSession.AccessTokenType;
-
-            var uri = new UriBuilder(request.RequestUri);
-            if (string.IsNullOrEmpty(uri.Query))
-                uri.Query = string.Format("client_secret={0}", clientKey);
-            else
-                uri.Query = uri.Query.TrimStart('?') + string.Format("&client_secret={0}", clientKey);
-            request.RequestUri = uri.Uri;
-
-
-            request.Headers.Authorization = new AuthenticationHeaderValue(
-                accessTokenType,
-                this.CurrentAccountSession.AccessToken);
+            return this.AuthenticateUserWithRefreshTokenAsync(refreshToken, /* serviceResourceId */ null);
         }
 
-        protected AccountSession ConvertAuthenticationResultToAccountSession(AuthenticationResult authenticationResult)
+        public override async Task AuthenticateUserWithRefreshTokenAsync(string refreshToken, string serviceResourceId)
         {
-            if (authenticationResult == null)
+            // Daemon App doesn't have refresh token.
+            // So we do the authentication again.
+            await this.AuthenticateUserAsync(this.currentServiceResourceId);
+        }
+
+        private async Task<IAuthenticationResult> SilentlyAuthenticateUserAsync(
+            string serviceResourceId,
+            string userId,
+            bool throwOnError)
+        {
+            //var result = await this.authContextWrapper.AcquireDaemonTokenSilentAsync(
+            //            serviceResourceId,
+            //            clientCredential);
+            //return result;
+
+            IAuthenticationResult authenticationResult = null;
+
+            var userIdentifier = this.GetUserIdentifierForAuthentication(userId);
+
+            try
             {
-                return null;
+                authenticationResult = await this.authenticationContextWrapper.AcquireTokenSilentAsync(
+                    serviceResourceId,
+                    clientId,
+                    userIdentifier).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                if (throwOnError)
+                {
+                    throw;
+                }
             }
 
-            return new AccountSession
-            {
-                AccessToken = authenticationResult.AccessToken,
-                AccessTokenType = authenticationResult.AccessTokenType,
-                ClientId = this.clientId,
-                ExpiresOnUtc = authenticationResult.ExpiresOn,
-                RefreshToken = authenticationResult.RefreshToken,
-                UserId = authenticationResult.UserInfo == null ? null : authenticationResult.UserInfo.UniqueId,
-            };
+            return authenticationResult;
+        }
+
+        private Task<IAuthenticationResult> PromptUserForAuthenticationAsync(string serviceResourceId, string userId)
+        {
+            return this.SilentlyAuthenticateUserAsync(
+                        serviceResourceId,
+                        userId,
+                        true);
         }
     }
 }
+
+
