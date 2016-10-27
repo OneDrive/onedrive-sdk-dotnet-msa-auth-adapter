@@ -99,31 +99,10 @@ namespace Microsoft.OneDrive.Sdk.Authentication.Business
             string userId,
             bool throwOnError)
         {
-            //var result = await this.authContextWrapper.AcquireDaemonTokenSilentAsync(
-            //            serviceResourceId,
-            //            clientCredential);
-            //return result;
-
-            IAuthenticationResult authenticationResult = null;
-
-            var userIdentifier = this.GetUserIdentifierForAuthentication(userId);
-
-            try
-            {
-                authenticationResult = await this.authenticationContextWrapper.AcquireTokenSilentAsync(
-                    serviceResourceId,
-                    clientId,
-                    userIdentifier).ConfigureAwait(false);
-            }
-            catch (Exception)
-            {
-                if (throwOnError)
-                {
-                    throw;
-                }
-            }
-
-            return authenticationResult;
+            var result = await this.authContextWrapper.AcquireDaemonTokenSilentAsync(
+                        serviceResourceId,
+                        clientCredential);
+            return result;
         }
 
         private Task<IAuthenticationResult> PromptUserForAuthenticationAsync(string serviceResourceId, string userId)
