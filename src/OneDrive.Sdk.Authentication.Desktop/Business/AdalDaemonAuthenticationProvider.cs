@@ -18,11 +18,11 @@ namespace Microsoft.OneDrive.Sdk.Authentication.Business
     {
         private const int _retryCount = 3;
         private const int _retrySleepDuration = 3000;
-        string _clientId;
-        string _clientKey;
+        protected string _clientId;
+        protected string _clientKey;
 
         public IAuthenticationContextWrapper authContextWrapper;
-        ClientCredential clientCredential;
+        protected ClientCredential clientCredential;
 
         protected override AuthenticateUserDelegate AuthenticateUser { get; set; }
         protected override AuthenticateUserSilentlyDelegate AuthenticateUserSilently { get; set; }
@@ -44,8 +44,8 @@ namespace Microsoft.OneDrive.Sdk.Authentication.Business
             _clientKey = clientSecret;
 
             string authority = String.Format(CultureInfo.InvariantCulture, "https://login.microsoftonline.com/{0}", tenant);
-            authContextWrapper = authenticationContextWrapper;
-            clientCredential = new ClientCredential(_clientId, _clientKey);
+            this.authContextWrapper = authenticationContextWrapper;
+            this.clientCredential = new ClientCredential(_clientId, _clientKey);
 
             this.AuthenticateUser = this.PromptUserForAuthenticationAsync;
             this.AuthenticateUserSilently = this.SilentlyAuthenticateUserAsync;
@@ -63,7 +63,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication.Business
                 retry = false;
                 try
                 {
-                    result = await this.authContextWrapper.AcquireDaemonTokenSilentAsync(
+                    result = await this.authContextWrapper.AcquireTokenSilentAsync(
                         serviceResourceId,
                         clientCredential);
                 }
@@ -99,7 +99,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication.Business
             string userId,
             bool throwOnError)
         {
-            var result = await this.authContextWrapper.AcquireDaemonTokenSilentAsync(
+            var result = await this.authContextWrapper.AcquireTokenSilentAsync(
                         serviceResourceId,
                         clientCredential);
             return result;
