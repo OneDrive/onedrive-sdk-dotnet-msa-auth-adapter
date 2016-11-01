@@ -54,16 +54,16 @@ namespace Microsoft.OneDrive.Sdk.Authentication.Business
         public async Task AuthenticateUserAsync(string serviceResourceId)
         {
             IAuthenticationResult result = null;
-            result = null;
+            
             int retryCount = 0;
             bool retry = false;
-            currentServiceResourceId = serviceResourceId;
+            this.currentServiceResourceId = serviceResourceId;
             do
             {
                 retry = false;
                 try
                 {
-                    result = await this.authContextWrapper.AcquireTokenSilentAsync(
+                    result = await this.authContextWrapper.AcquireTokenAsyn(
                         serviceResourceId,
                         clientCredential);
                 }
@@ -99,7 +99,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication.Business
             string userId,
             bool throwOnError)
         {
-            var result = await this.authContextWrapper.AcquireTokenSilentAsync(
+            var result = await this.authContextWrapper.AcquireTokenAsyn(
                         serviceResourceId,
                         clientCredential);
             return result;
