@@ -37,7 +37,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// <param name="resource">The resource to authenticate against.</param>
         /// <param name="clientCredential">The client credential of the application.</param>
         /// <returns>The <see cref="IAuthenticationResult"/>.</returns>
-        Task<IAuthenticationResult> AcquireTokenAsyn(string resource, ClientCredential clientCredential);
+        Task<IAuthenticationResult> AcquireTokenAsync(string resource, ClientCredential clientCredential);
 
         /// <summary>
         /// Authenticates the user silently using <see cref="AuthenticationContext.AcquireTokenSilentAsync(string, string, UserIdentifier)"/>.

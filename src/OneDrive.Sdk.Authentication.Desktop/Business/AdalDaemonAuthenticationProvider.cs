@@ -63,9 +63,9 @@ namespace Microsoft.OneDrive.Sdk.Authentication.Business
                 retry = false;
                 try
                 {
-                    result = await this.authContextWrapper.AcquireTokenAsyn(
+                    result = await this.authContextWrapper.AcquireTokenAsync(
                         serviceResourceId,
-                        clientCredential);
+                        this.clientCredential);
                 }
                 catch (AdalException ex)
                 {
@@ -99,9 +99,9 @@ namespace Microsoft.OneDrive.Sdk.Authentication.Business
             string userId,
             bool throwOnError)
         {
-            var result = await this.authContextWrapper.AcquireTokenAsyn(
+            var result = await this.authContextWrapper.AcquireTokenAsync(
                         serviceResourceId,
-                        clientCredential);
+                        this.clientCredential);
             return result;
         }
 
