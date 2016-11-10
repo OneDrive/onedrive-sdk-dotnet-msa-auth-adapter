@@ -224,7 +224,11 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             }
         }
 
-        protected async Task SignOutOfBrowserAsync()
+        /// <summary>
+        /// Get rid of any cookies in the browser
+        /// </summary>
+        /// <returns>Task for signout. When task is done, signout is complete.</returns>
+        public async Task SignOutOfBrowserAsync()
         {
             if (this.webAuthenticationUi != null)
             {
@@ -335,11 +339,11 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// </summary>
         /// <param name="userName">The login name of the user, if known.</param>
         /// <returns>The authentication token.</returns>
-        public async Task AuthenticateUserAsync(string userName = null, bool dropCookiesBeforeSignin = false)
+        public async Task AuthenticateUserAsync(string userName = null)
         {
             using (var httpProvider = new HttpProvider())
             {
-                await this.AuthenticateUserAsync(httpProvider, userName, dropCookiesBeforeSignin).ConfigureAwait(false);
+                await this.AuthenticateUserAsync(httpProvider, userName).ConfigureAwait(false);
             }
         }
 
@@ -349,17 +353,12 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// <param name="httpProvider">HttpProvider for any web requests needed for authentication</param>
         /// <param name="userName">The login name of the user, if known.</param>
         /// <returns>The authentication token.</returns>
-        public virtual async Task AuthenticateUserAsync(IHttpProvider httpProvider, string userName = null, bool dropCookiesBeforeSignin = false)
+        public virtual async Task AuthenticateUserAsync(IHttpProvider httpProvider, string userName = null)
         {
             var authResult = await this.GetAuthenticationResultFromCacheAsync(userName, httpProvider).ConfigureAwait(false);
 
             if (authResult == null)
             {
-                if (dropCookiesBeforeSignin)
-                {
-                    await this.SignOutOfBrowserAsync();
-                }
-
                 // Log the user in if we haven't already pulled their credentials from the cache.
                 var code = await this.oAuthHelper.GetAuthorizationCodeAsync(
                     this.clientId,
