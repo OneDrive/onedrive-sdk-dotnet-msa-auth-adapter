@@ -53,12 +53,17 @@ namespace Microsoft.OneDrive.Sdk
             this.credentialPromptType = (CredentialPromptType)promptType;
         }
 
-        public override async Task AuthenticateUserAsync(IHttpProvider httpProvider, string userName = null)
+        public override async Task AuthenticateUserAsync(IHttpProvider httpProvider, string userName = null, bool dropCookiesBeforeSignin = false)
         {
             var authResult = await this.GetAuthenticationResultFromCacheAsync(userName, httpProvider);
 
             if (authResult == null)
             {
+                if (dropCookiesBeforeSignin)
+                {
+                    await this.SignOutOfBrowserAsync();
+                }
+
                 authResult = await this.GetAccountSessionAsync();
 
                 if (string.IsNullOrEmpty(authResult?.AccessToken))

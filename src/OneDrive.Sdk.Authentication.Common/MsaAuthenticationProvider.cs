@@ -217,27 +217,32 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         {
             if (this.IsAuthenticated)
             {
-                if (this.webAuthenticationUi != null)
-                {
-                    var requestUri = new Uri(this.oAuthHelper.GetSignOutUrl(this.clientId, this.returnUrl));
-
-                    try
-                    {
-                        await this.webAuthenticationUi.AuthenticateAsync(requestUri, new Uri(this.returnUrl)).ConfigureAwait(false);
-                    }
-                    catch (ServiceException serviceException)
-                    {
-                        // Sometimes WebAuthenticationBroker can throw authentication cancelled on the sign out call. We don't care
-                        // about this so swallow the error.
-                        if (!serviceException.IsMatch(OAuthConstants.ErrorCodes.AuthenticationCancelled))
-                        {
-                            throw;
-                        }
-                    }
-                }
+                await this.SignOutOfBrowserAsync();
                 
                 this.DeleteUserCredentialsFromCache(this.CurrentAccountSession);
                 this.CurrentAccountSession = null;
+            }
+        }
+
+        protected async Task SignOutOfBrowserAsync()
+        {
+            if (this.webAuthenticationUi != null)
+            {
+                var requestUri = new Uri(this.oAuthHelper.GetSignOutUrl(this.clientId, this.returnUrl));
+
+                try
+                {
+                    await this.webAuthenticationUi.AuthenticateAsync(requestUri, new Uri(this.returnUrl)).ConfigureAwait(false);
+                }
+                catch (ServiceException serviceException)
+                {
+                    // Sometimes WebAuthenticationBroker can throw authentication cancelled on the sign out call. We don't care
+                    // about this so swallow the error.
+                    if (!serviceException.IsMatch(OAuthConstants.ErrorCodes.AuthenticationCancelled))
+                    {
+                        throw;
+                    }
+                }
             }
         }
 
@@ -330,11 +335,11 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// </summary>
         /// <param name="userName">The login name of the user, if known.</param>
         /// <returns>The authentication token.</returns>
-        public async Task AuthenticateUserAsync(string userName = null)
+        public async Task AuthenticateUserAsync(string userName = null, bool dropCookiesBeforeSignin = false)
         {
             using (var httpProvider = new HttpProvider())
             {
-                await this.AuthenticateUserAsync(httpProvider, userName).ConfigureAwait(false);
+                await this.AuthenticateUserAsync(httpProvider, userName, dropCookiesBeforeSignin).ConfigureAwait(false);
             }
         }
 
@@ -344,12 +349,17 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// <param name="httpProvider">HttpProvider for any web requests needed for authentication</param>
         /// <param name="userName">The login name of the user, if known.</param>
         /// <returns>The authentication token.</returns>
-        public virtual async Task AuthenticateUserAsync(IHttpProvider httpProvider, string userName = null)
+        public virtual async Task AuthenticateUserAsync(IHttpProvider httpProvider, string userName = null, bool dropCookiesBeforeSignin = false)
         {
             var authResult = await this.GetAuthenticationResultFromCacheAsync(userName, httpProvider).ConfigureAwait(false);
 
             if (authResult == null)
             {
+                if (dropCookiesBeforeSignin)
+                {
+                    await this.SignOutOfBrowserAsync();
+                }
+
                 // Log the user in if we haven't already pulled their credentials from the cache.
                 var code = await this.oAuthHelper.GetAuthorizationCodeAsync(
                     this.clientId,
