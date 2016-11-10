@@ -217,27 +217,36 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         {
             if (this.IsAuthenticated)
             {
-                if (this.webAuthenticationUi != null)
-                {
-                    var requestUri = new Uri(this.oAuthHelper.GetSignOutUrl(this.clientId, this.returnUrl));
-
-                    try
-                    {
-                        await this.webAuthenticationUi.AuthenticateAsync(requestUri, new Uri(this.returnUrl)).ConfigureAwait(false);
-                    }
-                    catch (ServiceException serviceException)
-                    {
-                        // Sometimes WebAuthenticationBroker can throw authentication cancelled on the sign out call. We don't care
-                        // about this so swallow the error.
-                        if (!serviceException.IsMatch(OAuthConstants.ErrorCodes.AuthenticationCancelled))
-                        {
-                            throw;
-                        }
-                    }
-                }
+                await this.SignOutOfBrowserAsync();
                 
                 this.DeleteUserCredentialsFromCache(this.CurrentAccountSession);
                 this.CurrentAccountSession = null;
+            }
+        }
+
+        /// <summary>
+        /// Get rid of any cookies in the browser
+        /// </summary>
+        /// <returns>Task for signout. When task is done, signout is complete.</returns>
+        public async Task SignOutOfBrowserAsync()
+        {
+            if (this.webAuthenticationUi != null)
+            {
+                var requestUri = new Uri(this.oAuthHelper.GetSignOutUrl(this.clientId, this.returnUrl));
+
+                try
+                {
+                    await this.webAuthenticationUi.AuthenticateAsync(requestUri, new Uri(this.returnUrl)).ConfigureAwait(false);
+                }
+                catch (ServiceException serviceException)
+                {
+                    // Sometimes WebAuthenticationBroker can throw authentication cancelled on the sign out call. We don't care
+                    // about this so swallow the error.
+                    if (!serviceException.IsMatch(OAuthConstants.ErrorCodes.AuthenticationCancelled))
+                    {
+                        throw;
+                    }
+                }
             }
         }
 
