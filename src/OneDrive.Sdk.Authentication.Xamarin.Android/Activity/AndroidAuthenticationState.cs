@@ -37,6 +37,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 this.dictionary.Remove(key);
                 return state;
             }
+
             return null;
         }
     }

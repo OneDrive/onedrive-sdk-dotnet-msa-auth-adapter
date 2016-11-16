@@ -24,10 +24,12 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         public Task<IDictionary<string, string>> AuthenticateAsync(Uri requestUri, Uri callbackUri)
         {
             TaskCompletionSource<IDictionary<string, string>> tcs = new TaskCompletionSource<IDictionary<string, string>>();
+
             this.Completed += (s, e) =>
             {
                 tcs.SetResult(e.AuthorizationParameters);
             };
+
             this.Failed += (s, e) =>
             {
                 tcs.SetException(e.Error);
@@ -38,7 +40,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             intent.PutExtra(AndroidConstants.AuthenticationStateKey, stateKey);
             intent.PutExtra(AndroidConstants.RequestUriKey, requestUri.ToString());
             intent.PutExtra(AndroidConstants.CallbackUriKey, callbackUri.ToString());
-            Context.StartActivity(intent);
+            this.Context.StartActivity(intent);
             return tcs.Task;
         }
 

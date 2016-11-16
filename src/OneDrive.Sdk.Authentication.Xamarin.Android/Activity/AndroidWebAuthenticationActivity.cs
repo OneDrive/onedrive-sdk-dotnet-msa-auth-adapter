@@ -22,10 +22,10 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         {
             base.OnCreate(savedInstanceState);
             base.SetContentView(Resource.Layout.webform);
-            this.webView = FindViewById<WebView>(Resource.Id.webView);
-            this.WebAuthenticationUi = GetWebAuthenticationUi();
-            this.RequestUri = GetRequestUri();
-            this.CallbackUri = GetCallbackUri();
+            this.webView = base.FindViewById<WebView>(Resource.Id.webView);
+            this.WebAuthenticationUi = this.GetWebAuthenticationUi();
+            this.RequestUri = this.GetRequestUri();
+            this.CallbackUri = this.GetCallbackUri();
             this.BeginLoadAuthorizationUrl();
         }
 
@@ -33,9 +33,12 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
         private AndroidWebAuthenticationUi GetWebAuthenticationUi()
         {
-            if (!Intent.HasExtra(AndroidConstants.AuthenticationStateKey))
+            if (!base.Intent.HasExtra(AndroidConstants.AuthenticationStateKey))
+            {
                 return null;
-            string stateKey = Intent.GetStringExtra(AndroidConstants.AuthenticationStateKey);
+            }
+
+            string stateKey = base.Intent.GetStringExtra(AndroidConstants.AuthenticationStateKey);
             return AndroidAuthenticationState.Default.Remove<AndroidWebAuthenticationUi>(stateKey);
         }
 
@@ -43,18 +46,24 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
         private Uri GetRequestUri()
         {
-            if (!Intent.HasExtra(AndroidConstants.RequestUriKey))
+            if (!base.Intent.HasExtra(AndroidConstants.RequestUriKey))
+            {
                 return null;
-            return new Uri(Intent.GetStringExtra(AndroidConstants.RequestUriKey));
+            }
+
+            return new Uri(base.Intent.GetStringExtra(AndroidConstants.RequestUriKey));
         }
 
         public Uri CallbackUri { get; private set; }
 
         private Uri GetCallbackUri()
         {
-            if (!Intent.HasExtra(AndroidConstants.CallbackUriKey))
+            if (!base.Intent.HasExtra(AndroidConstants.CallbackUriKey))
+            {
                 return null;
-            return new Uri(Intent.GetStringExtra(AndroidConstants.CallbackUriKey));
+            }
+
+            return new Uri(base.Intent.GetStringExtra(AndroidConstants.CallbackUriKey));
         }
 
         private void BeginLoadAuthorizationUrl()
@@ -62,13 +71,13 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             Client client = new Client(this);
             this.webView.Settings.JavaScriptEnabled = true;
             this.webView.SetWebViewClient(client);
-            this.webView.LoadUrl(RequestUri.ToString());
+            this.webView.LoadUrl(this.RequestUri.ToString());
         }
 
         private void OnPageFinished(WebView view, string url)
         {
             Uri source = new Uri(url);
-            if (source.AbsoluteUri.StartsWith(CallbackUri.ToString()))
+            if (source.AbsoluteUri.StartsWith(this.CallbackUri.ToString()))
             {
                 var parameters = UrlHelper.GetQueryOptions(source);
                 this.WebAuthenticationUi.OnCompleted(new AuthCompletedEventArgs(parameters));
@@ -86,6 +95,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                             Code = "authenticationCanceled",
                             Message = "User canceled authentication."
                         })));
+
             base.OnBackPressed();
         }
 

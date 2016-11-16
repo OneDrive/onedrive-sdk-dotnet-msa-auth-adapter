@@ -25,6 +25,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             {
                 throw new ArgumentException("You must provide a clientId");
             }
+
             this.ClientId = clientId;
             this._additionalEntropy = null;
         }
