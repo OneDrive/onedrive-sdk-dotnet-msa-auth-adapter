@@ -227,6 +227,20 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             string returnUrl,
             string[] scopes,
             CredentialCache credentialCache)
+            : this(clientId, clientSecret, returnUrl, scopes, credentialCache, new AndroidWebAuthenticationUi(context))
+        {
+        }
+
+        /// <summary>
+        /// Constructs an <see cref="MsaAuthenticationProvider"/>.
+        /// </summary>
+        internal MsaAuthenticationProvider(
+            string clientId,
+            string clientSecret,
+            string returnUrl,
+            string[] scopes,
+            CredentialCache credentialCache,
+            IWebAuthenticationUi authenticationUi)
         {
             this.clientId = clientId;
             this.clientSecret = clientSecret;
@@ -235,7 +249,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             this.CredentialCache = credentialCache ?? new CredentialCache();
             this.oAuthHelper = new OAuthHelper();
-            this.webAuthenticationUi = new AndroidWebAuthenticationUi(context);
+            this.webAuthenticationUi = authenticationUi;
         }
 
 #endif
