@@ -39,7 +39,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             this.DeleteStoredCredentialCache();
             
             var cacheBlob = this.Protect(credentialCache.GetCacheBlob());
-            using (var outStream = File.OpenWrite(this.VaultFileName))
+            using (var outStream = File.OpenWrite(this.GetVaultFilePath()))
             {
                 outStream.Write(cacheBlob, 0, cacheBlob.Length);
             } 
