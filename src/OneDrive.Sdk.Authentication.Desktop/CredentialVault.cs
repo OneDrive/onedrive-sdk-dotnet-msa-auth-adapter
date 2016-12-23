@@ -16,9 +16,11 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
         private string VaultFileName => $"{VaultNamePrefix}_{this.ClientId}.dat";
 
-        private readonly byte[] _additionalEntropy;
+        private IProtectedData protectedData;
 
-        public CredentialVault(string clientId)
+        private IFile fileSystem;
+
+        public CredentialVault(string clientId, byte[] secondaryKeyBytes = null, IFile fileSystem = null, IProtectedData protectedData = null)
         {
             if (string.IsNullOrEmpty(clientId))
             {
@@ -26,20 +28,16 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             }
 
             this.ClientId = clientId;
-            this._additionalEntropy = null;
-        }
-
-        public CredentialVault(string clientId, byte[] secondaryKeyBytes) : this(clientId)
-        {
-            this._additionalEntropy = secondaryKeyBytes;
+            this.protectedData = protectedData ?? new ProtectedDataDefault(secondaryKeyBytes);
+            this.fileSystem = fileSystem ?? new FileSystem();
         }
 
         public void AddCredentialCacheToVault(CredentialCache credentialCache)
         {
             this.DeleteStoredCredentialCache();
-            
-            var cacheBlob = this.Protect(credentialCache.GetCacheBlob());
-            using (var outStream = File.OpenWrite(this.VaultFileName))
+
+            var cacheBlob = this.protectedData.Protect(credentialCache.GetCacheBlob());
+            using (var outStream = fileSystem.OpenWrite(this.GetVaultFilePath()))
             {
                 outStream.Write(cacheBlob, 0, cacheBlob.Length);
             } 
@@ -49,9 +47,9 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         {
             var filePath = this.GetVaultFilePath();
 
-            if (File.Exists(filePath))
+            if (fileSystem.Exists(filePath))
             {
-                credentialCache.InitializeCacheFromBlob(this.Unprotect(File.ReadAllBytes(filePath)));
+                credentialCache.InitializeCacheFromBlob(this.protectedData.Unprotect(fileSystem.ReadAllBytes(filePath)));
                 return true;
             }
 
@@ -62,9 +60,9 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         {
             var filePath = this.GetVaultFilePath();
 
-            if (File.Exists(filePath))
+            if (fileSystem.Exists(filePath))
             {
-                File.Delete(filePath);
+                fileSystem.Delete(filePath);
                 return true;
             }
 
@@ -76,14 +74,61 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), this.VaultFileName);
         }
 
-        private byte[] Protect(byte[] data)
+        public interface IFile
         {
-            return ProtectedData.Protect(data, this._additionalEntropy, DataProtectionScope.CurrentUser);
+            Stream OpenWrite(string path);
+            bool Exists(string path);
+            void Delete(string path);
+            byte[] ReadAllBytes(string path);
         }
 
-        private byte[] Unprotect(byte[] protectedData)
+        private class FileSystem : IFile
         {
-            return ProtectedData.Unprotect(protectedData, this._additionalEntropy, DataProtectionScope.CurrentUser);
+            public void Delete(string path)
+            {
+                File.Delete(path);
+            }
+
+            public bool Exists(string path)
+            {
+                return File.Exists(path);
+            }
+
+            public Stream OpenWrite(string path)
+            {
+                return File.OpenWrite(path);
+            }
+
+            public byte[] ReadAllBytes(string path)
+            {
+                return File.ReadAllBytes(path);
+            }
+        }
+
+        public interface IProtectedData
+        {
+            byte[] Protect(byte[] data);
+            byte[] Unprotect(byte[] protectedData);
+        }
+
+        public class ProtectedDataDefault : IProtectedData
+        {
+            public ProtectedDataDefault(byte[] additionalEntropy = null)
+            {
+                this._additionalEntropy = additionalEntropy;
+            }
+
+            private readonly byte[] _additionalEntropy;
+
+            public byte[] Protect(byte[] data)
+            {
+                return ProtectedData.Protect(data, this._additionalEntropy, DataProtectionScope.CurrentUser);
+            }
+
+            public byte[] Unprotect(byte[] protectedData)
+            {
+                return ProtectedData.Unprotect(protectedData, this._additionalEntropy, DataProtectionScope.CurrentUser);
+            }
         }
     }
 }

@@ -83,6 +83,7 @@
   <ItemGroup>
     <Compile Include="AccountSessionTests.cs" />
     <Compile Include="AdalAuthenticationProviderTestBase.cs" />
+    <Compile Include="CredentialVaultTests.cs" />
     <Compile Include="DiscoveryServiceHelperTests.cs" />
     <Compile Include="AdalAuthenticationProviderTests.cs" />
     <Compile Include="AdalCredentialCacheTests.cs" />
