@@ -262,7 +262,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             if (httpProvider == null)
             {
-                return await this.SendTokenRequestAsync(tokenRequestBody, null, clientId);
+                return await this.SendTokenRequestAsync(tokenRequestBody, clientId);
             }
 
             return await this.SendTokenRequestAsync(tokenRequestBody, httpProvider, clientId).ConfigureAwait(false);
