@@ -185,7 +185,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                     returnUrl,
                     scopes,
                     clientSecret),
-                httpProvider).ConfigureAwait(false);
+                httpProvider, clientId).ConfigureAwait(false);
         }
 
         public async Task<AccountSession> RedeemRefreshTokenAsync(
@@ -262,21 +262,21 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             if (httpProvider == null)
             {
-                return await this.SendTokenRequestAsync(tokenRequestBody);
+                return await this.SendTokenRequestAsync(tokenRequestBody, clientId);
             }
 
-            return await this.SendTokenRequestAsync(tokenRequestBody, httpProvider).ConfigureAwait(false);
+            return await this.SendTokenRequestAsync(tokenRequestBody, httpProvider, clientId).ConfigureAwait(false);
         }
 
-        public async Task<AccountSession> SendTokenRequestAsync(string requestBodyString)
+        public async Task<AccountSession> SendTokenRequestAsync(string requestBodyString, string clientId)
         {
             using (var httpProvider = new HttpProvider())
             {
-                return await this.SendTokenRequestAsync(requestBodyString, httpProvider).ConfigureAwait(false);
+                return await this.SendTokenRequestAsync(requestBodyString, httpProvider, clientId).ConfigureAwait(false);
             }
         }
 
-        public async Task<AccountSession> SendTokenRequestAsync(string requestBodyString, IHttpProvider httpProvider)
+        public async Task<AccountSession> SendTokenRequestAsync(string requestBodyString, IHttpProvider httpProvider, string clientId)
         {
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, OAuthConstants.MicrosoftAccountTokenServiceUrl);
 
@@ -292,7 +292,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 if (responseValues != null)
                 {
                     OAuthErrorHandler.ThrowIfError(responseValues);
-                    return new AccountSession(responseValues);
+                    return new AccountSession(responseValues, clientId);
                 }
 
                 throw new ServiceException(

@@ -290,5 +290,42 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
                     "Unexpected cached refresh token.");
             }
         }
+
+        [TestMethod]
+        public async Task AuthenticateUserAsync_ClientIdAddedToAccountSession()
+        {
+            using (var responseStream = new MemoryStream())
+            using (var streamContent = new StreamContent(responseStream))
+            {
+                httpResponseMessage.Content = streamContent;
+
+                var tokenResponseDictionary = new Dictionary<string, string> { { "code", "code" } };
+
+                this.webAuthenticationUi.Setup(webUi => webUi.AuthenticateAsync(
+                    It.Is<Uri>(uri => uri.ToString().Contains("response_type=code")),
+                    It.Is<Uri>(uri => uri.ToString().Equals(MsaAuthenticationProviderTests.ReturnUrl))))
+                    .Returns(
+                        Task.FromResult<IDictionary<string, string>>(tokenResponseDictionary));
+
+                this.httpProvider.Setup(
+                    provider => provider.SendAsync(
+                        It.Is<HttpRequestMessage>(
+                            request => request.RequestUri.ToString().Equals(OAuthConstants.MicrosoftAccountTokenServiceUrl))))
+                    .Returns(Task.FromResult<HttpResponseMessage>(httpResponseMessage));
+
+                this.serializer.Setup(
+                    serializer => serializer.DeserializeObject<IDictionary<string, string>>(It.IsAny<Stream>()))
+                    .Returns(new Dictionary<string, string>
+                        {
+                                { OAuthConstants.AccessTokenKeyName, "token" },
+                                { OAuthConstants.UserIdKeyName, UserId }
+                        });
+
+                await this.authenticationProvider.AuthenticateUserAsync(this.httpProvider.Object).ConfigureAwait(false);
+
+                var accountSession = this.authenticationProvider.CredentialCache.GetResultFromCache(ClientId, UserId);
+                Assert.IsNotNull(accountSession, "AccountSession not found in cache. AccountSession.ClientId may be null or have an incorrect value.");
+            }
+        }
     }
 }
