@@ -290,7 +290,7 @@ namespace Test.OneDrive.Sdk.Authentication.Desktop
                     "Unexpected cached refresh token.");
             }
         }
-                
+
         [TestMethod]
         public async Task AuthenticateUserAsync_ClientIdAddedToAccountSession()
         {
