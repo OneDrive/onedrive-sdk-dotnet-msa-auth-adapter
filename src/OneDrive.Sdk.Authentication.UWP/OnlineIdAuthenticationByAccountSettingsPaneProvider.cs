@@ -19,14 +19,14 @@ namespace Microsoft.OneDrive.Sdk
 {
     public class OnlineIdAuthenticationByAccountSettingsPaneProvider : OnlineIdAuthenticationProvider
     {
-        const string paswordres = "OneDriveSDK_AuthAdapter_AccountSettingsPane";
+        const string containerName = "OneDriveSDK_AuthAdapter_AccountSettingsPane";
         public OnlineIdAuthenticationByAccountSettingsPaneProvider(string[] scopes, PromptType promptType = PromptType.PromptIfNeeded) : base(scopes, promptType)
         {
         }
         public async override Task SignOutAsync()
         {
             await base.SignOutAsync();
-            ApplicationData.Current.LocalSettings.DeleteContainer(paswordres);
+            ApplicationData.Current.LocalSettings.DeleteContainer(containerName);
             await Account?.SignOutAsync();
         }
 
@@ -110,14 +110,16 @@ namespace Microsoft.OneDrive.Sdk
 
         protected async override Task<AccountSession> GetAccountSessionAsync()
         {
+            const string useridkey = "userid";
+            const string proivderidkey = "proid";
             try
             {
                 object proid;
                 object userid = null;
                 string key = null;
-                if(ApplicationData.Current.LocalSettings.CreateContainer(paswordres,ApplicationDataCreateDisposition.Always).Values.TryGetValue("proid", out proid))
+                if(ApplicationData.Current.LocalSettings.CreateContainer(containerName, ApplicationDataCreateDisposition.Always).Values.TryGetValue(proivderidkey, out proid))
                 {
-                    if (ApplicationData.Current.LocalSettings.Containers[paswordres].Values.TryGetValue("userid", out userid))
+                    if (ApplicationData.Current.LocalSettings.Containers[containerName].Values.TryGetValue(useridkey, out userid))
                         key = await GetTokenSilentlyAsync(proid?.ToString(), userid?.ToString());
                 }
                 if (key == null)
@@ -127,8 +129,8 @@ namespace Microsoft.OneDrive.Sdk
                     {
                         try
                         {
-                            ApplicationData.Current.LocalSettings.Containers[paswordres].Values["proid"] = Account.WebAccountProvider.Id;
-                            ApplicationData.Current.LocalSettings.Containers[paswordres].Values["userid"] = Account.Id;
+                            ApplicationData.Current.LocalSettings.Containers[containerName].Values[proivderidkey] = Account.WebAccountProvider.Id;
+                            ApplicationData.Current.LocalSettings.Containers[containerName].Values[useridkey] = Account.Id;
                             userid = Account.Id;
                         }
                         catch { }
