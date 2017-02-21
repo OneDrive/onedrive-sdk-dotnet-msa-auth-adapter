@@ -26,7 +26,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NETFX_CORE;WINSTORE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NETFX_CORE;WINSTORE;WINRT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -145,6 +145,10 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\OneDrive.Sdk.Authentication.WinRT\OneDrive.Sdk.Authentication.WinRT.csproj">
+      <Project>{65cf9691-e5a1-44bb-91a5-f1fe1fdb7dbe}</Project>
+      <Name>OneDrive.Sdk.Authentication.WinRT</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\OneDrive.Sdk.Authentication.WinStore\OneDrive.Sdk.Authentication.WinStore.csproj">
       <Project>{a8c54259-542c-40ac-aeb6-eefc3aa79859}</Project>
       <Name>OneDrive.Sdk.Authentication.WinStore</Name>

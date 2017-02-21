@@ -1,5 +1,5 @@
 ﻿<ContentDialog
-    x:Class="Microsoft.OneDrive.Sdk.Authentication.Web.IotFriendlyWebDialog"
+    x:Class="Microsoft.OneDrive.Sdk.Authentication.IotFriendlyWebDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Microsoft.OneDrive.Sdk.Authentication.Web"
@@ -15,7 +15,7 @@
         <SolidColorBrush x:Key="PointerOverCloseBrush" Color="#FFE81123"/>
         <SolidColorBrush x:Key="PressedCloseBrush" Color="#FFF1707A"/>
 
-        <Style TargetType="Button">
+        <Style x:Key="CloseButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{ThemeResource SystemControlBackgroundBaseLowBrush}" />
             <Setter Property="Foreground" Value="{ThemeResource SystemControlForegroundBaseHighBrush}"/>
             <Setter Property="BorderBrush" Value="{ThemeResource SystemControlForegroundTransparentBrush}" />
@@ -100,7 +100,7 @@
             </Setter>
         </Style>
     </ContentDialog.Resources>
-    
+
     <ContentDialog.Style>
         <Style TargetType="ContentDialog">
             <Setter Property="Foreground" Value="{ThemeResource SystemControlPageTextBaseHighBrush}" />
@@ -123,7 +123,7 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <Border x:Name="BackgroundElement"                                        
+                                <Border x:Name="BackgroundElement"
                                         Background="{TemplateBinding Background}"
                                         FlowDirection="{TemplateBinding FlowDirection}"
                                         BorderThickness="{ThemeResource ContentDialogBorderWidth}"
@@ -131,38 +131,91 @@
                                         MaxWidth="{TemplateBinding MaxWidth}"
                                         MaxHeight="{TemplateBinding MaxHeight}"
                                         MinWidth="{TemplateBinding MinWidth}"
-                                        MinHeight="{TemplateBinding MinHeight}">
+                                        MinHeight="{TemplateBinding MinHeight}" >
                                     <Grid x:Name="DialogSpace" VerticalAlignment="Stretch">
                                         <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="Auto" />
                                         </Grid.RowDefinitions>
-                                        <Button x:Name="CloseButton"
-                                                Grid.Row="0"
-                                                Background="{TemplateBinding Background}"
-                                                Click="CloseButton_Click"
-                                                Content="&#xE10A;"
-                                                FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                                Height="55"
-                                                HorizontalAlignment="Right"
-                                                Width="65"/>
                                         <ScrollViewer x:Name="ContentScrollViewer"
-                                                      Grid.Row="1"
                                                       HorizontalScrollBarVisibility="Disabled"
                                                       VerticalScrollBarVisibility="Disabled"
                                                       ZoomMode="Disabled"
                                                       Margin="{ThemeResource ContentDialogContentScrollViewerMargin}"
                                                       IsTabStop="False">
-                                            <ContentPresenter x:Name="Content"
-                                                              ContentTemplate="{TemplateBinding ContentTemplate}"
-                                                              Content="{TemplateBinding Content}"
-                                                              FontSize="{ThemeResource ControlContentThemeFontSize}"
-                                                              FontFamily="{ThemeResource ContentControlThemeFontFamily}"
-                                                              Margin="{ThemeResource ContentDialogContentMargin}"
-                                                              Foreground="{TemplateBinding Foreground}"
-                                                              Grid.Row="1"
-                                                              TextWrapping="Wrap" />
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <Button x:Name="CloseButton"
+                                                        Grid.Row="0"
+                                                        Background="{TemplateBinding Background}"
+                                                        Click="CloseButton_Click"
+                                                        Content="&#xE10A;"
+                                                        FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                        Height="55"
+                                                        HorizontalAlignment="Right"
+                                                        Style="{StaticResource CloseButtonStyle}"
+                                                        Width="65"/>
+                                                <ContentControl x:Name="Title"
+                                                                Grid.Row="1"
+                                                                Margin="{ThemeResource ContentDialogTitleMargin}"
+                                                                Content="{TemplateBinding Title}"
+                                                                ContentTemplate="{TemplateBinding TitleTemplate}"
+                                                                FontSize="20"
+                                                                FontFamily="Segoe UI"
+                                                                FontWeight="Normal"
+                                                                Foreground="{TemplateBinding Foreground}"
+                                                                HorizontalAlignment="Left"
+                                                                VerticalAlignment="Top"
+                                                                IsTabStop="False"
+                                                                MaxHeight="{ThemeResource ContentDialogTitleMaxHeight}" >
+                                                    <ContentControl.Template>
+                                                        <ControlTemplate TargetType="ContentControl">
+                                                            <ContentPresenter Content="{TemplateBinding Content}"
+                                                                              MaxLines="2"
+                                                                              TextWrapping="Wrap"
+                                                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                                              Margin="{TemplateBinding Padding}"
+                                                                              ContentTransitions="{TemplateBinding ContentTransitions}"
+                                                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                                        </ControlTemplate>
+                                                    </ContentControl.Template>
+                                                </ContentControl>
+                                                <ContentPresenter x:Name="Content"
+                                                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                                  Content="{TemplateBinding Content}"
+                                                                  FontSize="{ThemeResource ControlContentThemeFontSize}"
+                                                                  FontFamily="{ThemeResource ContentControlThemeFontFamily}"
+                                                                  Margin="{ThemeResource ContentDialogContentMargin}"
+                                                                  Foreground="{TemplateBinding Foreground}"
+                                                                  Grid.Row="2"
+                                                                  TextWrapping="Wrap" />
+                                            </Grid>
                                         </ScrollViewer>
+                                        <Grid x:Name="CommandSpace" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border x:Name="Button1Host"
+                                                    Margin="{ThemeResource ContentDialogButton1HostMargin}"
+                                                    MinWidth="{ThemeResource ContentDialogButtonMinWidth}"
+                                                    MaxWidth="{ThemeResource ContentDialogButtonMaxWidth}"
+                                                    Height="{ThemeResource ContentDialogButtonHeight}"
+                                                    HorizontalAlignment="Stretch" />
+                                            <Border x:Name="Button2Host"
+                                                    Margin="{ThemeResource ContentDialogButton2HostMargin}"
+                                                    MinWidth="{ThemeResource ContentDialogButtonMinWidth}"
+                                                    MaxWidth="{ThemeResource ContentDialogButtonMaxWidth}"
+                                                    Height="{ThemeResource ContentDialogButtonHeight}"
+                                                    Grid.Column="1"
+                                                    HorizontalAlignment="Stretch" />
+                                        </Grid>
                                     </Grid>
                                 </Border>
                             </Grid>
@@ -172,9 +225,14 @@
             </Setter>
         </Style>
     </ContentDialog.Style>
-
-    <WebView x:Name="DialogWebView"
-             NavigationStarting="DialogWebView_NavigationStarting"
-             NavigationCompleted="DialogWebView_NavigationCompleted"
-             Source="{x:Bind WebViewSource, Mode=TwoWay}"/>
+       
+    <Grid>
+        <WebView x:Name="DialogWebView"
+                 Height="{StaticResource ContentDialogMaxHeight}"         
+                 Width="{StaticResource ContentDialogMaxWidth}"
+                 NavigationStarting="DialogWebView_NavigationStarting"
+                 NavigationCompleted="DialogWebView_NavigationCompleted"                 
+                 Source="{x:Bind WebViewSource, Mode=TwoWay}"
+                 />
+    </Grid>
 </ContentDialog>

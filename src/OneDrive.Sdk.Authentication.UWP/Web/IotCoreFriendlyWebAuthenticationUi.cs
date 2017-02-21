@@ -11,8 +11,8 @@ namespace Microsoft.OneDrive.Sdk.Authentication
     {
         public async Task<IDictionary<string, string>> AuthenticateAsync(Uri requestUri, Uri callbackUri)
         {
-            var authDialog = new IotCoreFriendlyWebAuthenticationUi();
-            IDictionary<string, string> result = await authDialog.AuthenticateAsync(requestUri, callbackUri);
+            var authDialog = new IotFriendlyWebDialog();
+            IDictionary<string, string> result = await authDialog.GetAuthenticationResponseValue(requestUri, callbackUri);
             if (result == null)
             {
                 throw new ServiceException(new Error { Code = OAuthConstants.ErrorCodes.AuthenticationCancelled, Message = "Authentication cancelled by user." });

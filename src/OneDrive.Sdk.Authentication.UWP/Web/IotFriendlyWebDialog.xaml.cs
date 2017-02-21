@@ -9,7 +9,7 @@ using Windows.UI.Xaml.Controls;
 
 // The Content Dialog item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace Microsoft.OneDrive.Sdk.Authentication.Web
+namespace Microsoft.OneDrive.Sdk.Authentication
 {
     public sealed partial class IotFriendlyWebDialog : ContentDialog, INotifyPropertyChanged
     {
@@ -59,14 +59,14 @@ namespace Microsoft.OneDrive.Sdk.Authentication.Web
 
         private void ContentDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
         {
-            this.dialogTaskComplete.SetResult(true);
+            this.dialogTaskComplete.TrySetResult(true);
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             this.authenticationResponseValues = null;            
             this.Hide();
-            this.dialogTaskComplete.SetResult(true);
+            this.dialogTaskComplete.TrySetResult(true);
         }        
 
         private void DialogWebView_NavigationStarting(WebView sender, WebViewNavigationStartingEventArgs args)
@@ -76,7 +76,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication.Web
                 args.Cancel = true;
                 this.authenticationResponseValues = UrlHelper.GetQueryOptions(args.Uri);                
                 this.Hide();
-                dialogTaskComplete.SetResult(true);
+                this.dialogTaskComplete.TrySetResult(true);
             }
         }        
 
@@ -85,7 +85,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication.Web
             if (this.NavigatedToCallbackUrl(args.Uri))
             {
                 this.authenticationResponseValues = UrlHelper.GetQueryOptions(args.Uri);
-                this.dialogTaskComplete.SetResult(true);                
+                this.dialogTaskComplete.TrySetResult(true);
                 this.Hide();
             }
         }

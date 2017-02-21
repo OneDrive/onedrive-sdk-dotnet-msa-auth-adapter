@@ -155,6 +155,7 @@
     <Compile Include="Business\AuthenticationContextWrapper.cs" />
     <Compile Include="Business\IAuthenticationContextWrapper.cs" />
     <Compile Include="Discovery Service\DiscoveryServiceHelper.cs" />
+    <Compile Include="OnlineIdAuthenticationProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -171,13 +172,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\OneDrive.Sdk.Authentication.WinStore\OneDrive.Sdk.Authentication.WinStore.csproj">
       <Project>{a8c54259-542c-40ac-aeb6-eefc3aa79859}</Project>
       <Name>OneDrive.Sdk.Authentication.WinStore</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>
