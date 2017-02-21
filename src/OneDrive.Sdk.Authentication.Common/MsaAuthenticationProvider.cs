@@ -173,7 +173,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             // Our method of detection here isn't bulletproof--more non-IoT device families could fall under
             // this namespace in the future. Unfortunately, using API detection won't work, because the API
             // is AVAILABLE in IoT, it just doesn't actually work.
-            if (true)// (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.IoT")
+            if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.IoT")
             {
                 this.webAuthenticationUi = new IotCoreFriendlyWebAuthenticationUi();
             }
