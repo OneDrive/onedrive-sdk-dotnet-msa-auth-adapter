@@ -49,9 +49,6 @@
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\ICredentialVault.cs">
       <Link>ICredentialVault.cs</Link>
     </Compile>
-    <Compile Include="..\OneDrive.Sdk.Authentication.Common\MsaAuthenticationProvider.cs">
-      <Link>MsaAuthenticationProvider.cs</Link>
-    </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthConstants.cs">
       <Link>OAuthConstants.cs</Link>
     </Compile>

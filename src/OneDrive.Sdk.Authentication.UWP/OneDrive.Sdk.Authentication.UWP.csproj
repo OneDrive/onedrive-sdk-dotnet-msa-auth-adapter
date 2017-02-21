@@ -7,8 +7,8 @@
     <ProjectGuid>{07EE71E1-1BEC-409A-B497-3A9E3EF16EE6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>OneDrive.Sdk.Authentication.UWP</RootNamespace>
-    <AssemblyName>OneDrive.Sdk.Authentication.UWP</AssemblyName>
+    <RootNamespace>Microsoft.OneDrive.Sdk.Authentication</RootNamespace>
+    <AssemblyName>Microsoft.OneDrive.Sdk.Authentication.UWP</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.10586.0</TargetPlatformVersion>
@@ -107,65 +107,64 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.Common\Business\AdalAuthenticationProviderBase.cs">
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\AdalAuthenticationProviderBase.cs">
       <Link>Business\AdalAuthenticationProviderBase.cs</Link>
     </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.Common\Business\AuthenticationResultWrapper.cs">
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\AuthenticationResultWrapper.cs">
       <Link>Business\AuthenticationResultWrapper.cs</Link>
     </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.Common\Business\BusinessAuthenticationExceptionHelper.cs">
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\BusinessAuthenticationExceptionHelper.cs">
       <Link>Business\BusinessAuthenticationExceptionHelper.cs</Link>
     </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.Common\Business\BusinessServiceInformation.cs">
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\BusinessServiceInformation.cs">
       <Link>Business\BusinessServiceInformation.cs</Link>
     </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.Common\Business\IAuthenticationResult.cs">
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\IAuthenticationResult.cs">
       <Link>Business\IAuthenticationResult.cs</Link>
     </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.Common\Business\IUserInfo.cs">
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\IUserInfo.cs">
       <Link>Business\IUserInfo.cs</Link>
     </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.Common\Business\UserInfoWrapper.cs">
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\UserInfoWrapper.cs">
       <Link>Business\UserInfoWrapper.cs</Link>
     </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.Common\Caching\AdalCredentialCache.cs">
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\AdalCredentialCache.cs">
       <Link>Caching\AdalCredentialCache.cs</Link>
     </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.Common\Caching\ITokenCache.cs">
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\ITokenCache.cs">
       <Link>Caching\ITokenCache.cs</Link>
     </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.Common\Caching\ITokenCacheItem.cs">
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\ITokenCacheItem.cs">
       <Link>Caching\ITokenCacheItem.cs</Link>
     </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.Common\Caching\TokenCacheItemWrapper.cs">
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\TokenCacheItemWrapper.cs">
       <Link>Caching\TokenCacheItemWrapper.cs</Link>
     </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.Common\Caching\TokenCacheWrapper.cs">
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\TokenCacheWrapper.cs">
       <Link>Caching\TokenCacheWrapper.cs</Link>
     </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.Common\Discovery Service\DiscoveryService.cs">
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Discovery Service\DiscoveryService.cs">
       <Link>Discovery Service\DiscoveryService.cs</Link>
     </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.Common\Discovery Service\DiscoveryServiceHelperBase.cs">
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Discovery Service\DiscoveryServiceHelperBase.cs">
       <Link>Discovery Service\DiscoveryServiceHelperBase.cs</Link>
     </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.Common\Discovery Service\DiscoveryServiceResponse.cs">
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Discovery Service\DiscoveryServiceResponse.cs">
       <Link>Discovery Service\DiscoveryServiceResponse.cs</Link>
     </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.WinRT\Business\AdalAuthenticationProvider.cs">
-      <Link>Business\AdalAuthenticationProvider.cs</Link>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\MsaAuthenticationProvider.cs">
+      <Link>MsaAuthenticationProvider.cs</Link>
     </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.WinRT\Business\AuthenticationContextWrapper.cs">
-      <Link>Business\AuthenticationContextWrapper.cs</Link>
-    </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.WinRT\Business\IAuthenticationContextWrapper.cs">
-      <Link>Business\IAuthenticationContextWrapper.cs</Link>
-    </Compile>
-    <Compile Include="..\src\OneDrive.Sdk.Authentication.WinRT\Discovery Service\DiscoveryServiceHelper.cs">
-      <Link>Discovery Service\DiscoveryServiceHelper.cs</Link>
-    </Compile>
+    <Compile Include="Business\AdalAuthenticationProvider.cs" />
+    <Compile Include="Business\AuthenticationContextWrapper.cs" />
+    <Compile Include="Business\IAuthenticationContextWrapper.cs" />
+    <Compile Include="Discovery Service\DiscoveryServiceHelper.cs" />
+    <Compile Include="Web\IotCoreFriendlyWebAuthenticationUi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Properties\OneDrive.Sdk.Authentication.UWP.rd.xml" />
+    <Compile Include="Web\IotFriendlyWebDialog.xaml.cs">
+      <DependentUpon>IotFriendlyWebDialog.xaml</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Properties\Microsoft.OneDrive.Sdk.Authentication.UWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OneDrive.Sdk.Authentication.WinStore\OneDrive.Sdk.Authentication.WinStore.csproj">
@@ -173,7 +172,12 @@
       <Name>OneDrive.Sdk.Authentication.WinStore</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Page Include="Web\IotFriendlyWebDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

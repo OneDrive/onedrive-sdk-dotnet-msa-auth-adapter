@@ -11,8 +11,9 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
     using Microsoft.Graph;
 
-#if WINSTORE
+#if NETFX_CORE
     using Windows.Security.Authentication.Web;
+    using Windows.System.Profile;    
 #endif
 
     /// <summary>
@@ -96,7 +97,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             this.webAuthenticationUi = new FormsWebAuthenticationUi();
         }
 
-#elif WINSTORE
+#elif NETFX_CORE
 
         /// <summary>
         /// Constructs an <see cref="AuthenticationProvider"/>.
@@ -162,7 +163,25 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             this.CredentialCache = credentialCache ?? new CredentialCache();
             this.oAuthHelper = new OAuthHelper();
+#if WINRT            
             this.webAuthenticationUi = new WebAuthenticationBrokerWebAuthenticationUi();
+#elif WINDOWS_UWP
+            // WebAuthenticationBroker is not supported on Windows 10 IoT Core, so if we're running UWP,
+            // we need to first check if we're running on IoT Core. If we are, we fall back to our
+            // own implementation.
+
+            // Our method of detection here isn't bulletproof--more non-IoT device families could fall under
+            // this namespace in the future. Unfortunately, using API detection won't work, because the API
+            // is AVAILABLE in IoT, it just doesn't actually work.
+            if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Universal")
+            {
+                this.webAuthenticationUi = new IotCoreFriendlyWebAuthenticationUi();
+            }
+            else
+            {
+                this.webAuthenticationUi = new WebAuthenticationBrokerWebAuthenticationUi();
+            }
+#endif
         }
 
 #endif

@@ -148,6 +148,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\MsaAuthenticationProvider.cs">
+      <Link>MsaAuthenticationProvider.cs</Link>
+    </Compile>
     <Compile Include="Business\AdalAuthenticationProvider.cs" />
     <Compile Include="Business\AuthenticationContextWrapper.cs" />
     <Compile Include="Business\IAuthenticationContextWrapper.cs" />
