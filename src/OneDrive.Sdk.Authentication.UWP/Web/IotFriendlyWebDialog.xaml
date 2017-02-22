@@ -5,8 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    d:DesignWidth="500"
-    d:DesignHeight="500"
+    d:DesignWidth="600"
+    d:DesignHeight="600"
     
     Closing="ContentDialog_Closing">
 
@@ -46,7 +46,7 @@
                                                 <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PointerOverCloseBrush}" />
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightBaseHighBrush}" />
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="White" />
                                             </ObjectAnimationUsingKeyFrames>
                                             <PointerUpThemeAnimation Storyboard.TargetName="RootGrid" />
                                         </Storyboard>
@@ -60,7 +60,7 @@
                                                 <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PressedCloseBrush}" />
                                             </ObjectAnimationUsingKeyFrames>
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightBaseHighBrush}" />
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="White" />
                                             </ObjectAnimationUsingKeyFrames>
                                             <PointerDownThemeAnimation Storyboard.TargetName="RootGrid" />
                                         </Storyboard>
