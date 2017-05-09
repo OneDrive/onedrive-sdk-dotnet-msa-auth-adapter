@@ -51,7 +51,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// </summary>
         IUserInfo UserInfo { get; }
 
-#if WINRT
+#if WINRT || WINDOWS_UWP
         /// <summary>
         /// Gets the error code if authentication failed.
         /// </summary>

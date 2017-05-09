@@ -36,7 +36,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         /// </summary>
         internal AdalCredentialCache(ITokenCache tokenCache)
         {
-            this.tokenCache = tokenCache;
+            this.tokenCache = tokenCache;            
         }
 
         /// <summary>
@@ -128,10 +128,10 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             this.OnAfterAccess(cacheNotificationArgs);
             this.HasStateChanged = true;
-        }
+        }        
 
         internal override void AddToCache(AccountSession accountSession)
-        {
+        {            
             // Let ADAL handle the caching
         }
 
