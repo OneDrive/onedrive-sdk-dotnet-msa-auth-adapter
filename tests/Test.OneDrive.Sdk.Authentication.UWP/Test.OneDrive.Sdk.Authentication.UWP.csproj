@@ -132,10 +132,9 @@
       <Project>{07ee71e1-1bec-409a-b497-3a9e3ef16ee6}</Project>
       <Name>OneDrive.Sdk.Authentication.UWP</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\OneDrive.Sdk.Authentication.WinStore\OneDrive.Sdk.Authentication.WinStore.csproj">
-      <Project>{a8c54259-542c-40ac-aeb6-eefc3aa79859}</Project>
-      <Name>OneDrive.Sdk.Authentication.WinStore</Name>
-    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

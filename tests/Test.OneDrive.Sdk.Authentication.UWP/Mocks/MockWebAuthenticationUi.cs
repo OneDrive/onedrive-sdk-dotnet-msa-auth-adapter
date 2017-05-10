@@ -20,7 +20,7 @@
 //  THE SOFTWARE.
 // ------------------------------------------------------------------------------
 
-namespace Test.OneDrive.Sdk.Authentication.WinRT.Mocks
+namespace Test.OneDrive.Sdk.Authentication.UWP.Mocks
 {
     using System;
     using System.Collections.Generic;
