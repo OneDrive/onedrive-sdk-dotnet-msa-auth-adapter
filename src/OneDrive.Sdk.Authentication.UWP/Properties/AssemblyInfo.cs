@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("OneDrive.Sdk.Authentication.UWP")]
+[assembly: AssemblyTitle("OneDriveSdk.Uwp")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("OneDrive.Sdk.Authentication.UWP")]
+[assembly: AssemblyProduct("OneDriveSdk.Uwp")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -27,3 +27,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: ComVisible(false)]
+
+#if DEBUG
+[assembly: InternalsVisibleTo("Test.OneDrive.Sdk.Authentication.UWP")]
+#else
+[assembly: InternalsVisibleTo("Test.OneDrive.Sdk.Authentication.UWP, PublicKey=")]
+#endif

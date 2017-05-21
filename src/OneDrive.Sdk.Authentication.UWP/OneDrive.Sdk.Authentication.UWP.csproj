@@ -4,14 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B19198A5-6A2E-41D1-A6F8-A5B6DB204303}</ProjectGuid>
+    <ProjectGuid>{07EE71E1-1BEC-409A-B497-3A9E3EF16EE6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>OneDrive.Sdk.Authentication.UWP</RootNamespace>
-    <AssemblyName>OneDrive.Sdk.Authentication.UWP</AssemblyName>
-    <DefaultLanguage>zh-CN</DefaultLanguage>
+    <RootNamespace>Microsoft.OneDrive.Sdk.Authentication</RootNamespace>
+    <AssemblyName>Microsoft.OneDrive.Sdk.Authentication.UWP</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion>10.0.14393.0</TargetPlatformVersion>
+    <TargetPlatformVersion>10.0.10586.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.10240.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
@@ -23,7 +23,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NETFX_CORE;WINDOWS_UWP;WINSTORE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -32,7 +32,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP;WINSTORE</DefineConstants>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -40,7 +40,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NETFX_CORE;WINDOWS_UWP;WINSTORE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
@@ -50,7 +50,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <PlatformTarget>x86</PlatformTarget>
     <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP;WINSTORE</DefineConstants>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <Optimize>true</Optimize>
     <NoWarn>;2008</NoWarn>
     <DebugType>pdbonly</DebugType>
@@ -62,7 +62,7 @@
     <PlatformTarget>ARM</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\ARM\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NETFX_CORE;WINDOWS_UWP;WINSTORE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>ARM</PlatformTarget>
@@ -72,7 +72,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
     <PlatformTarget>ARM</PlatformTarget>
     <OutputPath>bin\ARM\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP;WINSTORE</DefineConstants>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <Optimize>true</Optimize>
     <NoWarn>;2008</NoWarn>
     <DebugType>pdbonly</DebugType>
@@ -84,7 +84,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NETFX_CORE;WINDOWS_UWP;WINSTORE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
@@ -94,7 +94,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <PlatformTarget>x64</PlatformTarget>
     <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP;WINSTORE</DefineConstants>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <Optimize>true</Optimize>
     <NoWarn>;2008</NoWarn>
     <DebugType>pdbonly</DebugType>
@@ -107,53 +107,86 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\OneDrive.Sdk.Authentication.Common\AccountSession.cs">
-      <Link>AccountSession.cs</Link>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\AdalAuthenticationProviderBase.cs">
+      <Link>Business\AdalAuthenticationProviderBase.cs</Link>
     </Compile>
-    <Compile Include="..\onedrive.sdk.authentication.common\caching\CredentialCache.cs">
-      <Link>Caching\CredentialCache.cs</Link>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\AuthenticationResultWrapper.cs">
+      <Link>Business\AuthenticationResultWrapper.cs</Link>
     </Compile>
-    <Compile Include="..\onedrive.sdk.authentication.common\caching\CredentialCacheKey.cs">
-      <Link>Caching\CredentialCacheKey.cs</Link>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\BusinessAuthenticationExceptionHelper.cs">
+      <Link>Business\BusinessAuthenticationExceptionHelper.cs</Link>
     </Compile>
-    <Compile Include="..\onedrive.sdk.authentication.common\caching\CredentialCacheNotificationArgs.cs">
-      <Link>Caching\CredentialCacheNotificationArgs.cs</Link>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\BusinessServiceInformation.cs">
+      <Link>Business\BusinessServiceInformation.cs</Link>
     </Compile>
-    <Compile Include="..\OneDrive.Sdk.Authentication.Common\ICredentialVault.cs">
-      <Link>ICredentialVault.cs</Link>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\IAuthenticationResult.cs">
+      <Link>Business\IAuthenticationResult.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\IUserInfo.cs">
+      <Link>Business\IUserInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\UserInfoWrapper.cs">
+      <Link>Business\UserInfoWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\AdalCredentialCache.cs">
+      <Link>Caching\AdalCredentialCache.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\ITokenCache.cs">
+      <Link>Caching\ITokenCache.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\ITokenCacheItem.cs">
+      <Link>Caching\ITokenCacheItem.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\TokenCacheItemWrapper.cs">
+      <Link>Caching\TokenCacheItemWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\TokenCacheWrapper.cs">
+      <Link>Caching\TokenCacheWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Discovery Service\DiscoveryService.cs">
+      <Link>Discovery Service\DiscoveryService.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Discovery Service\DiscoveryServiceHelperBase.cs">
+      <Link>Discovery Service\DiscoveryServiceHelperBase.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Discovery Service\DiscoveryServiceResponse.cs">
+      <Link>Discovery Service\DiscoveryServiceResponse.cs</Link>
     </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\MsaAuthenticationProvider.cs">
       <Link>MsaAuthenticationProvider.cs</Link>
     </Compile>
-    <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthConstants.cs">
-      <Link>OAuthConstants.cs</Link>
-    </Compile>
-    <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthErrorHandler.cs">
-      <Link>OAuthErrorHandler.cs</Link>
-    </Compile>
-    <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthHelper.cs">
-      <Link>OAuthHelper.cs</Link>
-    </Compile>
-    <Compile Include="..\onedrive.sdk.authentication.common\web\IWebAuthenticationUi.cs">
-      <Link>Web\IWebAuthenticationUi.cs</Link>
-    </Compile>
-    <Compile Include="..\OneDrive.Sdk.Authentication.WinStore\CredentialVault.cs">
-      <Link>CredentialVault.cs</Link>
-    </Compile>
-    <Compile Include="..\OneDrive.Sdk.Authentication.WinStore\OnlineIdAuthenticationProvider.cs">
-      <Link>OnlineIdAuthenticationProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\OneDrive.Sdk.Authentication.WinStore\WebAuthenticationBrokerWebAuthenticationUi.cs">
-      <Link>WebAuthenticationBrokerWebAuthenticationUi.cs</Link>
-    </Compile>
-    <Compile Include="OnlineIdAuthenticationByAccountSettingsPaneProvider.cs" />
+    <Compile Include="Business\AdalAuthenticationProvider.cs" />
+    <Compile Include="Business\AuthenticationContextWrapper.cs" />
+    <Compile Include="Business\IAuthenticationContextWrapper.cs" />
+    <Compile Include="Discovery Service\DiscoveryServiceHelper.cs" />
+    <Compile Include="OnlineIdAuthenticationProvider.cs" />
+    <Compile Include="Web\IotCoreFriendlyWebAuthenticationUi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Properties\OneDrive.Sdk.Authentication.UWP.rd.xml" />
+    <Compile Include="Web\IotFriendlyWebDialog.xaml.cs">
+      <DependentUpon>IotFriendlyWebDialog.xaml</DependentUpon>
+    </Compile>
+	<Compile Include="OnlineIdAuthenticationByAccountSettingsPaneProvider.cs" />
+    <EmbeddedResource Include="Properties\Microsoft.OneDrive.Sdk.Authentication.UWP.rd.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OneDrive.Sdk.Authentication.WinStore\OneDrive.Sdk.Authentication.WinStore.csproj">
+      <Project>{a8c54259-542c-40ac-aeb6-eefc3aa79859}</Project>
+      <Name>OneDrive.Sdk.Authentication.WinStore</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Web\IotFriendlyWebDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /Y /i "$(TargetDir)$(TargetName).dll" "$(SolutionDir)lib\"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

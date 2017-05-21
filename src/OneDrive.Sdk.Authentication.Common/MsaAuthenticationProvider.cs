@@ -11,8 +11,13 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
     using Microsoft.Graph;
 
-#if WINSTORE
+#if XamarinAndroid
+    using Android.Content;
+#endif
+
+#if NETFX_CORE
     using Windows.Security.Authentication.Web;
+    using Windows.System.Profile;    
 #endif
 
     /// <summary>
@@ -96,7 +101,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             this.webAuthenticationUi = new FormsWebAuthenticationUi();
         }
 
-#elif WINSTORE
+#elif NETFX_CORE
 
         /// <summary>
         /// Constructs an <see cref="AuthenticationProvider"/>.
@@ -162,7 +167,108 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             this.CredentialCache = credentialCache ?? new CredentialCache();
             this.oAuthHelper = new OAuthHelper();
+#if WINRT            
             this.webAuthenticationUi = new WebAuthenticationBrokerWebAuthenticationUi();
+#elif WINDOWS_UWP
+            // WebAuthenticationBroker is not supported on Windows 10 IoT Core, so if we're running UWP,
+            // we need to first check if we're running on IoT Core. If we are, we fall back to our
+            // own implementation.
+
+            // Our method of detection here isn't bulletproof--more non-IoT device families could fall under
+            // this namespace in the future. Unfortunately, using API detection won't work, because the API
+            // is AVAILABLE in IoT, it just doesn't actually work.
+            if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.IoT")
+            {
+                this.webAuthenticationUi = new IotCoreFriendlyWebAuthenticationUi();
+            }
+            else
+            {
+                this.webAuthenticationUi = new WebAuthenticationBrokerWebAuthenticationUi();
+            }
+#endif
+        }
+
+#elif XamarinAndroid
+
+        /// <summary>
+        /// Constructs an <see cref="AuthenticationProvider"/>.
+        /// </summary>
+        public MsaAuthenticationProvider(Context context, string clientId, string returnUrl, string[] scopes)
+            : this(context, clientId, /*clientSecret*/ null, returnUrl, scopes, /* credentialCache */ null, /* credentialVault */ null)
+        {
+        }
+
+        /// <summary>
+        /// Constructs an <see cref="AuthenticationProvider"/>.
+        /// </summary>
+        public MsaAuthenticationProvider(Context context, string clientId, string returnUrl, string[] scopes, ICredentialVault credentialVault)
+            : this(context, clientId, /*clientSecret*/ null, returnUrl, scopes, /* credentialCache */ null, credentialVault)
+        {
+        }
+
+        /// <summary>
+        /// Constructs an <see cref="MsaAuthenticationProvider"/>.
+        /// </summary>
+        public MsaAuthenticationProvider(
+            Context context,
+            string clientId,
+            string clientSecret,
+            string returnUrl,
+            string[] scopes,
+            CredentialCache credentialCache,
+            ICredentialVault credentialVault)
+            : this(context, clientId, clientSecret, returnUrl, scopes, credentialCache)
+        {
+            if (credentialVault != null)
+            {
+                this.CredentialCache.BeforeAccess = cacheArgs =>
+                {
+                    credentialVault.RetrieveCredentialCache(cacheArgs.CredentialCache);
+                    cacheArgs.CredentialCache.HasStateChanged = false;
+                };
+                this.CredentialCache.AfterAccess = cacheArgs =>
+                {
+                    if (cacheArgs.CredentialCache.HasStateChanged)
+                    {
+                        credentialVault.AddCredentialCacheToVault(cacheArgs.CredentialCache);
+                    }
+                };
+            }
+        }
+
+        /// <summary>
+        /// Constructs an <see cref="MsaAuthenticationProvider"/>.
+        /// </summary>
+        public MsaAuthenticationProvider(
+            Context context,
+            string clientId,
+            string clientSecret,
+            string returnUrl,
+            string[] scopes,
+            CredentialCache credentialCache)
+            : this(clientId, clientSecret, returnUrl, scopes, credentialCache, new AndroidWebAuthenticationUi(context))
+        {
+        }
+
+        /// <summary>
+        /// Constructs an <see cref="MsaAuthenticationProvider"/>.
+        /// </summary>
+        internal MsaAuthenticationProvider(
+            string clientId,
+            string clientSecret,
+            string returnUrl,
+            string[] scopes,
+            CredentialCache credentialCache,
+            IWebAuthenticationUi authenticationUi)
+        {
+            this.clientId = clientId;
+            this.clientSecret = clientSecret;
+            this.returnUrl = returnUrl;
+            this.scopes = scopes;
+
+            this.CredentialCache = credentialCache ?? new CredentialCache();
+            this.oAuthHelper = new OAuthHelper();
+            this.webAuthenticationUi = authenticationUi;
         }
 
 #endif
