@@ -41,5 +41,11 @@
     <!-- Windows 8.1 -->
     <file src="..\lib\Microsoft.OneDrive.Sdk.Authentication.WinRT.dll" target="lib\win81\Microsoft.OneDrive.Sdk.Authentication.WinRT.dll" />
     <file src="..\lib\Microsoft.OneDrive.Sdk.Authentication.WinStore.dll" target="lib\win81\Microsoft.OneDrive.Sdk.Authentication.WinStore.dll" />
+
+    <!-- Window IoT -->
+    <file src="..\lib\Microsoft.OneDrive.Sdk.Authentication.UWP.dll" target="lib\uap10.0\Microsoft.OneDrive.Sdk.Authentication.UWP.dll" />
+
+    <!-- Xamarin Android -->
+    <file src="..\lib\Microsoft.OneDrive.Sdk.Authentication.Xamarin.Android.dll" target="lib\MonoAndroid71\Microsoft.OneDrive.Sdk.Authentication.Xamarin.Android.dll" />
   </files>
 </package>

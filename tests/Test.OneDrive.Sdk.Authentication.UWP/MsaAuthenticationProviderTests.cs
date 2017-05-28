@@ -20,7 +20,7 @@
 //  THE SOFTWARE.
 // ------------------------------------------------------------------------------
 
-namespace Test.OneDrive.Sdk.Authentication.WinRT
+namespace Test.OneDrive.Sdk.Authentication.UWP
 {
     using System;
     using System.Threading.Tasks;

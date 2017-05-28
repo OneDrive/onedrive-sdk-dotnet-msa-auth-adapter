@@ -102,11 +102,31 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>true</DelaySign>
+    <AssemblyOriginatorKeyFile>..\..\build\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\AccountSession.cs">
+      <Link>AccountSession.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\ICredentialVault.cs">
+      <Link>ICredentialVault.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthConstants.cs">
+      <Link>OAuthConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthErrorHandler.cs">
+      <Link>OAuthErrorHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthHelper.cs">
+      <Link>OAuthHelper.cs</Link>
+    </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\Business\AdalAuthenticationProviderBase.cs">
       <Link>Business\AdalAuthenticationProviderBase.cs</Link>
     </Compile>
@@ -131,6 +151,15 @@
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\AdalCredentialCache.cs">
       <Link>Caching\AdalCredentialCache.cs</Link>
     </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\CredentialCache.cs">
+      <Link>Caching\CredentialCache.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\CredentialCacheKey.cs">
+      <Link>Caching\CredentialCacheKey.cs</Link>
+    </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\CredentialCacheNotificationArgs.cs">
+      <Link>Caching\CredentialCacheNotificationArgs.cs</Link>
+    </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\ITokenCache.cs">
       <Link>Caching\ITokenCache.cs</Link>
     </Compile>
@@ -152,6 +181,9 @@
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\Discovery Service\DiscoveryServiceResponse.cs">
       <Link>Discovery Service\DiscoveryServiceResponse.cs</Link>
     </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Web\IWebAuthenticationUi.cs">
+      <Link>Web\IWebAuthenticationUi.cs</Link>
+    </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.Common\MsaAuthenticationProvider.cs">
       <Link>MsaAuthenticationProvider.cs</Link>
     </Compile>
@@ -169,10 +201,9 @@
     <EmbeddedResource Include="Properties\Microsoft.OneDrive.Sdk.Authentication.UWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OneDrive.Sdk.Authentication.WinStore\OneDrive.Sdk.Authentication.WinStore.csproj">
-      <Project>{a8c54259-542c-40ac-aeb6-eefc3aa79859}</Project>
-      <Name>OneDrive.Sdk.Authentication.WinStore</Name>
-    </ProjectReference>
+    <Compile Include="..\OneDrive.Sdk.Authentication.WinStore\WebAuthenticationBrokerWebAuthenticationUi.cs">
+      <Link>Web\WebAuthenticationBrokerWebAuthenticationUi.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Include="Web\IotFriendlyWebDialog.xaml">
