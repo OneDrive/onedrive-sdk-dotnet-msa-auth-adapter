@@ -204,7 +204,7 @@
       <Link>Web\WebAuthenticationBrokerWebAuthenticationUi.cs</Link>
     </Compile>
     <Compile Include="..\OneDrive.Sdk.Authentication.WinStore\CredentialVault.cs">
-      <Link>ICredentialVault.cs</Link>
+      <Link>CredentialVault.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
