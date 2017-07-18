@@ -203,6 +203,9 @@
     <Compile Include="..\OneDrive.Sdk.Authentication.WinStore\WebAuthenticationBrokerWebAuthenticationUi.cs">
       <Link>Web\WebAuthenticationBrokerWebAuthenticationUi.cs</Link>
     </Compile>
+    <Compile Include="..\OneDrive.Sdk.Authentication.WinStore\CredentialVault.cs">
+      <Link>CredentialVault.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Include="Web\IotFriendlyWebDialog.xaml">
