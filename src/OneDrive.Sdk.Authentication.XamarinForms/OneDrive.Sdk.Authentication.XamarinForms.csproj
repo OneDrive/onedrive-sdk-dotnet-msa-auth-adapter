@@ -2,7 +2,33 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.4</TargetFramework>
+    <RootNamespace>Microsoft.OneDrive.Sdk.Authentication</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Ui\FormsWebAuthenticationView.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\AccountSession.cs" Link="AccountSession.cs" />
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\CredentialCache.cs" Link="Caching\CredentialCache.cs" />
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\CredentialCacheKey.cs" Link="Caching\CredentialCacheKey.cs" />
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Caching\CredentialCacheNotificationArgs.cs" Link="Caching\CredentialCacheNotificationArgs.cs" />
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\ICredentialVault.cs" Link="ICredentialVault.cs" />
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\MsaAuthenticationProvider.cs" Link="MsaAuthenticationProvider.cs" />
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthConstants.cs" Link="OAuthConstants.cs" />
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthErrorHandler.cs" Link="OAuthErrorHandler.cs" />
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\OAuthHelper.cs" Link="OAuthHelper.cs" />
+    <Compile Include="..\OneDrive.Sdk.Authentication.Common\Web\IWebAuthenticationUi.cs" Link="Web\IWebAuthenticationUi.cs" />
+    <Compile Include="..\OneDrive.Sdk.Authentication.Xamarin.Android\Activity\AuthCompletedEventArgs.cs" Link="Ui\AuthCompletedEventArgs.cs" />
+    <Compile Include="..\OneDrive.Sdk.Authentication.Xamarin.Android\Activity\AuthFailedEventArgs.cs" Link="Ui\AuthFailedEventArgs.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Ui\FormsWebAuthenticationView.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Graph.Core" Version="1.5.0" />
@@ -10,6 +36,10 @@
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.0" />
     <PackageReference Include="System.Security.Cryptography.Csp" Version="4.3.0" />
     <PackageReference Include="Xamarin.Forms" Version="2.3.5.256-pre6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Caching\" />
   </ItemGroup>
 
 </Project>

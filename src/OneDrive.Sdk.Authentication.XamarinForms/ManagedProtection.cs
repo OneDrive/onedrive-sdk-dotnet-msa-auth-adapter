@@ -35,7 +35,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
 
-namespace Mono.Security.Cryptography
+namespace Microsoft.OneDrive.Sdk.Authentication
 {
     // Managed Protection Implementation
     //
@@ -51,7 +51,7 @@ namespace Mono.Security.Cryptography
         public static byte[] Protect(byte[] userData, byte[] optionalEntropy)
         {
             if (userData == null)
-                throw new ArgumentNullException("userData");
+                throw new ArgumentNullException(nameof(userData));
 
             Aes aes = Aes.Create();
             aes.KeySize = 128;
@@ -140,7 +140,7 @@ namespace Mono.Security.Cryptography
         public static byte[] Unprotect(byte[] encryptedData, byte[] optionalEntropy)
         {
             if (encryptedData == null)
-                throw new ArgumentNullException("encryptedData");
+                throw new ArgumentNullException(nameof(encryptedData));
 
             byte[] decdata = null;
             Aes aes = Aes.Create();
