@@ -1,8 +1,8 @@
 ﻿{
   "dependencies": {
-    "Microsoft.Graph.Core": "1.5.0",
-    "Microsoft.IdentityModel.Clients.ActiveDirectory": "3.14.2",
-    "Microsoft.NETCore.UniversalWindowsPlatform": "5.3.3",
+    "Microsoft.Graph.Core": "1.1.1",
+    "Microsoft.IdentityModel.Clients.ActiveDirectory": "2.28.3",
+    "Microsoft.NETCore.UniversalWindowsPlatform": "5.1.0",
     "OperationDeferral": "1.1.1"
   },
   "frameworks": {
