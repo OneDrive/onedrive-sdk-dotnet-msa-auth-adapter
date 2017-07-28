@@ -19,21 +19,17 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             this.Context = context;
         }
 
-        public Context Context { get; private set; }
+        public Context Context { get; }
 
         public Task<IDictionary<string, string>> AuthenticateAsync(Uri requestUri, Uri callbackUri)
         {
             TaskCompletionSource<IDictionary<string, string>> tcs = new TaskCompletionSource<IDictionary<string, string>>();
 
-            this.Completed += (s, e) =>
-            {
-                tcs.SetResult(e.AuthorizationParameters);
-            };
+            this.Completed -= OnCompleted;
+            this.Completed += OnCompleted;
 
-            this.Failed += (s, e) =>
-            {
-                tcs.SetException(e.Error);
-            };
+            this.Failed -= OnFailed;
+            this.Failed += OnFailed;
 
             string stateKey = AndroidAuthenticationState.Default.Add<AndroidWebAuthenticationUi>(this);
             Intent intent = new Intent(this.Context, typeof(AndroidWebAuthenticationActivity));
@@ -42,6 +38,16 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             intent.PutExtra(AndroidConstants.CallbackUriKey, callbackUri.ToString());
             this.Context.StartActivity(intent);
             return tcs.Task;
+
+            void OnCompleted(object sender, AuthCompletedEventArgs e)
+            {
+                tcs.SetResult(e.AuthorizationParameters);
+            }
+
+            void OnFailed(object sender, AuthFailedEventArgs e)
+            {
+                tcs.SetException(e.Error);
+            }
         }
 
         internal void OnCompleted(AuthCompletedEventArgs e)
