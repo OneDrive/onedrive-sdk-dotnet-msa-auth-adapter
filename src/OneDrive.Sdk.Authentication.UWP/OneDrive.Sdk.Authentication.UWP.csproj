@@ -197,6 +197,7 @@
     <Compile Include="Web\IotFriendlyWebDialog.xaml.cs">
       <DependentUpon>IotFriendlyWebDialog.xaml</DependentUpon>
     </Compile>
+	<Compile Include="OnlineIdAuthenticationByAccountSettingsPaneProvider.cs" />
     <EmbeddedResource Include="Properties\Microsoft.OneDrive.Sdk.Authentication.UWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>

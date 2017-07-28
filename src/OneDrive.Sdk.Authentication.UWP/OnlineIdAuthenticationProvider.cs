@@ -33,10 +33,10 @@ namespace Microsoft.OneDrive.Sdk
 
     public class OnlineIdAuthenticationProvider : MsaAuthenticationProvider
     {
-        private const string onlineIdServiceTicketRequestType = "DELEGATION";
-        private readonly int ticketExpirationTimeInMinutes = 60;
-        private readonly OnlineIdAuthenticator authenticator;
-        private readonly CredentialPromptType credentialPromptType;
+        protected const string onlineIdServiceTicketRequestType = "DELEGATION";
+        protected readonly int ticketExpirationTimeInMinutes = 60;
+        protected readonly OnlineIdAuthenticator authenticator;
+        protected readonly CredentialPromptType credentialPromptType;
 
         public enum PromptType
         {
@@ -47,7 +47,7 @@ namespace Microsoft.OneDrive.Sdk
 
         public OnlineIdAuthenticationProvider(
             string[] scopes, PromptType promptType = PromptType.PromptIfNeeded)
-            :base(null, null, scopes)
+            : base(null, null, scopes)
         {
             this.authenticator = new OnlineIdAuthenticator();
             this.credentialPromptType = (CredentialPromptType)promptType;
@@ -71,7 +71,7 @@ namespace Microsoft.OneDrive.Sdk
                         });
                 }
             }
-            
+
             this.CacheAuthResult(authResult);
         }
 
@@ -85,14 +85,14 @@ namespace Microsoft.OneDrive.Sdk
                 if (this.authenticator.CanSignOut)
                 {
                     await this.authenticator.SignOutUserAsync();
-                }                
+                }
 
                 this.DeleteUserCredentialsFromCache(this.CurrentAccountSession);
                 this.CurrentAccountSession = null;
             }
         }
 
-        internal async Task<AccountSession> GetAccountSessionAsync()
+        protected virtual async Task<AccountSession> GetAccountSessionAsync()
         {
             try
             {
@@ -141,7 +141,7 @@ namespace Microsoft.OneDrive.Sdk
                 if (accountSession.ShouldRefresh) // Don't check 'CanRefresh' because this type can always refresh
                 {
                     accountSession = await this.GetAccountSessionAsync();
-                    
+
                     if (!string.IsNullOrEmpty(accountSession?.AccessToken))
                     {
                         return accountSession;
