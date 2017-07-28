@@ -25,11 +25,10 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         {
             TaskCompletionSource<IDictionary<string, string>> tcs = new TaskCompletionSource<IDictionary<string, string>>();
 
-            this.Completed -= OnCompleted;
-            this.Completed += OnCompleted;
+            var handler = new AuthenticationResultHandler(this, tcs);
 
-            this.Failed -= OnFailed;
-            this.Failed += OnFailed;
+            this.Completed += handler.OnCompleted;
+            this.Failed += handler.OnFailed;
 
             string stateKey = AndroidAuthenticationState.Default.Add<AndroidWebAuthenticationUi>(this);
             Intent intent = new Intent(this.Context, typeof(AndroidWebAuthenticationActivity));
@@ -38,16 +37,6 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             intent.PutExtra(AndroidConstants.CallbackUriKey, callbackUri.ToString());
             this.Context.StartActivity(intent);
             return tcs.Task;
-
-            void OnCompleted(object sender, AuthCompletedEventArgs e)
-            {
-                tcs.SetResult(e.AuthorizationParameters);
-            }
-
-            void OnFailed(object sender, AuthFailedEventArgs e)
-            {
-                tcs.SetException(e.Error);
-            }
         }
 
         internal void OnCompleted(AuthCompletedEventArgs e)
@@ -63,6 +52,32 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             if (Failed != null)
             {
                 Failed(this, e);
+            }
+        }
+
+        private sealed class AuthenticationResultHandler
+        {
+            private readonly AndroidWebAuthenticationUi _webAuthenticationUi;
+            private readonly TaskCompletionSource<IDictionary<string, string>> _tcs;
+
+            public AuthenticationResultHandler(AndroidWebAuthenticationUi webAuthenticationUi, TaskCompletionSource<IDictionary<string, string>> tcs)
+            {
+                _webAuthenticationUi = webAuthenticationUi;
+                _tcs = tcs;
+            }
+
+            public void OnCompleted(object sender, AuthCompletedEventArgs e)
+            {
+                _webAuthenticationUi.Completed -= OnCompleted; // unsubscribe
+
+                _tcs.SetResult(e.AuthorizationParameters);
+            }
+
+            public void OnFailed(object sender, AuthFailedEventArgs e)
+            {
+                _webAuthenticationUi.Failed -= OnFailed; // unsubscribe
+
+                _tcs.SetException(e.Error);
             }
         }
     }
