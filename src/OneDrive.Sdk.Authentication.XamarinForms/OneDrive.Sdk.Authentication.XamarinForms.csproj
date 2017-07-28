@@ -3,6 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.4</TargetFramework>
     <RootNamespace>Microsoft.OneDrive.Sdk.Authentication</RootNamespace>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/yinyue200/onedrive-sdk-dotnet-msa-auth-adapter/tree/no_winrt</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/yinyue200/onedrive-sdk-dotnet-msa-auth-adapter/blob/no_winrt/LICENSE.txt</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/yinyue200/onedrive-sdk-dotnet-msa-auth-adapter</RepositoryUrl>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
