@@ -6,7 +6,7 @@ using Xamarin.Forms;
 
 namespace Microsoft.OneDrive.Sdk.Authentication.Ui
 {
-    class FormsWebAuthenticationPage:ContentPage
+    public class FormsWebAuthenticationPage:ContentPage
     {
         FormsWebAuthenticationView v;
         public FormsWebAuthenticationPage(FormsWebAuthenticationUi webAuthenticationUi, Uri requestUri, Uri callbackUri)
