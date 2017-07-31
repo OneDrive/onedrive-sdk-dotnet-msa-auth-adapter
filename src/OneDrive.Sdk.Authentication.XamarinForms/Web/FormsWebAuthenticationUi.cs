@@ -25,6 +25,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             this.Completed += (s, e) =>
             {
+                Navigation?.PopAsync();
                 tcs.SetResult(e.AuthorizationParameters);
             };
 
@@ -32,8 +33,9 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             {
                 tcs.SetException(e.Error);
             };
-
-            Navigation?.PushAsync(new Ui.FormsWebAuthenticationPage(this, requestUri, callbackUri));
+            Ui.FormsWebAuthenticationPage page;
+            page = new Ui.FormsWebAuthenticationPage(this, requestUri, callbackUri);
+            Navigation?.PushAsync(page);
             Authing?.Invoke(this, new AuthingEventArgs() { RequestUri = requestUri, CallbackUri = callbackUri });
 
 

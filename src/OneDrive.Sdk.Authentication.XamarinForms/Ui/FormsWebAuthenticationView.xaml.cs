@@ -30,6 +30,7 @@ new Error
             webView.Navigated += WebView_Navigated;
 		}
 
+
         private void WebView_Navigated(object sender, WebNavigatedEventArgs e)
         {
             Uri source = new Uri(e.Url);
