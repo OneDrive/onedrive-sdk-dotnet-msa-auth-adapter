@@ -8,7 +8,7 @@
     <PackageLicenseUrl>https://github.com/yinyue200/onedrive-sdk-dotnet-msa-auth-adapter/blob/no_winrt/LICENSE.txt</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/yinyue200/onedrive-sdk-dotnet-msa-auth-adapter</RepositoryUrl>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
   </PropertyGroup>
 
   <ItemGroup>

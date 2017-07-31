@@ -29,6 +29,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication.Ui
         {
             v.Load(WebAuthenticationUi, RequestUri, CallbackUri);
             base.OnAppearing();
+            v.BeginLoadAuthorizationUrl();
         }
     }
 }

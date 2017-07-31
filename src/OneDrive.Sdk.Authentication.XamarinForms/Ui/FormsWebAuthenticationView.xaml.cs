@@ -49,7 +49,7 @@ new Error
         public Uri CallbackUri { get; private set; }
         public Uri RequestUri { get; private set; }
         public FormsWebAuthenticationUi WebAuthenticationUi { get; private set; }
-        private void BeginLoadAuthorizationUrl()
+        public void BeginLoadAuthorizationUrl()
         {
             webView.Source = RequestUri;
         }
