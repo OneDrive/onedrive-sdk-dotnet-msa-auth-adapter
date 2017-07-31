@@ -18,7 +18,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             {
                 if (applicationDataPath == null)
                 {
-                    var enumtype=Type.GetType("System.Environment.SpecialFolder");
+                    var enumtype=Type.GetType("System.Environment+SpecialFolder");
                     applicationDataPath = (string)(typeof(Environment).GetRuntimeMethod("GetFolderPath", new Type[] { enumtype }).Invoke(null, new object[] { Enum.Parse(enumtype, "ApplicationData") }));
                 }
                 return applicationDataPath;

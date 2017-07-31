@@ -15,6 +15,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication.Ui
             WebAuthenticationUi = webAuthenticationUi;
             RequestUri = requestUri;
             CallbackUri = callbackUri;
+            Title = "OneDrive";
         }
         public Uri CallbackUri { get; private set; }
         public Uri RequestUri { get; private set; }
