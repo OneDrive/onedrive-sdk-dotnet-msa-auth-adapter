@@ -27,17 +27,17 @@ new Error
 		public FormsWebAuthenticationView ()
 		{
 			InitializeComponent ();
-            webView.Navigated += WebView_Navigated;
+            webView.Navigating += WebView_Navigating;
 		}
 
-
-        private void WebView_Navigated(object sender, WebNavigatedEventArgs e)
+        private void WebView_Navigating(object sender, WebNavigatingEventArgs e)
         {
-            Uri source = new Uri(e.Url);
             if (e.Url.StartsWith(this.CallbackUri.ToString()))
             {
+                Uri source = new Uri(e.Url);
                 var parameters = UrlHelper.GetQueryOptions(source);
                 this.WebAuthenticationUi.OnCompleted(new AuthCompletedEventArgs(parameters));
+                e.Cancel = true;
             }
         }
 
