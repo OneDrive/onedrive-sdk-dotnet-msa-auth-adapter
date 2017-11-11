@@ -1,19 +1,14 @@
 ﻿// ------------------------------------------------------------------------------
 //  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
 // ------------------------------------------------------------------------------
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.OneDrive.Sdk.Authentication;
-using Windows.Security.Authentication.OnlineId;
 using Microsoft.Graph;
-using Windows.Security.Credentials;
+using Microsoft.OneDrive.Sdk.Authentication;
+using System;
+using System.Threading.Tasks;
 using Windows.Security.Authentication.Web.Core;
-using Windows.UI.ApplicationSettings;
-using Yinyue200.OperationDeferral;
+using Windows.Security.Credentials;
 using Windows.Storage;
+using Windows.UI.ApplicationSettings;
 
 namespace Microsoft.OneDrive.Sdk
 {
@@ -60,15 +55,15 @@ namespace Microsoft.OneDrive.Sdk
                 return null;
             }
         }
-        OperationDeferral<string> od;
+        TaskCompletionSource<string> od;
         private async Task<string> GetTokenByUIAsync()
         {
             try
             {
-                od = new OperationDeferral<string>();
+                od = new TaskCompletionSource<string>();
                 AccountsSettingsPane.GetForCurrentView().AccountCommandsRequested += BuildPaneAsync;
                 AccountsSettingsPane.Show();
-                return await od.WaitOneAsync();
+                return await od.Task;
             }
             finally
             {
@@ -100,11 +95,11 @@ namespace Microsoft.OneDrive.Sdk
             {
                 Account = result.ResponseData[0].WebAccount;
                 string token = result.ResponseData[0].Token;
-                od.Complete(token);
+                od.SetResult(token);
             }
             else
             {
-                od.Complete(null);
+                od.SetResult(null);
             }
         }
 
