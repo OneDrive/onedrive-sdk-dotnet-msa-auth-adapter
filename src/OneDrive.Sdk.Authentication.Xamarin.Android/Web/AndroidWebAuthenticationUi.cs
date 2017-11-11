@@ -46,18 +46,12 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
         internal void OnCompleted(AuthCompletedEventArgs e)
         {
-            if (Completed != null)
-            {
-                Completed(this, e);
-            }
+            Completed?.Invoke(this, e);
         }
 
         internal void OnFailed(AuthFailedEventArgs e)
         {
-            if (Failed != null)
-            {
-                Failed(this, e);
-            }
+            Failed?.Invoke(this, e);
         }
     }
 }

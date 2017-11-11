@@ -7,6 +7,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.IdentityModel.Clients.ActiveDirectory;
+    using static Microsoft.IdentityModel.Clients.ActiveDirectory.TokenCache;
 
     public class TokenCacheWrapper : ITokenCache
     {
