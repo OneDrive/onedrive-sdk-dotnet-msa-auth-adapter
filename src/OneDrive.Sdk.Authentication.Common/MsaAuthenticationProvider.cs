@@ -17,7 +17,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
 #if NETFX_CORE
     using Windows.Security.Authentication.Web;
-    using Windows.System.Profile;    
+    using Windows.System.Profile;
 #endif
 
     /// <summary>
@@ -29,7 +29,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
         internal string clientSecret;
         internal string returnUrl;
         internal string[] scopes;
-        
+
         private OAuthHelper oAuthHelper;
 
         internal ICredentialVault credentialVault;
@@ -167,7 +167,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
 
             this.CredentialCache = credentialCache ?? new CredentialCache();
             this.oAuthHelper = new OAuthHelper();
-#if WINRT            
+#if WINRT
             this.webAuthenticationUi = new WebAuthenticationBrokerWebAuthenticationUi();
 #elif WINDOWS_UWP
             // WebAuthenticationBroker is not supported on Windows 10 IoT Core, so if we're running UWP,
@@ -495,7 +495,7 @@ namespace Microsoft.OneDrive.Sdk.Authentication
                 }
             }
 
-            this.CacheAuthResult(authResult);          
+            this.CacheAuthResult(authResult);
         }
 
         internal async Task<AccountSession> GetAuthenticationResultFromCacheAsync(string userId, IHttpProvider httpProvider)
