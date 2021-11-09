@@ -4,15 +4,13 @@
 
 namespace Microsoft.OneDrive.Sdk.Authentication
 {
+    using Microsoft.Graph;
     using System;
     using System.Collections.Generic;
     using System.Net;
     using System.Net.Http;
-    using System.Net.Http.Headers;
     using System.Text;
     using System.Threading.Tasks;
-
-    using Microsoft.Graph;
 
     public class OAuthHelper
     {
@@ -283,16 +281,30 @@ namespace Microsoft.OneDrive.Sdk.Authentication
             httpRequestMessage.Content = new StringContent(requestBodyString, Encoding.UTF8, "application/x-www-form-urlencoded");
 
             using (var authResponse = await httpProvider.SendAsync(httpRequestMessage).ConfigureAwait(false))
-            using (var responseStream = await authResponse.Content.ReadAsStreamAsync().ConfigureAwait(false))
             {
-                var responseValues =
-                    httpProvider.Serializer.DeserializeObject<IDictionary<string, string>>(
-                        responseStream);
+                var responseContentStr = await authResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-                if (responseValues != null)
+                //the default http provider serializer will fail to coerce numeric values into strings,
+                //and throws an exception that prevents this scenario from working. 
+                //instead, we'll establish a baseline deserialization, without circumventing use of any
+                //User-defined serializer should one be present.
+
+                //create a fallback deserialization
+                var responseParsedAsJson = Newtonsoft.Json.Linq.JObject.Parse(responseContentStr);
+                IDictionary<string, string> responseJsonAsDict = responseParsedAsJson.ToObject<Dictionary<string, string>>();
+
+                //attempt to use the http provider's deserializer, but ignore it if it fails
+                try
                 {
-                    OAuthErrorHandler.ThrowIfError(responseValues);
-                    return new AccountSession(responseValues);
+                    responseJsonAsDict = httpProvider.Serializer.DeserializeObject<IDictionary<string, string>>(
+                            responseContentStr);
+                }
+                catch (Exception) { }
+
+                if (responseJsonAsDict != null)
+                {
+                    OAuthErrorHandler.ThrowIfError(responseJsonAsDict);
+                    return new AccountSession(responseJsonAsDict);
                 }
 
                 throw new ServiceException(
